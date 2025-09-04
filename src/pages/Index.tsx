@@ -4,7 +4,7 @@ import { MapPin, Calendar, Users, Heart, Trophy, Handshake } from "lucide-react"
 import { useEffect, useState } from "react";
 
 // Configuration parameters for easy editing
-const GOOGLE_PHOTOS_ALBUM_SHARE_URL = process.env.GOOGLE_PHOTOS_ALBUM_SHARE_URL || "";
+const GOOGLE_PHOTOS_ALBUM_SHARE_URL = import.meta.env.VITE_GOOGLE_PHOTOS_ALBUM_SHARE_URL || "";
 
 const Index = () => {
   const [photosLoaded, setPhotosLoaded] = useState(false);
@@ -175,7 +175,7 @@ const Index = () => {
                 Galerie photos à venir
               </p>
               <p className="text-sm text-muted-foreground font-sport">
-                Configurez GOOGLE_PHOTOS_ALBUM_SHARE_URL pour afficher automatiquement l'album
+                Configurez VITE_GOOGLE_PHOTOS_ALBUM_SHARE_URL pour afficher automatiquement l'album
               </p>
             </div>
           )}

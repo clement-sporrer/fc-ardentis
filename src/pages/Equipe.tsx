@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Users, AlertCircle, Settings } from 'lucide-react';
 
 // Configuration parameter for Google Sheets CSV
-const GOOGLE_SHEET_CSV_URL = process.env.GOOGLE_SHEET_CSV_URL || "";
+const GOOGLE_SHEET_CSV_URL = import.meta.env.VITE_GOOGLE_SHEET_CSV_URL || "";
 
 interface Player {
   first_name: string;
@@ -168,7 +168,7 @@ const Equipe = () => {
                 L'effectif sera affiché une fois la Google Sheet configurée
               </p>
               <p className="text-sm text-muted-foreground font-sport">
-                Configurez GOOGLE_SHEET_CSV_URL pour afficher automatiquement les joueurs
+                Configurez VITE_GOOGLE_SHEET_CSV_URL pour afficher automatiquement les joueurs
               </p>
             </div>
           ) : (
