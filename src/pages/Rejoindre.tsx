@@ -10,8 +10,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Heart, Send, AlertCircle } from "lucide-react";
 
 // Configuration parameters
-const FORMSPREE_ENDPOINT = process.env.FORMSPREE_ENDPOINT || "";
-const GAS_WEBAPP_URL = process.env.GAS_WEBAPP_URL || "";
+const FORMSPREE_ENDPOINT = import.meta.env.VITE_FORMSPREE_ENDPOINT || "";
+const GAS_WEBAPP_URL = import.meta.env.VITE_GAS_WEBAPP_URL || "";
 
 interface FormData {
   profile: string;
@@ -434,7 +434,7 @@ const Rejoindre = () => {
               <div className="flex items-center gap-2 text-destructive">
                 <AlertCircle className="h-5 w-5" />
                 <p className="text-sm font-sport">
-                  Configuration requise : FORMSPREE_ENDPOINT ou GAS_WEBAPP_URL
+                  Configuration requise : VITE_FORMSPREE_ENDPOINT ou VITE_GAS_WEBAPP_URL
                 </p>
               </div>
             </div>
