@@ -1,5 +1,7 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Home, AlertTriangle } from "lucide-react";
 
 const NotFound = () => {
   const location = useLocation();
@@ -12,13 +14,37 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p className="text-xl text-gray-600 mb-4">Oops! Page not found</p>
-        <a href="/" className="text-blue-500 hover:text-blue-700 underline">
-          Return to Home
-        </a>
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <div className="text-center max-w-lg mx-auto">
+        <div className="mb-8">
+          <AlertTriangle className="h-24 w-24 text-primary mx-auto mb-4" />
+          <h1 className="text-6xl md:text-8xl font-sport-condensed font-bold text-foreground mb-4">
+            404
+          </h1>
+          <h2 className="text-2xl md:text-3xl font-sport-condensed font-bold text-foreground mb-4">
+            Page non trouvée
+          </h2>
+          <p className="text-lg text-muted-foreground font-sport mb-8">
+            Oups ! La page que vous cherchez n'existe pas. 
+            Retournez à l'accueil pour découvrir le FC Ardentis.
+          </p>
+        </div>
+        
+        <Button asChild variant="hero" size="lg">
+          <Link to="/">
+            <Home className="h-5 w-5 mr-2" />
+            Retour à l'accueil
+          </Link>
+        </Button>
+        
+        <div className="mt-8 grid grid-cols-2 gap-4 text-sm">
+          <Button asChild variant="outline" size="sm">
+            <Link to="/equipe">Notre équipe</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm">
+            <Link to="/contacts">Contacts</Link>
+          </Button>
+        </div>
       </div>
     </div>
   );
