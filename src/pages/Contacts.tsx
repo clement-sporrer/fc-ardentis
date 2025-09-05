@@ -116,8 +116,7 @@ const Contacts = () => {
               
               <div className="space-y-3">
                 <div className="text-sm font-sport text-foreground/80">
-                  <p><strong>Entraînements :</strong><br />1 Allée des Sports, 92800 Puteaux</p>
-                  <p className="mt-2"><strong>Matchs :</strong><br />Stade Suzanne Lenglen<br />4 Allée de la Bertelotte, 75015 Paris</p>
+                  <p><strong>Matchs :</strong><br />Île de Puteaux<br />1 Allée des Sports, 92800 Puteaux</p>
                 </div>
                 <MapboxMap 
                   locations={[
