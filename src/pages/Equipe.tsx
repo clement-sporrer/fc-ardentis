@@ -37,12 +37,14 @@ const Equipe = () => {
       }
 
       try {
-        const response = await fetch(GOOGLE_SHEET_CSV_URL);
-        const csvText = await response.text();
+        // Anti-cache: on ajoute un timestamp pour forcer le rafraîchissement côté navigateur/CDN
+        const url = `${GOOGLE_SHEET_CSV_URL}${GOOGLE_SHEET_CSV_URL.includes('?') ? '&' : '?'}_ts=${Date.now()}`;
+        const response = await fetch(url, { cache: 'no-store' });
+        const raw = await response.text();
         
         // Parse CSV
-        const lines = csvText.split('\n');
-        const headers = lines[0].split(',').map(h => h.trim());
+        // Parsing robuste: on retire les \r (Windows) puis on ignore les lignes vides
+        const lines = raw.replace(/\r/g, '').split('\n').filter(Boolean);
         
         const playerData: Player[] = [];
         
@@ -70,6 +72,7 @@ const Equipe = () => {
         }, {} as PlayersByPosition);
 
         setPlayers(grouped);
+        setError(null); // on remet l'erreur à zéro si tout s'est bien passé
       } catch (err) {
         setError("Erreur lors du chargement des données");
         console.error(err);
@@ -78,7 +81,10 @@ const Equipe = () => {
       }
     };
 
-    fetchPlayers();
+    fetchPlayers(); // au montage
+    const interval = setInterval(fetchPlayers, 10_000); // auto-refresh toutes les 10 s
+    return () => clearInterval(interval);
+
   }, []);
 
   const PlayerCard = ({ player }: { player: Player }) => (
