@@ -1,6 +1,8 @@
+import React from 'react';
 import { Button } from "@/components/ui/button";
+import { Instagram, ExternalLink, Mail, MapPin, Calendar, Heart, Music, Youtube } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Mail, MapPin, Calendar, Instagram, Music, Youtube, ExternalLink } from "lucide-react";
+import MapboxMap from "@/components/MapboxMap";
 
 const Contacts = () => {
   const socialLinks = [
@@ -112,10 +114,29 @@ const Contacts = () => {
                 </div>
               </div>
               
-              <div className="bg-primary/10 p-4 rounded-lg">
-                <p className="text-sm text-muted-foreground font-sport italic">
-                  🗺️ Mini-carte : Île-de-France (à intégrer)
-                </p>
+              <div className="space-y-3">
+                <div className="text-sm font-sport text-foreground/80">
+                  <p><strong>Entraînements :</strong><br />1 Allée des Sports, 92800 Puteaux</p>
+                  <p className="mt-2"><strong>Matchs :</strong><br />Stade Suzanne Lenglen<br />4 Allée de la Bertelotte, 75015 Paris</p>
+                </div>
+                <MapboxMap 
+                  locations={[
+                    {
+                      name: "Entraînement",
+                      address: "1 Allée des Sports, 92800 Puteaux, France",
+                      coordinates: [2.238, 48.884],
+                      color: "#888ce6"
+                    },
+                    {
+                      name: "Matchs - Stade Suzanne Lenglen",
+                      address: "4 Allée de la Bertelotte, 75015 Paris, France", 
+                      coordinates: [2.279, 48.841],
+                      color: "#f4d0e4"
+                    }
+                  ]}
+                  height="h-48"
+                  zoom={12}
+                />
               </div>
             </div>
 

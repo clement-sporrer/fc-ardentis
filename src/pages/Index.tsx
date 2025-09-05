@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { MapPin, Calendar, Users, Heart, Trophy, Handshake } from "lucide-react";
 import { useEffect, useState } from "react";
+import MapboxMap from "@/components/MapboxMap";
 
 // Configuration parameters for easy editing
 const GOOGLE_PHOTOS_ALBUM_SHARE_URL = import.meta.env.VITE_GOOGLE_PHOTOS_ALBUM_SHARE_URL || "";
@@ -123,11 +124,24 @@ const Index = () => {
               <p className="text-secondary-foreground/80 font-sport mb-4">
                 Région parisienne - Île-de-France
               </p>
-              <div className="bg-primary/10 p-4 rounded-lg">
-                <p className="text-sm text-secondary-foreground font-sport italic">
-                  🗺️ Mini-carte : Île-de-France (à intégrer)
-                </p>
-              </div>
+              <MapboxMap 
+                locations={[
+                  {
+                    name: "Entraînement",
+                    address: "1 Allée des Sports, 92800 Puteaux, France",
+                    coordinates: [2.238, 48.884],
+                    color: "#888ce6"
+                  },
+                  {
+                    name: "Matchs - Stade Suzanne Lenglen",
+                    address: "4 Allée de la Bertelotte, 75015 Paris, France", 
+                    coordinates: [2.279, 48.841],
+                    color: "#f4d0e4"
+                  }
+                ]}
+                height="h-48"
+                zoom={12}
+              />
             </div>
 
             {/* Créneaux */}
