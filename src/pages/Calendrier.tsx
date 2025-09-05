@@ -59,7 +59,7 @@ const Calendrier = () => {
               time: values[1] || '',
               type: (values[2]?.toLowerCase() === 'match' ? 'match' : 'entrainement') as 'match' | 'entrainement',
               opponent: values[3] || undefined,
-              location: values[4] || ''
+              location: values.slice(4).join(',').trim() || ''
             };
             eventData.push(event);
           }
