@@ -35,49 +35,98 @@ const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`px-4 py-2 rounded-md font-sport font-medium transition-sport ${
-                  isActive(item.path)
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-secondary-foreground hover:bg-secondary-hover hover:text-secondary-foreground'
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) =>
+              item.label === 'Nous rejoindre' ? (
+                isActive(item.path) ? (
+                  // État ACTIF : conserver le style actif actuel (fond violet)
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className="px-4 py-2 rounded-md font-sport font-medium transition-sport bg-primary text-primary-foreground"
+                  >
+                    {item.label}
+                  </Link>
+                ) : (
+                  // État par défaut : CTA blanc (texte violet foncé), hover identique aux autres
+                  <Button
+                    key={item.path}
+                    asChild
+                    variant="ctaMainWhite"
+                    className="px-4 py-2 rounded-md"
+                  >
+                    <Link to={item.path}>{item.label}</Link>
+                  </Button>
+                )
+              ) : (
+                // Autres liens inchangés
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`px-4 py-2 rounded-md font-sport font-medium transition-sport ${
+                    isActive(item.path)
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-secondary-foreground hover:bg-secondary-hover hover:text-secondary-foreground'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              )
+            )}
           </div>
 
           {/* Mobile Menu Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden text-secondary-foreground"
+          <button
+            className="md:hidden text-secondary-foreground p-2 rounded-md hover:bg-secondary-hover transition-sport"
             onClick={() => setIsOpen(!isOpen)}
+            aria-label="Ouvrir le menu"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </Button>
+          </button>
         </div>
 
         {/* Mobile Navigation */}
         {isOpen && (
           <div className="md:hidden pb-4 space-y-2">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`block px-4 py-2 rounded-md font-sport font-medium transition-sport ${
-                  isActive(item.path)
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-secondary-foreground hover:bg-secondary-hover hover:text-secondary-foreground'
-                }`}
-                onClick={() => setIsOpen(false)}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) =>
+              item.label === 'Nous rejoindre' ? (
+                isActive(item.path) ? (
+                  // ACTIF (mobile) : garder le style actif
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className="block px-4 py-2 rounded-md font-sport font-medium transition-sport bg-primary text-primary-foreground"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ) : (
+                  // Par défaut (mobile) : CTA blanc
+                  <Button
+                    key={item.path}
+                    asChild
+                    variant="ctaMainWhite"
+                    className="w-full px-4 py-2 rounded-md"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <Link to={item.path}>{item.label}</Link>
+                  </Button>
+                )
+              ) : (
+                // Autres liens (mobile)
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`block px-4 py-2 rounded-md font-sport font-medium transition-sport ${
+                    isActive(item.path)
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-secondary-foreground hover:bg-secondary-hover hover:text-secondary-foreground'
+                  }`}
+                  onClick={() => setIsOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              )
+            )}
           </div>
         )}
       </div>
