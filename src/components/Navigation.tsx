@@ -10,6 +10,7 @@ const Navigation = () => {
   const navItems = [
     { path: '/', label: 'Accueil' },
     { path: '/equipe', label: 'Notre équipe' },
+    { path: '/calendrier', label: 'Calendrier' },
     { path: '/contacts', label: 'Contacts' },
     { path: '/rejoindre', label: 'Nous rejoindre' },
   ];

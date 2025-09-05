@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import Index from "./pages/Index";
 import Equipe from "./pages/Equipe";
+import Calendrier from "./pages/Calendrier";
 import Contacts from "./pages/Contacts";
 import Rejoindre from "./pages/Rejoindre";
 import NotFound from "./pages/NotFound";
@@ -27,6 +28,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/equipe" element={<Equipe />} />
+              <Route path="/calendrier" element={<Calendrier />} />
               <Route path="/contacts" element={<Contacts />} />
               <Route path="/rejoindre" element={<Rejoindre />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
