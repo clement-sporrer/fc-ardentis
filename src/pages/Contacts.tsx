@@ -1,8 +1,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Instagram, ExternalLink, Mail, MapPin, Calendar, Heart, Music, Youtube } from "lucide-react";
+import { Instagram, ExternalLink, Mail, MapPin, Calendar, Music, Youtube } from "lucide-react";
 import { Link } from "react-router-dom";
-import MapboxMap from "../components/MapboxMap";
 
 const Contacts = () => {
   const socialLinks = [
@@ -73,7 +72,7 @@ const Contacts = () => {
             </div>
           </div>
 
-          {/* Contact direct */}
+          {/* Contact direct + Localisation */}
           <div className="space-y-8">
             <h2 className="text-2xl md:text-3xl font-sport-condensed font-bold text-foreground">
               Contact direct
@@ -114,28 +113,46 @@ const Contacts = () => {
                 </div>
               </div>
               
-              <div className="space-y-3">
+              <div className="space-y-4">
+                {/* Entraînement - Île de Puteaux */}
                 <div className="text-sm font-sport text-foreground/80">
-                  <p><strong>Matchs :</strong><br />Île de Puteaux<br />1 Allée des Sports, 92800 Puteaux</p>
+                  <p>
+                    <strong>Entraînements :</strong><br />
+                    Île de Puteaux — 1 Allée des Sports, 92800 Puteaux
+                  </p>
                 </div>
-                <MapboxMap 
-                  locations={[
-                    {
-                      name: "Entraînement",
-                      address: "1 Allée des Sports, 92800 Puteaux, France",
-                      coordinates: [2.238, 48.884],
-                      color: "#888ce6"
-                    },
-                    {
-                      name: "Matchs - Stade Suzanne Lenglen",
-                      address: "4 Allée de la Bertelotte, 75015 Paris, France", 
-                      coordinates: [2.279, 48.841],
-                      color: "#f4d0e4"
-                    }
-                  ]}
-                  height="h-48"
-                  zoom={12}
-                />
+                <div className="rounded-lg overflow-hidden shadow-card">
+                  <iframe
+                    title="Carte Entraînement — Île de Puteaux"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5248.106451911164!2d2.2413660762979415!3d48.876261871334535!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66522dca16547%3A0xe1707759fb1ca70e!2s1%20All.%20des%20Sports%2C%2092800%20Puteaux%2C%20France!5e0!3m2!1sfr!2sde!4v1757100498113!5m2!1sfr!2sde"
+                    width="100%"
+                    height="300"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  ></iframe>
+                </div>
+
+                {/* Matchs - Stade Suzanne Lenglen (ajoute ton embed si tu veux afficher aussi le stade) */}
+                {/* <div className="text-sm font-sport text-foreground/80">
+                  <p>
+                    <strong>Matchs :</strong><br />
+                    Stade Suzanne Lenglen — 4 Allée de la Bertelotte, 75015 Paris
+                  </p>
+                </div>
+                <div className="rounded-lg overflow-hidden shadow-card">
+                  <iframe
+                    title="Carte Matchs — Stade Suzanne Lenglen"
+                    src="https://www.google.com/maps/embed?pb=COLLE_ICI_LE_CODE_EMBED_DU_STADE"
+                    width="100%"
+                    height="300"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  ></iframe>
+                </div> */}
               </div>
             </div>
 
