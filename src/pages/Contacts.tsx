@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Instagram, ExternalLink, Mail, MapPin, Calendar, Heart, Music, Youtube } from "lucide-react";
 import { Link } from "react-router-dom";
-import MapboxMap from "@/components/MapboxMap";
+import MapboxMap from "../components/MapboxMap";
 
 const Contacts = () => {
   const socialLinks = [

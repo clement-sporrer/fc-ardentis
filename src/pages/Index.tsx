@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { MapPin, Calendar, Users, Heart, Trophy, Handshake } from "lucide-react";
 import { useEffect, useState } from "react";
-import MapboxMap from "@/components/MapboxMap";
+import MapboxMap from "../components/MapboxMap";
 
 // Configuration parameters for easy editing
 const GOOGLE_PHOTOS_ALBUM_SHARE_URL = import.meta.env.VITE_GOOGLE_PHOTOS_ALBUM_SHARE_URL || "";
