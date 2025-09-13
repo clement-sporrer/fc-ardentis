@@ -306,7 +306,7 @@ const Rejoindre = () => {
                       <SelectValue placeholder="Sélectionnez un poste" />
                     </SelectTrigger>
                     {/* Menu flottant + très au-dessus */}
-                    <SelectContent position="popper" sideOffset={6} className="z-[9999]">
+                    <SelectContent position="popper" sideOffset={6} className="z-[9999] bg-card text-card-foreground border border-border shadow-lg">
                       <SelectGroup>
                         <SelectLabel>Gardien</SelectLabel>
                         <SelectItem value="Gardien de but">Gardien de but</SelectItem>
@@ -346,7 +346,7 @@ const Rejoindre = () => {
                     <SelectTrigger className="font-sport">
                       <SelectValue placeholder="Sélectionnez une option" />
                     </SelectTrigger>
-                    <SelectContent position="popper" sideOffset={6} className="z-[9999]">
+                    <SelectContent position="popper" sideOffset={6} className="z-[9999] bg-card text-card-foreground border border-border shadow-lg">
                       <SelectItem value="reseaux">Réseaux sociaux</SelectItem>
                       <SelectItem value="site">Site web</SelectItem>
                       <SelectItem value="joueurActuel">Joueur actuel</SelectItem>
