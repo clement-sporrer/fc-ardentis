@@ -8,35 +8,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { Heart, Send, AlertCircle } from "lucide-react";
+import { PhoneField, isValidIntlPhone } from "@/components/PhoneField";
 
-// Configuration parameters
+// Config
 const FORMSPREE_ENDPOINT = import.meta.env.VITE_FORMSPREE_ENDPOINT || "";
 const GAS_WEBAPP_URL = import.meta.env.VITE_GAS_WEBAPP_URL || "";
-
-// --- Helpers téléphone ---
-type Country = 'FR' | 'CH';
-const COUNTRY_META: Record<Country, { dial: string; name: string; digitsAfterDial: number }> = {
-  FR: { dial: '+33', name: 'France', digitsAfterDial: 9 },
-  CH: { dial: '+41', name: 'Suisse', digitsAfterDial: 9 },
-};
-
-const onlyDigits = (s: string) => s.replace(/\D/g, '');
-const groupBy2 = (s: string) => s.replace(/(\d{2})(?=\d)/g, '$1 ').trim();
 
 interface FormData {
   profile: 'Joueur' | 'Partenaire' | '' ;
   firstName: string;
   lastName: string;
   email: string;
-  // téléphone stocké tel qu’affiché : "+33 6 12 34 56 78"
-  phone: string;
-  phoneCountry: Country;
+  phone: string;          // format E.164 (+33612345678)
   birthDate: string;
   role: string;
   company: string;
   message: string;
   consent: boolean;
-  // provenance
   referral: '' | 'reseaux' | 'site' | 'joueurActuel' | 'ancienJoueur' | 'connaissance' | 'autre';
   referralDetail: string;
 }
@@ -50,7 +38,6 @@ const Rejoindre = () => {
     lastName: '',
     email: '',
     phone: '',
-    phoneCountry: 'FR',
     birthDate: '',
     role: '',
     company: '',
@@ -62,33 +49,8 @@ const Rejoindre = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ----- PHONE LOGIC -----
-  const formatPhone = (country: Country, rawDigits: string) => {
-    // FR/CH: si l’utilisateur tape un 0 en premier, on l’enlève après indicatif
-    if (rawDigits.startsWith('0')) rawDigits = rawDigits.slice(1);
-    rawDigits = rawDigits.slice(0, COUNTRY_META[country].digitsAfterDial); // limite
-    const dial = COUNTRY_META[country].dial;
-    const grouped = groupBy2(rawDigits);
-    return grouped ? `${dial} ${grouped}` : dial;
-  };
-
-  const setPhoneCountry = (country: Country) =>
-    setFormData(prev => {
-      const currentDigits = onlyDigits(prev.phone.replace(COUNTRY_META[prev.phoneCountry].dial, ''));
-      return { ...prev, phoneCountry: country, phone: formatPhone(country, currentDigits) };
-    });
-
-  const onPhoneChange = (value: string) => {
-    // On ne garde que + au début et les chiffres; pas d’espaces saisis par l’utilisateur
-    const digits = onlyDigits(value);
-    setFormData(prev => ({ ...prev, phone: formatPhone(prev.phoneCountry, digits) }));
-  };
-
   const handleInputChange = (field: keyof FormData, value: string | boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value as any
-    }));
+    setFormData(prev => ({ ...prev, [field]: value as any }));
   };
 
   const validateForm = () => {
@@ -102,13 +64,9 @@ const Rejoindre = () => {
     if (formData.email && !emailRegex.test(formData.email)) errors.push("Email invalide");
     if (!formData.consent) errors.push("Vous devez accepter les conditions");
 
-    // Téléphone: optionnel, mais s'il est renseigné on vérifie le format
-    if (formData.phone && formData.phone !== COUNTRY_META[formData.phoneCountry].dial) {
-      const afterDial = formData.phone.replace(COUNTRY_META[formData.phoneCountry].dial, '').trim();
-      const digits = onlyDigits(afterDial);
-      if (digits.length !== COUNTRY_META[formData.phoneCountry].digitsAfterDial) {
-        errors.push(`Téléphone: ${COUNTRY_META[formData.phoneCountry].digitsAfterDial} chiffres après l’indicatif`);
-      }
+    // Téléphone optionnel, mais valide si renseigné
+    if (formData.phone && !isValidIntlPhone(formData.phone)) {
+      errors.push("Téléphone invalide pour le pays sélectionné");
     }
 
     if (formData.profile === 'Joueur') {
@@ -116,12 +74,12 @@ const Rejoindre = () => {
       if (!formData.role) errors.push("Veuillez sélectionner un poste préféré");
     }
 
-    if (formData.profile === 'Partenaire') {
-      if (!formData.company.trim()) errors.push("Le nom d'entreprise est obligatoire");
+    if (formData.profile === 'Partenaire' && !formData.company.trim()) {
+      errors.push("Le nom d'entreprise est obligatoire");
     }
 
-    // Si provenance nécessite un détail
-    if (['reseaux', 'joueurActuel', 'ancienJoueur'].includes(formData.referral) && !formData.referralDetail.trim()) {
+    // Détail requis pour ces référencements
+    if (['reseaux', 'joueurActuel', 'ancienJoueur', 'autre'].includes(formData.referral) && !formData.referralDetail.trim()) {
       errors.push("Merci de préciser le détail de votre provenance");
     }
 
@@ -133,11 +91,7 @@ const Rejoindre = () => {
 
     const errors = validateForm();
     if (errors.length > 0) {
-      toast({
-        title: "Erreur de validation",
-        description: errors.join(", "),
-        variant: "destructive",
-      });
+      toast({ title: "Erreur de validation", description: errors.join(", "), variant: "destructive" });
       return;
     }
 
@@ -149,14 +103,12 @@ const Rejoindre = () => {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
-        phone: formData.phone,
+        phone: formData.phone,           // E.164
         ...(formData.profile === 'Joueur' && {
           birthDate: formData.birthDate,
           role: formData.role,
         }),
-        ...(formData.profile === 'Partenaire' && {
-          company: formData.company,
-        }),
+        ...(formData.profile === 'Partenaire' && { company: formData.company }),
         referral: formData.referral,
         referralDetail: formData.referralDetail,
         message: formData.message,
@@ -193,19 +145,13 @@ const Rejoindre = () => {
       }
 
       if (success) {
-        toast({
-          title: "Demande envoyée !",
-          description: "Nous vous répondrons sous 48h. Merci pour votre intérêt !",
-        });
-
-        // Reset form
+        toast({ title: "Demande envoyée !", description: "Nous vous répondrons sous 48h. Merci !" });
         setFormData({
           profile: '',
           firstName: '',
           lastName: '',
           email: '',
           phone: '',
-          phoneCountry: 'FR',
           birthDate: '',
           role: '',
           company: '',
@@ -217,11 +163,10 @@ const Rejoindre = () => {
       } else {
         throw new Error('Tous les services sont indisponibles');
       }
-
     } catch {
       toast({
         title: "Erreur d'envoi",
-        description: "Une erreur est survenue. Essayez d'envoyer un email directement à fcardentis@gmail.com",
+        description: "Une erreur est survenue. Essayez plutôt d'envoyer un email à fcardentis@gmail.com",
         variant: "destructive",
       });
     } finally {
@@ -278,75 +223,35 @@ const Rejoindre = () => {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="firstName" className="font-sport">Prénom *</Label>
-                    <Input
-                      id="firstName"
-                      type="text"
-                      value={formData.firstName}
-                      onChange={(e) => handleInputChange('firstName', e.target.value)}
-                      className="font-sport"
-                      required
-                    />
+                    <Input id="firstName" type="text" value={formData.firstName}
+                           onChange={(e) => handleInputChange('firstName', e.target.value)}
+                           className="font-sport" required />
                   </div>
                   <div>
                     <Label htmlFor="lastName" className="font-sport">Nom *</Label>
-                    <Input
-                      id="lastName"
-                      type="text"
-                      value={formData.lastName}
-                      onChange={(e) => handleInputChange('lastName', e.target.value)}
-                      className="font-sport"
-                      required
-                    />
+                    <Input id="lastName" type="text" value={formData.lastName}
+                           onChange={(e) => handleInputChange('lastName', e.target.value)}
+                           className="font-sport" required />
                   </div>
                 </div>
 
                 <div>
                   <Label htmlFor="email" className="font-sport">Email *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="font-sport"
-                    required
-                  />
+                  <Input id="email" type="email" value={formData.email}
+                         onChange={(e) => handleInputChange('email', e.target.value)}
+                         className="font-sport" required />
                 </div>
 
-                {/* Téléphone avec indicatif + masque */}
+                {/* Téléphone international */}
                 <div>
                   <Label className="font-sport">Téléphone (optionnel)</Label>
-                  <div className="grid grid-cols-[120px,1fr] gap-2">
-                    <Select
-                      value={formData.phoneCountry}
-                      onValueChange={(v) => setPhoneCountry(v as Country)}
-                    >
-                      <SelectTrigger className="font-sport">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="z-50">
-                        {Object.entries(COUNTRY_META).map(([code, meta]) => (
-                          <SelectItem key={code} value={code}>
-                            {meta.name} ({meta.dial})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    <Input
-                      type="tel"
-                      inputMode="numeric"
-                      placeholder={`${COUNTRY_META[formData.phoneCountry].dial} 6 00 00 00 00`}
-                      value={formData.phone || COUNTRY_META[formData.phoneCountry].dial}
-                      onChange={(e) => onPhoneChange(e.target.value)}
-                      onKeyDown={(e) => {
-                        // empêcher la saisie d’espace
-                        if (e.key === ' ') e.preventDefault();
-                      }}
-                      className="font-sport"
-                    />
-                  </div>
+                  <PhoneField
+                    value={formData.phone || undefined}
+                    onChange={(v) => handleInputChange("phone", v || "")}
+                    defaultCountry="FR"
+                  />
                   <p className="text-xs text-muted-foreground mt-1 font-sport">
-                    Avec indicatif, le 0 disparaît (ex. {COUNTRY_META.FR.dial} 6 12 34 56 78). {COUNTRY_META[formData.phoneCountry].digitsAfterDial} chiffres attendus après l’indicatif.
+                    Choisissez le pays, puis tapez le numéro. Le format et l’indicatif s’adaptent automatiquement.
                   </p>
                 </div>
               </div>
@@ -361,14 +266,9 @@ const Rejoindre = () => {
                 
                 <div>
                   <Label htmlFor="birthDate" className="font-sport">Date de naissance *</Label>
-                  <Input
-                    id="birthDate"
-                    type="date"
-                    value={formData.birthDate}
-                    onChange={(e) => handleInputChange('birthDate', e.target.value)}
-                    className="font-sport"
-                    required
-                  />
+                  <Input id="birthDate" type="date" value={formData.birthDate}
+                         onChange={(e) => handleInputChange('birthDate', e.target.value)}
+                         className="font-sport" required />
                 </div>
 
                 <div>
@@ -377,8 +277,8 @@ const Rejoindre = () => {
                     <SelectTrigger className="font-sport">
                       <SelectValue placeholder="Sélectionnez un poste" />
                     </SelectTrigger>
-                    {/* z-index élevé pour éviter le dropdown derrière */}
-                    <SelectContent className="z-50">
+                    {/* popper + z-index pour éviter les soucis d'empilement */}
+                    <SelectContent className="z-[9999]" position="popper" sideOffset={6}>
                       <div className="px-2 py-1 text-xs text-muted-foreground">Gardien de but</div>
                       <SelectItem value="Gardien de but">Gardien de but</SelectItem>
 
@@ -410,11 +310,11 @@ const Rejoindre = () => {
                     <SelectTrigger className="font-sport">
                       <SelectValue placeholder="Sélectionnez une option" />
                     </SelectTrigger>
-                    <SelectContent className="z-50">
+                    <SelectContent className="z-[9999]" position="popper" sideOffset={6}>
                       <SelectItem value="reseaux">Réseaux sociaux (Instagram, Facebook, TikTok, autre)</SelectItem>
                       <SelectItem value="site">Site web</SelectItem>
-                      <SelectItem value="joueurActuel">Joueur actuel (nom à préciser)</SelectItem>
-                      <SelectItem value="ancienJoueur">Ancien joueur (nom à préciser)</SelectItem>
+                      <SelectItem value="joueurActuel">Joueur actuel</SelectItem>
+                      <SelectItem value="ancienJoueur">Ancien joueur</SelectItem>
                       <SelectItem value="connaissance">Connaissance personnelle</SelectItem>
                       <SelectItem value="autre">Autre</SelectItem>
                     </SelectContent>
@@ -422,10 +322,15 @@ const Rejoindre = () => {
 
                   {(formData.referral === 'reseaux' ||
                     formData.referral === 'joueurActuel' ||
-                    formData.referral === 'ancienJoueur') && (
+                    formData.referral === 'ancienJoueur' ||
+                    formData.referral === 'autre') && (
                     <div>
                       <Label htmlFor="refDetail" className="font-sport">
-                        Précisez ({formData.referral === 'reseaux' ? 'le réseau' : 'le nom'})
+                        {formData.referral === 'reseaux'
+                          ? 'Précisez le réseau'
+                          : formData.referral === 'autre'
+                          ? 'Précisez'
+                          : 'Nom du joueur'}
                       </Label>
                       <Input
                         id="refDetail"
@@ -449,42 +354,29 @@ const Rejoindre = () => {
                 
                 <div>
                   <Label htmlFor="company" className="font-sport">Entreprise *</Label>
-                  <Input
-                    id="company"
-                    type="text"
-                    value={formData.company}
-                    onChange={(e) => handleInputChange('company', e.target.value)}
-                    className="font-sport"
-                    required
-                  />
+                  <Input id="company" type="text" value={formData.company}
+                         onChange={(e) => handleInputChange('company', e.target.value)}
+                         className="font-sport" required />
                 </div>
 
                 <div>
                   <Label htmlFor="supportReason" className="font-sport">Pourquoi voulez-vous nous soutenir ?</Label>
-                  <Textarea
-                    id="supportReason"
-                    value={formData.message}
-                    onChange={(e) => handleInputChange('message', e.target.value)}
-                    className="font-sport"
-                    rows={4}
-                  />
+                  <Textarea id="supportReason" value={formData.message}
+                            onChange={(e) => handleInputChange('message', e.target.value)}
+                            className="font-sport" rows={4} />
                 </div>
               </div>
             )}
 
-            {/* Message libre */}
+            {/* Message libre (joueur) */}
             {formData.profile === 'Joueur' && (
               <div className="bg-card p-6 rounded-lg shadow-card border border-border/20">
                 <Label htmlFor="message" className="font-sport block mb-2">
                   Message libre (optionnel)
                 </Label>
-                <Textarea
-                  id="message"
-                  value={formData.message}
-                  onChange={(e) => handleInputChange('message', e.target.value)}
-                  className="font-sport"
-                  rows={4}
-                />
+                <Textarea id="message" value={formData.message}
+                          onChange={(e) => handleInputChange('message', e.target.value)}
+                          className="font-sport" rows={4} />
               </div>
             )}
 
@@ -492,11 +384,8 @@ const Rejoindre = () => {
             {formData.profile && (
               <div className="bg-card p-6 rounded-lg shadow-card border border-border/20">
                 <div className="flex items-start space-x-3">
-                  <Checkbox
-                    id="consent"
-                    checked={formData.consent}
-                    onCheckedChange={(checked) => handleInputChange('consent', !!checked)}
-                  />
+                  <Checkbox id="consent" checked={formData.consent}
+                            onCheckedChange={(checked) => handleInputChange('consent', !!checked)} />
                   <Label htmlFor="consent" className="text-sm font-sport leading-relaxed">
                     J'accepte que mes données personnelles soient utilisées pour traiter ma demande 
                     et me recontacter dans le cadre des activités du FC Ardentis. 
@@ -509,13 +398,7 @@ const Rejoindre = () => {
             {/* Submit Button */}
             {formData.profile && (
               <div className="text-center">
-                <Button 
-                  type="submit" 
-                  size="lg" 
-                  variant="cta"
-                  disabled={isSubmitting}
-                  className="w-full md:w-auto"
-                >
+                <Button type="submit" size="lg" variant="cta" disabled={isSubmitting} className="w-full md:w-auto">
                   {isSubmitting ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
