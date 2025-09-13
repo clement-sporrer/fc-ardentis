@@ -4,13 +4,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  SelectGroup,
+  SelectLabel,
+} from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { Heart, Send, AlertCircle } from "lucide-react";
 import { PhoneField, isValidIntlPhone } from "@/components/PhoneField";
 
-// Config
+// Config env
 const FORMSPREE_ENDPOINT = import.meta.env.VITE_FORMSPREE_ENDPOINT || "";
 const GAS_WEBAPP_URL = import.meta.env.VITE_GAS_WEBAPP_URL || "";
 
@@ -19,7 +27,7 @@ interface FormData {
   firstName: string;
   lastName: string;
   email: string;
-  phone: string;          // format E.164 (+33612345678)
+  phone: string; // format E.164 (+33612345678)
   birthDate: string;
   role: string;
   company: string;
@@ -64,7 +72,7 @@ const Rejoindre = () => {
     if (formData.email && !emailRegex.test(formData.email)) errors.push("Email invalide");
     if (!formData.consent) errors.push("Vous devez accepter les conditions");
 
-    // Téléphone optionnel, mais valide si renseigné
+    // Téléphone optionnel, mais valide s'il est saisi
     if (formData.phone && !isValidIntlPhone(formData.phone)) {
       errors.push("Téléphone invalide pour le pays sélectionné");
     }
@@ -78,7 +86,7 @@ const Rejoindre = () => {
       errors.push("Le nom d'entreprise est obligatoire");
     }
 
-    // Détail requis pour ces référencements
+    // Détail requis selon l’option
     if (['reseaux', 'joueurActuel', 'ancienJoueur', 'autre'].includes(formData.referral) && !formData.referralDetail.trim()) {
       errors.push("Merci de préciser le détail de votre provenance");
     }
@@ -103,7 +111,7 @@ const Rejoindre = () => {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
-        phone: formData.phone,           // E.164
+        phone: formData.phone, // E.164
         ...(formData.profile === 'Joueur' && {
           birthDate: formData.birthDate,
           role: formData.role,
@@ -176,7 +184,7 @@ const Rejoindre = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
+      {/* Hero */}
       <section className="bg-gradient-hero py-16 px-4 text-center">
         <div className="container max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-6xl font-sport-condensed font-bold text-white mb-6">
@@ -188,12 +196,12 @@ const Rejoindre = () => {
         </div>
       </section>
 
-      {/* Form Section */}
-      <section className="py-16 px-4">
+      {/* Form */}
+      <section className="py-16 px-4 overflow-visible">
         <div className="container max-w-2xl mx-auto">
           <form onSubmit={handleSubmit} className="space-y-8">
             
-            {/* Profile Selection */}
+            {/* Choix de profil */}
             <div className="bg-card p-6 rounded-lg shadow-card border border-border/20">
               <Label className="text-lg font-sport-condensed font-bold text-foreground mb-4 block">
                 Choisissez votre profil
@@ -213,9 +221,9 @@ const Rejoindre = () => {
               </RadioGroup>
             </div>
 
-            {/* Common Fields */}
+            {/* Infos personnelles */}
             {formData.profile && (
-              <div className="bg-card p-6 rounded-lg shadow-card border border-border/20 space-y-6">
+              <div className="bg-card p-6 rounded-lg shadow-card border border-border/20 space-y-6 overflow-visible">
                 <h3 className="text-lg font-sport-condensed font-bold text-foreground">
                   Informations personnelles
                 </h3>
@@ -223,23 +231,38 @@ const Rejoindre = () => {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="firstName" className="font-sport">Prénom *</Label>
-                    <Input id="firstName" type="text" value={formData.firstName}
-                           onChange={(e) => handleInputChange('firstName', e.target.value)}
-                           className="font-sport" required />
+                    <Input
+                      id="firstName"
+                      type="text"
+                      value={formData.firstName}
+                      onChange={(e) => handleInputChange('firstName', e.target.value)}
+                      className="font-sport"
+                      required
+                    />
                   </div>
                   <div>
                     <Label htmlFor="lastName" className="font-sport">Nom *</Label>
-                    <Input id="lastName" type="text" value={formData.lastName}
-                           onChange={(e) => handleInputChange('lastName', e.target.value)}
-                           className="font-sport" required />
+                    <Input
+                      id="lastName"
+                      type="text"
+                      value={formData.lastName}
+                      onChange={(e) => handleInputChange('lastName', e.target.value)}
+                      className="font-sport"
+                      required
+                    />
                   </div>
                 </div>
 
                 <div>
                   <Label htmlFor="email" className="font-sport">Email *</Label>
-                  <Input id="email" type="email" value={formData.email}
-                         onChange={(e) => handleInputChange('email', e.target.value)}
-                         className="font-sport" required />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    className="font-sport"
+                    required
+                  />
                 </div>
 
                 {/* Téléphone international */}
@@ -251,24 +274,29 @@ const Rejoindre = () => {
                     defaultCountry="FR"
                   />
                   <p className="text-xs text-muted-foreground mt-1 font-sport">
-                    Choisissez le pays, puis tapez le numéro. Le format et l’indicatif s’adaptent automatiquement.
+                    Choisissez le pays puis tapez le numéro. Le format et l’indicatif s’adaptent automatiquement.
                   </p>
                 </div>
               </div>
             )}
 
-            {/* Joueur-specific fields */}
+            {/* Infos sportives (Joueur) */}
             {formData.profile === 'Joueur' && (
-              <div className="bg-card p-6 rounded-lg shadow-card border border-border/20 space-y-6">
+              <div className="bg-card p-6 rounded-lg shadow-card border border-border/20 space-y-6 overflow-visible">
                 <h3 className="text-lg font-sport-condensed font-bold text-foreground">
                   Informations sportives
                 </h3>
                 
                 <div>
                   <Label htmlFor="birthDate" className="font-sport">Date de naissance *</Label>
-                  <Input id="birthDate" type="date" value={formData.birthDate}
-                         onChange={(e) => handleInputChange('birthDate', e.target.value)}
-                         className="font-sport" required />
+                  <Input
+                    id="birthDate"
+                    type="date"
+                    value={formData.birthDate}
+                    onChange={(e) => handleInputChange('birthDate', e.target.value)}
+                    className="font-sport"
+                    required
+                  />
                 </div>
 
                 <div>
@@ -277,25 +305,33 @@ const Rejoindre = () => {
                     <SelectTrigger className="font-sport">
                       <SelectValue placeholder="Sélectionnez un poste" />
                     </SelectTrigger>
-                    {/* popper + z-index pour éviter les soucis d'empilement */}
-                    <SelectContent className="z-[9999]" position="popper" sideOffset={6}>
-                      <div className="px-2 py-1 text-xs text-muted-foreground">Gardien de but</div>
-                      <SelectItem value="Gardien de but">Gardien de but</SelectItem>
+                    {/* Menu flottant + très au-dessus */}
+                    <SelectContent position="popper" sideOffset={6} className="z-[9999]">
+                      <SelectGroup>
+                        <SelectLabel>Gardien</SelectLabel>
+                        <SelectItem value="Gardien de but">Gardien de but</SelectItem>
+                      </SelectGroup>
 
-                      <div className="px-2 pt-2 text-xs text-muted-foreground">Défense</div>
-                      <SelectItem value="Latéral droit">Latéral droit</SelectItem>
-                      <SelectItem value="Défenseur central">Défenseur central</SelectItem>
-                      <SelectItem value="Latéral gauche">Latéral gauche</SelectItem>
+                      <SelectGroup>
+                        <SelectLabel>Défense</SelectLabel>
+                        <SelectItem value="Latéral droit">Latéral droit</SelectItem>
+                        <SelectItem value="Défenseur central">Défenseur central</SelectItem>
+                        <SelectItem value="Latéral gauche">Latéral gauche</SelectItem>
+                      </SelectGroup>
 
-                      <div className="px-2 pt-2 text-xs text-muted-foreground">Milieu</div>
-                      <SelectItem value="Milieu défensif">Milieu défensif</SelectItem>
-                      <SelectItem value="Milieu relayeur">Milieu relayeur</SelectItem>
-                      <SelectItem value="Milieu offensif">Milieu offensif</SelectItem>
+                      <SelectGroup>
+                        <SelectLabel>Milieu</SelectLabel>
+                        <SelectItem value="Milieu défensif">Milieu défensif</SelectItem>
+                        <SelectItem value="Milieu relayeur">Milieu relayeur</SelectItem>
+                        <SelectItem value="Milieu offensif">Milieu offensif</SelectItem>
+                      </SelectGroup>
 
-                      <div className="px-2 pt-2 text-xs text-muted-foreground">Attaque</div>
-                      <SelectItem value="Ailier droit">Ailier droit</SelectItem>
-                      <SelectItem value="Ailier gauche">Ailier gauche</SelectItem>
-                      <SelectItem value="Attaquant axial">Attaquant axial</SelectItem>
+                      <SelectGroup>
+                        <SelectLabel>Attaque</SelectLabel>
+                        <SelectItem value="Ailier droit">Ailier droit</SelectItem>
+                        <SelectItem value="Ailier gauche">Ailier gauche</SelectItem>
+                        <SelectItem value="Attaquant axial">Attaquant axial</SelectItem>
+                      </SelectGroup>
                     </SelectContent>
                   </Select>
                 </div>
@@ -310,8 +346,8 @@ const Rejoindre = () => {
                     <SelectTrigger className="font-sport">
                       <SelectValue placeholder="Sélectionnez une option" />
                     </SelectTrigger>
-                    <SelectContent className="z-[9999]" position="popper" sideOffset={6}>
-                      <SelectItem value="reseaux">Réseaux sociaux (Instagram, Facebook, TikTok, autre)</SelectItem>
+                    <SelectContent position="popper" sideOffset={6} className="z-[9999]">
+                      <SelectItem value="reseaux">Réseaux sociaux</SelectItem>
                       <SelectItem value="site">Site web</SelectItem>
                       <SelectItem value="joueurActuel">Joueur actuel</SelectItem>
                       <SelectItem value="ancienJoueur">Ancien joueur</SelectItem>
@@ -345,25 +381,34 @@ const Rejoindre = () => {
               </div>
             )}
 
-            {/* Partenaire-specific fields */}
+            {/* Infos Partenaire */}
             {formData.profile === 'Partenaire' && (
-              <div className="bg-card p-6 rounded-lg shadow-card border border-border/20 space-y-6">
+              <div className="bg-card p-6 rounded-lg shadow-card border border-border/20 space-y-6 overflow-visible">
                 <h3 className="text-lg font-sport-condensed font-bold text-foreground">
                   Informations partenaire
                 </h3>
                 
                 <div>
                   <Label htmlFor="company" className="font-sport">Entreprise *</Label>
-                  <Input id="company" type="text" value={formData.company}
-                         onChange={(e) => handleInputChange('company', e.target.value)}
-                         className="font-sport" required />
+                  <Input
+                    id="company"
+                    type="text"
+                    value={formData.company}
+                    onChange={(e) => handleInputChange('company', e.target.value)}
+                    className="font-sport"
+                    required
+                  />
                 </div>
 
                 <div>
                   <Label htmlFor="supportReason" className="font-sport">Pourquoi voulez-vous nous soutenir ?</Label>
-                  <Textarea id="supportReason" value={formData.message}
-                            onChange={(e) => handleInputChange('message', e.target.value)}
-                            className="font-sport" rows={4} />
+                  <Textarea
+                    id="supportReason"
+                    value={formData.message}
+                    onChange={(e) => handleInputChange('message', e.target.value)}
+                    className="font-sport"
+                    rows={4}
+                  />
                 </div>
               </div>
             )}
@@ -374,18 +419,25 @@ const Rejoindre = () => {
                 <Label htmlFor="message" className="font-sport block mb-2">
                   Message libre (optionnel)
                 </Label>
-                <Textarea id="message" value={formData.message}
-                          onChange={(e) => handleInputChange('message', e.target.value)}
-                          className="font-sport" rows={4} />
+                <Textarea
+                  id="message"
+                  value={formData.message}
+                  onChange={(e) => handleInputChange('message', e.target.value)}
+                  className="font-sport"
+                  rows={4}
+                />
               </div>
             )}
 
-            {/* RGPD Consent */}
+            {/* RGPD */}
             {formData.profile && (
               <div className="bg-card p-6 rounded-lg shadow-card border border-border/20">
                 <div className="flex items-start space-x-3">
-                  <Checkbox id="consent" checked={formData.consent}
-                            onCheckedChange={(checked) => handleInputChange('consent', !!checked)} />
+                  <Checkbox
+                    id="consent"
+                    checked={formData.consent}
+                    onCheckedChange={(checked) => handleInputChange('consent', !!checked)}
+                  />
                   <Label htmlFor="consent" className="text-sm font-sport leading-relaxed">
                     J'accepte que mes données personnelles soient utilisées pour traiter ma demande 
                     et me recontacter dans le cadre des activités du FC Ardentis. 
@@ -395,10 +447,16 @@ const Rejoindre = () => {
               </div>
             )}
 
-            {/* Submit Button */}
+            {/* Submit */}
             {formData.profile && (
               <div className="text-center">
-                <Button type="submit" size="lg" variant="cta" disabled={isSubmitting} className="w-full md:w-auto">
+                <Button 
+                  type="submit" 
+                  size="lg" 
+                  variant="cta"
+                  disabled={isSubmitting}
+                  className="w-full md:w-auto"
+                >
                   {isSubmitting ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -430,7 +488,7 @@ const Rejoindre = () => {
             </div>
           </div>
 
-          {/* Configuration info */}
+          {/* Info config */}
           {!FORMSPREE_ENDPOINT && !GAS_WEBAPP_URL && (
             <div className="mt-8 bg-destructive/10 border border-destructive/20 p-4 rounded-lg">
               <div className="flex items-center gap-2 text-destructive">
