@@ -13,67 +13,124 @@ import { Heart, Send, AlertCircle } from "lucide-react";
 const FORMSPREE_ENDPOINT = import.meta.env.VITE_FORMSPREE_ENDPOINT || "";
 const GAS_WEBAPP_URL = import.meta.env.VITE_GAS_WEBAPP_URL || "";
 
+// --- Helpers téléphone ---
+type Country = 'FR' | 'CH';
+const COUNTRY_META: Record<Country, { dial: string; name: string; digitsAfterDial: number }> = {
+  FR: { dial: '+33', name: 'France', digitsAfterDial: 9 },
+  CH: { dial: '+41', name: 'Suisse', digitsAfterDial: 9 },
+};
+
+const onlyDigits = (s: string) => s.replace(/\D/g, '');
+const groupBy2 = (s: string) => s.replace(/(\d{2})(?=\d)/g, '$1 ').trim();
+
 interface FormData {
-  profile: string;
+  profile: 'Joueur' | 'Partenaire' | '' ;
   firstName: string;
   lastName: string;
   email: string;
+  // téléphone stocké tel qu’affiché : "+33 6 12 34 56 78"
   phone: string;
+  phoneCountry: Country;
   birthDate: string;
   role: string;
   company: string;
   message: string;
   consent: boolean;
+  // provenance
+  referral: '' | 'reseaux' | 'site' | 'joueurActuel' | 'ancienJoueur' | 'connaissance' | 'autre';
+  referralDetail: string;
 }
 
 const Rejoindre = () => {
   const { toast } = useToast();
+
   const [formData, setFormData] = useState<FormData>({
     profile: '',
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
+    phoneCountry: 'FR',
     birthDate: '',
     role: '',
     company: '',
     message: '',
-    consent: false
+    consent: false,
+    referral: '',
+    referralDetail: ''
   });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // ----- PHONE LOGIC -----
+  const formatPhone = (country: Country, rawDigits: string) => {
+    // FR/CH: si l’utilisateur tape un 0 en premier, on l’enlève après indicatif
+    if (rawDigits.startsWith('0')) rawDigits = rawDigits.slice(1);
+    rawDigits = rawDigits.slice(0, COUNTRY_META[country].digitsAfterDial); // limite
+    const dial = COUNTRY_META[country].dial;
+    const grouped = groupBy2(rawDigits);
+    return grouped ? `${dial} ${grouped}` : dial;
+  };
+
+  const setPhoneCountry = (country: Country) =>
+    setFormData(prev => {
+      const currentDigits = onlyDigits(prev.phone.replace(COUNTRY_META[prev.phoneCountry].dial, ''));
+      return { ...prev, phoneCountry: country, phone: formatPhone(country, currentDigits) };
+    });
+
+  const onPhoneChange = (value: string) => {
+    // On ne garde que + au début et les chiffres; pas d’espaces saisis par l’utilisateur
+    const digits = onlyDigits(value);
+    setFormData(prev => ({ ...prev, phone: formatPhone(prev.phoneCountry, digits) }));
+  };
 
   const handleInputChange = (field: keyof FormData, value: string | boolean) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      [field]: value as any
     }));
   };
 
   const validateForm = () => {
     const errors: string[] = [];
-    
+    const emailRegex = /\S+@\S+\.\S+/;
+
     if (!formData.profile) errors.push("Veuillez sélectionner un profil");
     if (!formData.firstName.trim()) errors.push("Le prénom est obligatoire");
     if (!formData.lastName.trim()) errors.push("Le nom est obligatoire");
     if (!formData.email.trim()) errors.push("L'email est obligatoire");
-    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) errors.push("Email invalide");
+    if (formData.email && !emailRegex.test(formData.email)) errors.push("Email invalide");
     if (!formData.consent) errors.push("Vous devez accepter les conditions");
-    
-    if (formData.profile === 'Joueur') {
-      if (!formData.birthDate.trim()) errors.push("La date de naissance est obligatoire");
-      if (!formData.role.trim()) errors.push("Veuillez sélectionner un rôle");
+
+    // Téléphone: optionnel, mais s'il est renseigné on vérifie le format
+    if (formData.phone && formData.phone !== COUNTRY_META[formData.phoneCountry].dial) {
+      const afterDial = formData.phone.replace(COUNTRY_META[formData.phoneCountry].dial, '').trim();
+      const digits = onlyDigits(afterDial);
+      if (digits.length !== COUNTRY_META[formData.phoneCountry].digitsAfterDial) {
+        errors.push(`Téléphone: ${COUNTRY_META[formData.phoneCountry].digitsAfterDial} chiffres après l’indicatif`);
+      }
     }
-    
+
+    if (formData.profile === 'Joueur') {
+      if (!formData.birthDate) errors.push("La date de naissance est obligatoire");
+      if (!formData.role) errors.push("Veuillez sélectionner un poste préféré");
+    }
+
     if (formData.profile === 'Partenaire') {
       if (!formData.company.trim()) errors.push("Le nom d'entreprise est obligatoire");
     }
-    
+
+    // Si provenance nécessite un détail
+    if (['reseaux', 'joueurActuel', 'ancienJoueur'].includes(formData.referral) && !formData.referralDetail.trim()) {
+      errors.push("Merci de préciser le détail de votre provenance");
+    }
+
     return errors;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const errors = validateForm();
     if (errors.length > 0) {
       toast({
@@ -100,6 +157,8 @@ const Rejoindre = () => {
         ...(formData.profile === 'Partenaire' && {
           company: formData.company,
         }),
+        referral: formData.referral,
+        referralDetail: formData.referralDetail,
         message: formData.message,
         subject: "Nouvelle demande d'adhésion FC Ardentis",
         timestamp: new Date().toISOString()
@@ -107,14 +166,11 @@ const Rejoindre = () => {
 
       let success = false;
 
-      // Try Formspree first
       if (FORMSPREE_ENDPOINT) {
         try {
           const response = await fetch(FORMSPREE_ENDPOINT, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(submitData)
           });
           success = response.ok;
@@ -123,14 +179,11 @@ const Rejoindre = () => {
         }
       }
 
-      // Fallback to Google Apps Script
       if (!success && GAS_WEBAPP_URL) {
         try {
           const response = await fetch(GAS_WEBAPP_URL, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(submitData)
           });
           success = response.ok;
@@ -144,7 +197,7 @@ const Rejoindre = () => {
           title: "Demande envoyée !",
           description: "Nous vous répondrons sous 48h. Merci pour votre intérêt !",
         });
-        
+
         // Reset form
         setFormData({
           profile: '',
@@ -152,17 +205,20 @@ const Rejoindre = () => {
           lastName: '',
           email: '',
           phone: '',
+          phoneCountry: 'FR',
           birthDate: '',
           role: '',
           company: '',
           message: '',
-          consent: false
+          consent: false,
+          referral: '',
+          referralDetail: ''
         });
       } else {
         throw new Error('Tous les services sont indisponibles');
       }
 
-    } catch (error) {
+    } catch {
       toast({
         title: "Erreur d'envoi",
         description: "Une erreur est survenue. Essayez d'envoyer un email directement à fcardentis@gmail.com",
@@ -199,7 +255,7 @@ const Rejoindre = () => {
               </Label>
               <RadioGroup 
                 value={formData.profile} 
-                onValueChange={(value) => handleInputChange('profile', value)}
+                onValueChange={(value) => handleInputChange('profile', value as FormData['profile'])}
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="Joueur" id="joueur" />
@@ -221,9 +277,7 @@ const Rejoindre = () => {
                 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="firstName" className="font-sport">
-                      Prénom *
-                    </Label>
+                    <Label htmlFor="firstName" className="font-sport">Prénom *</Label>
                     <Input
                       id="firstName"
                       type="text"
@@ -234,9 +288,7 @@ const Rejoindre = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="lastName" className="font-sport">
-                      Nom *
-                    </Label>
+                    <Label htmlFor="lastName" className="font-sport">Nom *</Label>
                     <Input
                       id="lastName"
                       type="text"
@@ -249,9 +301,7 @@ const Rejoindre = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="email" className="font-sport">
-                    Email *
-                  </Label>
+                  <Label htmlFor="email" className="font-sport">Email *</Label>
                   <Input
                     id="email"
                     type="email"
@@ -262,17 +312,42 @@ const Rejoindre = () => {
                   />
                 </div>
 
+                {/* Téléphone avec indicatif + masque */}
                 <div>
-                  <Label htmlFor="phone" className="font-sport">
-                    Téléphone (optionnel)
-                  </Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className="font-sport"
-                  />
+                  <Label className="font-sport">Téléphone (optionnel)</Label>
+                  <div className="grid grid-cols-[120px,1fr] gap-2">
+                    <Select
+                      value={formData.phoneCountry}
+                      onValueChange={(v) => setPhoneCountry(v as Country)}
+                    >
+                      <SelectTrigger className="font-sport">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="z-50">
+                        {Object.entries(COUNTRY_META).map(([code, meta]) => (
+                          <SelectItem key={code} value={code}>
+                            {meta.name} ({meta.dial})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <Input
+                      type="tel"
+                      inputMode="numeric"
+                      placeholder={`${COUNTRY_META[formData.phoneCountry].dial} 6 00 00 00 00`}
+                      value={formData.phone || COUNTRY_META[formData.phoneCountry].dial}
+                      onChange={(e) => onPhoneChange(e.target.value)}
+                      onKeyDown={(e) => {
+                        // empêcher la saisie d’espace
+                        if (e.key === ' ') e.preventDefault();
+                      }}
+                      className="font-sport"
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1 font-sport">
+                    Avec indicatif, le 0 disparaît (ex. {COUNTRY_META.FR.dial} 6 12 34 56 78). {COUNTRY_META[formData.phoneCountry].digitsAfterDial} chiffres attendus après l’indicatif.
+                  </p>
                 </div>
               </div>
             )}
@@ -285,13 +360,10 @@ const Rejoindre = () => {
                 </h3>
                 
                 <div>
-                  <Label htmlFor="birthDate" className="font-sport">
-                    Date de naissance ou catégorie d'âge *
-                  </Label>
+                  <Label htmlFor="birthDate" className="font-sport">Date de naissance *</Label>
                   <Input
                     id="birthDate"
-                    type="text"
-                    placeholder="ex: 15/03/1995 ou U18"
+                    type="date"
                     value={formData.birthDate}
                     onChange={(e) => handleInputChange('birthDate', e.target.value)}
                     className="font-sport"
@@ -300,19 +372,70 @@ const Rejoindre = () => {
                 </div>
 
                 <div>
-                  <Label className="font-sport">Rôle souhaité *</Label>
-                  <Select onValueChange={(value) => handleInputChange('role', value)}>
+                  <Label className="font-sport">Poste préféré *</Label>
+                  <Select value={formData.role} onValueChange={(value) => handleInputChange('role', value)}>
                     <SelectTrigger className="font-sport">
-                      <SelectValue placeholder="Sélectionnez un rôle" />
+                      <SelectValue placeholder="Sélectionnez un poste" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Joueur">Joueur</SelectItem>
-                      <SelectItem value="Gardien">Gardien</SelectItem>
-                      <SelectItem value="Coach">Coach</SelectItem>
-                      <SelectItem value="Bénévole">Bénévole</SelectItem>
-                      <SelectItem value="Partenaire">Partenaire</SelectItem>
+                    {/* z-index élevé pour éviter le dropdown derrière */}
+                    <SelectContent className="z-50">
+                      <div className="px-2 py-1 text-xs text-muted-foreground">Gardien de but</div>
+                      <SelectItem value="Gardien de but">Gardien de but</SelectItem>
+
+                      <div className="px-2 pt-2 text-xs text-muted-foreground">Défense</div>
+                      <SelectItem value="Latéral droit">Latéral droit</SelectItem>
+                      <SelectItem value="Défenseur central">Défenseur central</SelectItem>
+                      <SelectItem value="Latéral gauche">Latéral gauche</SelectItem>
+
+                      <div className="px-2 pt-2 text-xs text-muted-foreground">Milieu</div>
+                      <SelectItem value="Milieu défensif">Milieu défensif</SelectItem>
+                      <SelectItem value="Milieu relayeur">Milieu relayeur</SelectItem>
+                      <SelectItem value="Milieu offensif">Milieu offensif</SelectItem>
+
+                      <div className="px-2 pt-2 text-xs text-muted-foreground">Attaque</div>
+                      <SelectItem value="Ailier droit">Ailier droit</SelectItem>
+                      <SelectItem value="Ailier gauche">Ailier gauche</SelectItem>
+                      <SelectItem value="Attaquant axial">Attaquant axial</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                {/* Référencement / provenance */}
+                <div className="space-y-2">
+                  <Label className="font-sport">Comment nous avez-vous connu ?</Label>
+                  <Select
+                    value={formData.referral}
+                    onValueChange={(v) => handleInputChange('referral', v)}
+                  >
+                    <SelectTrigger className="font-sport">
+                      <SelectValue placeholder="Sélectionnez une option" />
+                    </SelectTrigger>
+                    <SelectContent className="z-50">
+                      <SelectItem value="reseaux">Réseaux sociaux (Instagram, Facebook, TikTok, autre)</SelectItem>
+                      <SelectItem value="site">Site web</SelectItem>
+                      <SelectItem value="joueurActuel">Joueur actuel (nom à préciser)</SelectItem>
+                      <SelectItem value="ancienJoueur">Ancien joueur (nom à préciser)</SelectItem>
+                      <SelectItem value="connaissance">Connaissance personnelle</SelectItem>
+                      <SelectItem value="autre">Autre</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {(formData.referral === 'reseaux' ||
+                    formData.referral === 'joueurActuel' ||
+                    formData.referral === 'ancienJoueur') && (
+                    <div>
+                      <Label htmlFor="refDetail" className="font-sport">
+                        Précisez ({formData.referral === 'reseaux' ? 'le réseau' : 'le nom'})
+                      </Label>
+                      <Input
+                        id="refDetail"
+                        type="text"
+                        value={formData.referralDetail}
+                        onChange={(e) => handleInputChange('referralDetail', e.target.value)}
+                        className="font-sport"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -325,9 +448,7 @@ const Rejoindre = () => {
                 </h3>
                 
                 <div>
-                  <Label htmlFor="company" className="font-sport">
-                    Entreprise *
-                  </Label>
+                  <Label htmlFor="company" className="font-sport">Entreprise *</Label>
                   <Input
                     id="company"
                     type="text"
@@ -339,9 +460,7 @@ const Rejoindre = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="supportReason" className="font-sport">
-                    Pourquoi voulez-vous nous soutenir ?
-                  </Label>
+                  <Label htmlFor="supportReason" className="font-sport">Pourquoi voulez-vous nous soutenir ?</Label>
                   <Textarea
                     id="supportReason"
                     value={formData.message}
