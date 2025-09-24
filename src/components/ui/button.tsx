@@ -18,9 +18,9 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary-hover shadow-sport",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        hero: "bg-primary text-primary-foreground hover:bg-primary-hover shadow-sport font-sport-condensed font-bold tracking-wide text-base",
-        cta: "bg-gradient-hero text-primary-foreground hover:shadow-sport hover:scale-105 font-sport-condensed font-bold",
-        ctaMainWhite: "bg-white text-[hsl(var(--secondary))] shadow-md hover:bg-secondary-hover hover:text-secondary-foreground",
+        hero: "bg-gradient-hero text-primary-foreground hover:shadow-elevated shadow-sport font-sport-condensed font-bold tracking-wide text-base hover-lift",
+        cta: "bg-gradient-to-r from-accent to-primary text-primary-foreground hover:shadow-elevated hover-lift font-sport-condensed font-bold text-lg px-8 py-4",
+        ctaMainWhite: "bg-white text-secondary shadow-elevated hover:bg-accent hover:text-white hover-lift",
       },
       size: {
         default: "h-10 px-4 py-2",

@@ -2,54 +2,60 @@
 @tailwind components;
 @tailwind utilities;
 
-/* FC Ardentis Design System - Football Club Identity */
+/* FC Ardentis Modern Design System - Professional Football Club */
 
 @layer base {
   :root {
-    /* FC Ardentis Brand Colors */
+    /* Modern FC Ardentis Brand Colors */
     --background: 0 0% 100%;
-    --foreground: 230 42% 20%;
+    --foreground: 215 28% 17%;
 
-    /* Ardentis Primary - Violet */
-    --primary: 243 66% 72%;  /* #888ce6 */
+    /* Modernized Primary - Bold Electric Blue */
+    --primary: 220 91% 54%;  /* #1e40af to #3b82f6 range */
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 243 66% 67%;
+    --primary-hover: 220 91% 45%;
+    --primary-glow: 220 91% 65%;
 
-    /* Ardentis Secondary - Dark Blue Grey */
-    --secondary: 230 42% 20%;  /* #202237 */
+    /* Modern Secondary - Refined Dark Navy */
+    --secondary: 222 47% 11%;  /* Deep navy for premium feel */
     --secondary-foreground: 0 0% 100%;
-    --secondary-hover: 230 42% 25%;
+    --secondary-hover: 222 47% 15%;
 
-    /* Goalkeeper Accent - Light Magenta */
-    --accent: 314 66% 88%;  /* #f4d0e4 */
-    --accent-foreground: 230 42% 20%;
+    /* Dynamic Accent - Energetic Orange */
+    --accent: 25 95% 53%;  /* #ff6b1a energetic orange */
+    --accent-foreground: 0 0% 100%;
 
-    /* UI Colors */
+    /* Enhanced UI Colors */
     --card: 0 0% 100%;
-    --card-foreground: 230 42% 20%;
+    --card-foreground: 215 28% 17%;
     
-    --muted: 243 20% 96%;
-    --muted-foreground: 230 20% 50%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 215 16% 47%;
 
-    --border: 243 20% 90%;
-    --input: 243 20% 90%;
-    --ring: 243 66% 72%;
+    --border: 220 14% 91%;
+    --input: 220 14% 91%;
+    --ring: 220 91% 54%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
-    --gradient-section: linear-gradient(180deg, hsl(var(--primary) / 0.05), hsl(var(--secondary) / 0.05));
+    /* Modern Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(220 91% 54%), hsl(25 95% 53%));
+    --gradient-hero-alt: linear-gradient(135deg, hsl(222 47% 11%), hsl(220 91% 54%));
+    --gradient-section: linear-gradient(180deg, hsl(220 91% 54% / 0.02), transparent);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(220 14% 98%));
 
-    /* Shadows */
-    --shadow-sport: 0 10px 30px -10px hsl(var(--primary) / 0.3);
-    --shadow-card: 0 4px 20px -4px hsl(var(--secondary) / 0.15);
+    /* Enhanced Shadows */
+    --shadow-sport: 0 20px 40px -12px hsl(220 91% 54% / 0.25);
+    --shadow-card: 0 10px 25px -5px hsl(222 47% 11% / 0.1);
+    --shadow-elevated: 0 25px 50px -12px hsl(220 91% 54% / 0.35);
+    --shadow-glow: 0 0 30px hsl(220 91% 54% / 0.3);
 
-    /* Animation */
+    /* Smooth Animations */
     --transition-sport: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 
@@ -106,13 +112,21 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
-  /* Sport-specific utility classes */
+  /* Modern Sport-specific utility classes */
   .bg-gradient-hero {
     background: var(--gradient-hero);
   }
 
+  .bg-gradient-hero-alt {
+    background: var(--gradient-hero-alt);
+  }
+
   .bg-gradient-section {
     background: var(--gradient-section);
+  }
+
+  .bg-gradient-card {
+    background: var(--gradient-card);
   }
 
   .shadow-sport {
@@ -123,8 +137,29 @@
     box-shadow: var(--shadow-card);
   }
 
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+
   .transition-sport {
     transition: var(--transition-sport);
+  }
+
+  .transition-bounce {
+    transition: var(--transition-bounce);
+  }
+
+  /* Modern animations */
+  .hover-lift {
+    @apply hover:scale-105 hover:shadow-elevated transition-bounce;
+  }
+
+  .hover-glow {
+    @apply hover:shadow-glow transition-sport;
   }
 }
 

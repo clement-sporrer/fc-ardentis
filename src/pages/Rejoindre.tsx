@@ -184,39 +184,42 @@ const Rejoindre = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero */}
-      <section className="bg-gradient-hero py-16 px-4 text-center">
-        <div className="container max-w-4xl mx-auto">
-          <h1 className="text-4xl md:text-6xl font-sport-condensed font-bold text-white mb-6">
-            Nous rejoindre
+      {/* Modern Hero Section */}
+      <section className="bg-gradient-hero py-20 px-4 text-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
+        <div className="container max-w-5xl mx-auto relative z-10">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-sport-condensed font-bold text-white mb-8 leading-tight">
+            <span className="bg-gradient-to-r from-accent to-white bg-clip-text text-transparent">Nous</span> rejoindre
           </h1>
-          <p className="text-xl text-white/90 font-sport">
-            Choisissez votre profil et remplissez le formulaire. Nous répondons sous 48h.
+          <p className="text-2xl md:text-3xl text-white/95 font-sport font-medium max-w-4xl mx-auto">
+            🚀 Choisissez votre profil et remplissez le formulaire.<br />
+            <span className="text-accent">Nous répondons sous 48h !</span>
           </p>
         </div>
       </section>
 
-      {/* Form */}
-      <section className="py-16 px-4 overflow-visible">
-        <div className="container max-w-2xl mx-auto">
-          <form onSubmit={handleSubmit} className="space-y-8">
+      {/* Modern Form */}
+      <section className="py-20 px-4 overflow-visible bg-gradient-section">
+        <div className="container max-w-3xl mx-auto">
+          <form onSubmit={handleSubmit} className="space-y-10">
             
-            {/* Choix de profil */}
-            <div className="bg-card p-6 rounded-lg shadow-card border border-border/20">
-              <Label className="text-lg font-sport-condensed font-bold text-foreground mb-4 block">
-                Choisissez votre profil
+            {/* Modern Profile Selection */}
+            <div className="bg-gradient-card p-8 rounded-2xl shadow-card border border-border/10">
+              <Label className="text-2xl font-sport-condensed font-bold text-foreground mb-6 block">
+                🎯 Choisissez votre profil
               </Label>
               <RadioGroup 
                 value={formData.profile} 
                 onValueChange={(value) => handleInputChange('profile', value as FormData['profile'])}
+                className="grid grid-cols-1 md:grid-cols-2 gap-4"
               >
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3 bg-primary/10 p-6 rounded-xl border border-primary/20 hover-lift">
                   <RadioGroupItem value="Joueur" id="joueur" />
-                  <Label htmlFor="joueur" className="font-sport">Joueur</Label>
+                  <Label htmlFor="joueur" className="font-sport text-lg font-medium">⚽ Joueur</Label>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3 bg-accent/10 p-6 rounded-xl border border-accent/20 hover-lift">
                   <RadioGroupItem value="Partenaire" id="partenaire" />
-                  <Label htmlFor="partenaire" className="font-sport">Partenaire</Label>
+                  <Label htmlFor="partenaire" className="font-sport text-lg font-medium">🤝 Partenaire</Label>
                 </div>
               </RadioGroup>
             </div>
