@@ -377,13 +377,13 @@ const Calendrier = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section alignée aux autres pages */}
+      {/* Hero Section (aligné sur Notre équipe) */}
       <section className="bg-gradient-hero py-28 md:py-36 px-4 text-center">
         <div className="container max-w-5xl mx-auto">
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-sport-condensed font-bold text-white mb-3"><span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">Notre calendrier</span></h1>
-            <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">Calendrier</span>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-sport-condensed font-bold text-white mb-3">
+            <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">Notre calendrier</span>
           </h1>
-          <p className="text-lg md:text-xl text-white/90 font-sport max-w-3xl mx-auto">Matchs et entraînements à jour.</p>
+          <p className="text-lg md:text-xl text-white/90 font-sport max-w-3xl mx-auto">
             Matchs et entraînements à jour.
           </p>
         </div>
