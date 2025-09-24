@@ -500,7 +500,7 @@ const Calendrier = () => {
                   </h3>
                   <div className="space-y-3">
                     {upcomingMatches.slice(0, 5).map((e, i) => (
-                      <div key={`up-${i}`} className="p-4 rounded-xl border border-border/15 bg-card">
+                      <div key={`up-${i}`} className="p-4 rounded-2xl bg-white bg-[radial-gradient(120%_120%_at_50%_0%,#f4d0e4_0%,transparent_55%)] border border-[#f4d0e4]/35 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-sport">
                         <div className="flex items-center justify-center gap-3 text-center">
                           {e.home_logo && (
                             <img
@@ -554,7 +554,7 @@ const Calendrier = () => {
                     {(showAllPastMatches ? pastMatches : pastMatches.slice(0, 3)).map((e, i) => {
                       const res = computeResult(e); // V/N/D
                       return (
-                        <div key={`past-${i}`} className="p-0 rounded-xl border border-border/15 bg-card overflow-hidden">
+                        <div key={`past-${i}`} className=" p-0 rounded-2xl bg-white bg-[radial-gradient(120%_120%_at_50%_0%,#f4d0e4_0%,transparent_55%)] border border-[#f4d0e4]/35 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-sport overflow-hidden">
                           <div className="flex">
                             {/* Zone contenu 85% */}
                             <div className="basis-[85%] px-4 py-3">
