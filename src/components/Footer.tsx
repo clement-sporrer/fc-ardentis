@@ -38,6 +38,12 @@ const Footer = () => {
               Contacts
             </Link>
             <Link 
+              to="/shop" 
+              className="hover:text-primary transition-sport font-sport"
+            >
+              Boutique
+            </Link>
+            <Link 
               to="/rejoindre" 
               className="hover:text-primary transition-sport font-sport"
             >
