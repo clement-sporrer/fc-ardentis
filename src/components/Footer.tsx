@@ -10,7 +10,7 @@ const Footer = () => {
             <img 
               src="/assets/logo.png" 
               alt="FC Ardentis Logo"
-              className="h-10 w-auto opacity-90 drop-shadow-sm"
+              className="h-10 w-auto object-contain opacity-90 drop-shadow-sm"
             />
             <span className="font-sport-condensed font-bold text-lg">
               FC ARDENTIS

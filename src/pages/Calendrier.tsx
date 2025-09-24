@@ -176,7 +176,7 @@ const Calendrier = () => {
           <h1 className="text-4xl md:text-6xl font-sport-condensed font-bold text-white mb-6">
             Calendrier
           </h1>
-          <p className="text-xl text-white/90 font-sport">
+          <p className="text-lg text-white/90 font-sport">
             Consultez nos matchs et entraînements à venir
           </p>
         </div>

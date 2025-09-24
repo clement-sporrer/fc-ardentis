@@ -188,13 +188,13 @@ const Rejoindre = () => {
       <section className="bg-gradient-hero py-20 px-4 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
         <div className="container max-w-5xl mx-auto relative z-10">
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-sport-condensed font-bold text-white mb-8 leading-tight">
-            <span className="bg-gradient-to-r from-accent to-white bg-clip-text text-transparent">Nous</span> rejoindre
-          </h1>
-          <p className="text-2xl md:text-3xl text-white/95 font-sport font-medium max-w-4xl mx-auto">
-            🚀 Choisissez votre profil et remplissez le formulaire.<br />
-            <span className="text-accent">Nous répondons sous 48h !</span>
-          </p>
+        <h1 className="text-4xl md:text-6xl font-sport-condensed font-bold text-white mb-6 text-center">
+          Nous <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">rejoindre</span>
+        </h1>
+        <p className="text-lg text-white/90 font-sport max-w-3xl mx-auto text-center">
+          Choisissez votre profil et remplissez le formulaire.<br />
+          <span className="text-accent">Nous répondons sous 48h !</span>
+        </p>
         </div>
       </section>
 

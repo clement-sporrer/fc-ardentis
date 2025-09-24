@@ -126,12 +126,12 @@ const Equipe = () => {
       <section className="bg-gradient-hero py-20 px-4 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
         <div className="container max-w-5xl mx-auto relative z-10">
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-sport-condensed font-bold text-white mb-8 leading-tight">
-            Notre <span className="bg-gradient-to-r from-accent to-white bg-clip-text text-transparent">équipe</span>
-          </h1>
-          <p className="text-2xl md:text-3xl text-white/95 font-sport font-medium">
-            🏆 Découvrez les joueurs qui font la fierté du FC Ardentis
-          </p>
+        <h1 className="text-4xl md:text-6xl font-sport-condensed font-bold text-white mb-6 text-center">
+          Notre <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">équipe</span>
+        </h1>
+        <p className="text-lg text-white/90 font-sport max-w-3xl mx-auto text-center">
+          Découvrez les joueurs passionnés qui forment le FC Ardentis
+        </p>
         </div>
       </section>
 
@@ -189,7 +189,7 @@ const Equipe = () => {
 
                 return (
                   <div key={position} className="space-y-8">
-                    <h2 className="text-3xl md:text-5xl font-sport-condensed font-bold text-center text-foreground">
+                    <h2 className="text-xl md:text-2xl font-sport-condensed font-bold text-center text-foreground">
                       <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                         {positionLabels[position]}
                       </span>
