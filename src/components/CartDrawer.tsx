@@ -9,10 +9,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Plus, Minus, Trash2 } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
 const CartDrawer = () => {
   const { state, dispatch } = useCart();
+  const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
   
   const updateQuantity = (sku: string, quantity: number) => {
     dispatch({ type: 'UPDATE_QUANTITY', payload: { sku, quantity } });
@@ -21,9 +24,14 @@ const CartDrawer = () => {
   const removeItem = (sku: string) => {
     dispatch({ type: 'REMOVE_ITEM', payload: sku });
   };
+  
+  const handleCheckout = () => {
+    setIsOpen(false);
+    navigate('/checkout');
+  };
 
   return (
-    <Sheet>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <ShoppingCart className="h-5 w-5" />
@@ -107,8 +115,8 @@ const CartDrawer = () => {
                     {state.total.toFixed(2)}€
                   </span>
                 </div>
-                <Button asChild variant="default" size="lg" className="w-full">
-                  <Link to="/checkout">Valider ma commande</Link>
+                <Button onClick={handleCheckout} variant="default" size="lg" className="w-full">
+                  Finaliser ma commande
                 </Button>
               </div>
             </>

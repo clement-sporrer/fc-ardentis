@@ -86,7 +86,7 @@ const Contacts = () => {
                 </div>
                 <div>
                   <h3 className="font-sport-condensed font-bold text-xl text-foreground mb-2">
-                    📧 Email
+                    Email
                   </h3>
                   <a 
                     href="mailto:fcardentis@gmail.com"
@@ -98,7 +98,7 @@ const Contacts = () => {
               </div>
               
               <p className="text-muted-foreground font-sport bg-muted/30 p-4 rounded-xl">
-                📞 Pour toute information, écrivez-nous. Réponse garantie sous 48h.
+                Pour toute information, écrivez-nous. Réponse garantie sous 48h.
               </p>
             </div>
 
@@ -110,7 +110,7 @@ const Contacts = () => {
                 </div>
                 <div>
                   <h3 className="font-sport-condensed font-bold text-xl text-foreground mb-2">
-                    📍 Localisation
+                    Localisation
                   </h3>
                   <p className="text-foreground font-sport font-medium">
                     Région parisienne • Île-de-France
@@ -122,7 +122,7 @@ const Contacts = () => {
                 {/* Enhanced Training Location */}
                 <div className="bg-gradient-to-r from-primary/5 to-accent/5 p-6 rounded-xl border border-border/20">
                   <p className="font-sport font-medium text-foreground mb-4">
-                    <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-bold">🏃‍♂️ Entraînements :</span><br />
+                    <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-bold">Entraînements :</span><br />
                     Île de Puteaux — 1 Allée des Sports, 92800 Puteaux
                   </p>
                   <div className="rounded-xl overflow-hidden shadow-elevated">
@@ -159,11 +159,11 @@ const Contacts = () => {
               
               <div className="space-y-4 mb-6">
                 <div className="bg-primary/10 p-4 rounded-xl border border-primary/20">
-                  <p className="text-primary font-sport-condensed font-bold mb-1">🏃‍♂️ Mercredi 19h-21h</p>
+                  <p className="text-primary font-sport-condensed font-bold mb-1">Mercredi 19h-21h</p>
                   <p className="text-muted-foreground font-sport text-sm">Entraînements • Puteaux</p>
                 </div>
                 <div className="bg-accent/10 p-4 rounded-xl border border-accent/20">
-                  <p className="text-accent font-sport-condensed font-bold mb-1">⚽ Dimanche 15h</p>
+                  <p className="text-accent font-sport-condensed font-bold mb-1">Dimanche 15h</p>
                   <p className="text-muted-foreground font-sport text-sm">Matchs • Stade Suzanne Lenglen</p>
                 </div>
               </div>

@@ -38,12 +38,12 @@ const Index = () => {
   return (
     <>
       {/* Modern Hero Section - Full Space */}
-      <section className="bg-gradient-hero py-32 px-4 text-center relative overflow-hidden min-h-[90vh] flex items-center justify-center">
+      <section className="bg-gradient-hero px-4 text-center relative overflow-hidden h-screen flex items-center justify-center">
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
         <div className="container max-w-5xl mx-auto relative z-10">
           <div className="mb-12 animate-fade-in">
             <img 
-              src="/public/assets/logo.png"
+              src="/assets/logo.png"
               alt="FC Ardentis Logo"
               className="h-40 md:h-56 w-auto object-contain mx-auto mb-8 drop-shadow-2xl"
             />
