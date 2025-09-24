@@ -2,18 +2,16 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
-  Trophy,
-  Dumbbell,
   Calendar as CalendarIcon,
+  AlertCircle,
   Clock,
   MapPin,
-  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 
-// Env
+// ENV
 const GOOGLE_SHEET_EVENTS_CSV_URL = import.meta.env.VITE_GOOGLE_SHEET_EVENTS_CSV_URL || "";
 const GOOGLE_SHEET_STANDINGS_CSV_URL = import.meta.env.VITE_SHEET_STANDINGS_CSV_URL || "";
 
@@ -59,18 +57,15 @@ interface CalendarDay {
 }
 
 /* ============================
-   Utils (robustes)
+   Utils
 ============================ */
-// Parser CSV qui gère guillemets et virgules
 const parseCSVLine = (line: string): string[] => {
   const out: string[] = [];
   let cur = "";
   let inQuotes = false;
-
   for (let i = 0; i < line.length; i++) {
     const c = line[i];
     if (c === '"') {
-      // guillemet échappé
       if (inQuotes && line[i + 1] === '"') {
         cur += '"';
         i++;
@@ -105,7 +100,6 @@ const monthNames = [
 
 const dayNames = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 
-// JJ/MM/AAAA → Date (00:00 locale)
 const parseEventDate = (d: string): Date => {
   if (!d) return new Date(NaN);
   // JJ/MM/AAAA
@@ -113,9 +107,8 @@ const parseEventDate = (d: string): Date => {
     const [jj, mm, aaaa] = d.split("/").map(Number);
     return new Date(aaaa, mm - 1, jj);
   }
-  // fallback ISO (AAAA-MM-JJ)
-  const iso = new Date(d);
-  return iso;
+  // Fallback ISO
+  return new Date(d);
 };
 
 const isSameDay = (a: Date, b: Date) =>
@@ -136,17 +129,6 @@ const computeResult = (e: Event) => {
   return "D";
 };
 
-const ResultBadge = ({ r }: { r?: string | null }) => {
-  if (!r) return null;
-  const map: Record<string, string> = { V: "bg-green-600", N: "bg-gray-600", D: "bg-red-600" };
-  const cls = map[r] || "bg-gray-600";
-  return (
-    <span className={`ml-2 px-2 py-0.5 rounded text-white text-xs font-sport ${cls}`}>
-      {r}
-    </span>
-  );
-};
-
 /* ============================
    Component
 ============================ */
@@ -161,14 +143,13 @@ const Calendrier = () => {
   const [selectedEvent, setSelectedEvent] = useState<{ events: Event[]; date: string } | null>(null);
   const [showAllPastMatches, setShowAllPastMatches] = useState(false);
 
-  /* ------- Fetch Events (nouveau format 13 colonnes) ------- */
+  /* ------- Fetch Events (13 colonnes) ------- */
   useEffect(() => {
     const fetchEvents = async () => {
       if (!GOOGLE_SHEET_EVENTS_CSV_URL) {
         setLoading(false);
         return;
       }
-
       try {
         const url = `${GOOGLE_SHEET_EVENTS_CSV_URL}${
           GOOGLE_SHEET_EVENTS_CSV_URL.includes("?") ? "&" : "?"
@@ -183,11 +164,9 @@ const Calendrier = () => {
           return;
         }
 
-        // Header dynamique (si jamais l’ordre change côté sheet)
         const header = parseCSVLine(lines[0]).map((h) => h.toLowerCase());
         const idx = (name: string) => header.indexOf(name);
 
-        // Indices attendus (noms exacts)
         const i_date = idx("date");
         const i_title = idx("title");
         const i_start = idx("start_time");
@@ -203,17 +182,14 @@ const Calendrier = () => {
         const i_al = idx("away_logo");
 
         const parsed: Event[] = [];
-
         for (let i = 1; i < lines.length; i++) {
           const cells = parseCSVLine(lines[i]);
 
           const date = i_date >= 0 ? cells[i_date] || "" : "";
           const type = (i_type >= 0 ? cells[i_type] || "" : "").toLowerCase() as EventType;
-
-          // Lignes minimales valides : date + type
           if (!date || (type !== "match" && type !== "entrainement")) continue;
 
-          const event: Event = {
+          parsed.push({
             date,
             title: i_title >= 0 ? cells[i_title] || "" : "",
             start_time: i_start >= 0 ? cells[i_start] || "" : "",
@@ -229,26 +205,23 @@ const Calendrier = () => {
                 ? (cells[i_res] as "V" | "N" | "D")
                 : (computeResult({
                     date,
-                    title: cells[i_title] || "",
-                    start_time: cells[i_start] || "",
-                    end_time: cells[i_end] || "",
-                    location: cells[i_location] || "",
+                    title: i_title >= 0 ? cells[i_title] || "" : "",
+                    start_time: i_start >= 0 ? cells[i_start] || "" : "",
+                    end_time: i_end >= 0 ? cells[i_end] || "" : "",
+                    location: i_location >= 0 ? cells[i_location] || "" : "",
                     type,
-                    team_home: cells[i_th] || "",
-                    team_away: cells[i_ta] || "",
+                    team_home: i_th >= 0 ? cells[i_th] || "" : "",
+                    team_away: i_ta >= 0 ? cells[i_ta] || "" : "",
                     score_home: i_sh >= 0 && cells[i_sh] !== "" ? Number(cells[i_sh]) : undefined,
                     score_away: i_sa >= 0 && cells[i_sa] !== "" ? Number(cells[i_sa]) : undefined,
-                    home_logo: cells[i_hl] || "",
-                    away_logo: cells[i_al] || "",
+                    home_logo: i_hl >= 0 ? cells[i_hl] || "" : "",
+                    away_logo: i_al >= 0 ? cells[i_al] || "" : "",
                   }) as any),
             home_logo: i_hl >= 0 ? cells[i_hl] || "" : "",
             away_logo: i_al >= 0 ? cells[i_al] || "" : "",
-          };
-
-          parsed.push(event);
+          });
         }
 
-        // Tri par date croissante
         parsed.sort((a, b) => parseEventDate(a.date).getTime() - parseEventDate(b.date).getTime());
 
         setEvents(parsed);
@@ -303,7 +276,6 @@ const Calendrier = () => {
         const parsed: Standing[] = [];
         for (let i = 1; i < lines.length; i++) {
           const cells = parseCSVLine(lines[i]);
-          if (!cells.length) continue;
           parsed.push({
             rank: ir >= 0 ? Number(cells[ir] || 0) : 0,
             team: it >= 0 ? cells[it] || "" : "",
@@ -318,7 +290,6 @@ const Calendrier = () => {
           });
         }
 
-        // Tri par rank croissant, puis points desc si besoin
         parsed.sort((a, b) => (a.rank || 999) - (b.rank || 999) || b.points - a.points);
         setStandings(parsed);
       } catch (err) {
@@ -331,7 +302,7 @@ const Calendrier = () => {
     fetchStandings();
   }, []);
 
-  /* ------- Génération calendrier Lundi→Dimanche, dates correctes ------- */
+  /* ------- Génération calendrier Lundi→Dimanche ------- */
   const calendarDays = useMemo<CalendarDay[]>(() => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -339,32 +310,24 @@ const Calendrier = () => {
     const firstOfMonth = new Date(year, month, 1);
     const lastOfMonth = new Date(year, month + 1, 0);
 
-    // JS getDay(): 0=Dimanche, 1=Lundi, ... → on veut Lundi=0
-    const dayOfWeek = (d: Date) => (d.getDay() + 6) % 7; // Lundi=0, Dimanche=6
+    // Lundi=0 … Dimanche=6
+    const dayOfWeek = (d: Date) => (d.getDay() + 6) % 7;
 
-    // Début de vue = Lundi de la semaine contenant le 1er du mois (ou précédent)
     const start = new Date(firstOfMonth);
-    const offsetToMonday = dayOfWeek(start); // 0..6
+    const offsetToMonday = dayOfWeek(start);
     start.setDate(start.getDate() - offsetToMonday);
 
-    // On remplit 6 semaines (42 cases), standard “mois” complet
     const days: CalendarDay[] = [];
-    const t0 = todayMidnight();
-
     for (let i = 0; i < 42; i++) {
       const d = new Date(start);
       d.setDate(start.getDate() + i);
-
-      // Evenements exactement ce jour-là (00:00)
       const evts = events.filter((e) => isSameDay(parseEventDate(e.date), d));
-
       days.push({
         date: d,
         isCurrentMonth: d >= new Date(year, month, 1) && d <= lastOfMonth,
         events: evts,
       });
     }
-
     return days;
   }, [currentDate, events]);
 
@@ -388,17 +351,6 @@ const Calendrier = () => {
     }
   };
 
-  const getEventIcons = (events: Event[]) => {
-    const hasMatch = events.some((e) => e.type === "match");
-    const hasTraining = events.some((e) => e.type === "entrainement");
-    return (
-      <div className="flex gap-1 justify-center">
-        {hasMatch && <Trophy className="h-3 w-3 text-primary" />}
-        {hasTraining && <Dumbbell className="h-3 w-3 text-secondary" />}
-      </div>
-    );
-  };
-
   /* ------- Sélections Liste droite ------- */
   const pastMatches = useMemo(() => {
     const t0 = todayMidnight().getTime();
@@ -414,9 +366,17 @@ const Calendrier = () => {
       .sort((a, b) => parseEventDate(a.date).getTime() - parseEventDate(b.date).getTime());
   }, [events]);
 
+  const formatLongDate = (d: string) =>
+    new Date(parseEventDate(d)).toLocaleDateString("fr-FR", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
   return (
     <div className="min-h-screen">
-      {/* Hero Section (cohérente, pas d'emoji) */}
+      {/* Hero Section */}
       <section className="bg-gradient-hero min-h-[40vh] md:min-h-[50vh] flex items-center justify-center px-4 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent" />
         <div className="container max-w-5xl mx-auto relative z-10">
@@ -426,12 +386,12 @@ const Calendrier = () => {
             </span>
           </h1>
           <p className="text-lg text-white/90 font-sport max-w-3xl mx-auto">
-            Tous les événements du club : matchs et entraînements, à jour.
+            Matchs et entraînements à jour.
           </p>
         </div>
       </section>
 
-      {/* Calendar + List */}
+      {/* Calendar + Lists */}
       <section className="py-20 px-4 bg-gradient-section">
         <div className="container max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-3 gap-8">
@@ -491,7 +451,7 @@ const Calendrier = () => {
                       </Button>
                     </div>
 
-                    {/* Week header Mon→Sun */}
+                    {/* Day headers (Mon→Sun) */}
                     <div className="grid grid-cols-7 gap-1">
                       {dayNames.map((d) => (
                         <div
@@ -515,12 +475,10 @@ const Calendrier = () => {
                           ].join(" ")}
                         >
                           <div className="text-sm font-sport font-medium mb-1">{day.date.getDate()}</div>
-                          {day.events.length > 0 && getEventIcons(day.events)}
                         </div>
                       ))}
                     </div>
 
-                    {/* Empty month */}
                     {currentMonthEvents.length === 0 && (
                       <div className="text-center py-8 text-muted-foreground font-sport">
                         <CalendarIcon className="h-12 w-12 mx-auto mb-3 opacity-50" />
@@ -542,33 +500,30 @@ const Calendrier = () => {
                   </h3>
                   <div className="space-y-3">
                     {upcomingMatches.slice(0, 5).map((e, i) => (
-                      <div key={`up-${i}`} className="bg-primary/5 p-3 rounded-lg border border-primary/10">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-sm font-sport">
-                            <Trophy className="h-4 w-4 text-primary" />
-                            {e.home_logo ? (
-                              <img
-                                src={e.home_logo}
-                                alt={e.team_home || "Domicile"}
-                                className="h-4 w-4 object-contain"
-                              />
-                            ) : null}
-                            <span className="font-medium">{e.team_home || "Domicile"}</span>
-                            <span className="mx-1">VS</span>
-                            <span className="font-medium">{e.team_away || "Extérieur"}</span>
-                            {e.away_logo ? (
-                              <img
-                                src={e.away_logo}
-                                alt={e.team_away || "Extérieur"}
-                                className="h-4 w-4 object-contain"
-                              />
-                            ) : null}
-                          </div>
-                          <span className="text-xs text-muted-foreground font-sport">
-                            {e.date} {e.start_time ? `• ${e.start_time}` : ""}
-                          </span>
+                      <div key={`up-${i}`} className="p-4 rounded-xl border border-border/15 bg-card">
+                        <div className="flex items-center justify-center gap-3 text-center">
+                          {e.home_logo && (
+                            <img
+                              src={e.home_logo}
+                              alt={e.team_home || "Domicile"}
+                              className="h-7 w-7 object-contain"
+                            />
+                          )}
+                          <span className="font-sport-condensed font-bold">{e.team_home || "Domicile"}</span>
+                          <span className="text-muted-foreground">VS</span>
+                          <span className="font-sport-condensed font-bold">{e.team_away || "Extérieur"}</span>
+                          {e.away_logo && (
+                            <img
+                              src={e.away_logo}
+                              alt={e.team_away || "Extérieur"}
+                              className="h-7 w-7 object-contain"
+                            />
+                          )}
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1 font-sport">{e.location}</p>
+                        <div className="mt-2 text-center text-xs text-muted-foreground font-sport">
+                          {/* Seulement ici la date/heure en dessous */}
+                          {e.date}{e.start_time ? ` • ${e.start_time}` : ""}
+                        </div>
                       </div>
                     ))}
                     {upcomingMatches.length === 0 && (
@@ -594,41 +549,78 @@ const Calendrier = () => {
                       </Button>
                     )}
                   </div>
+
                   <div className="space-y-3">
-                    {(showAllPastMatches ? pastMatches : pastMatches.slice(0, 3)).map((e, i) => (
-                      <div key={`past-${i}`} className="bg-muted/30 p-3 rounded-lg border border-border/10">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-sm font-sport">
-                            <Trophy className="h-4 w-4 text-muted-foreground" />
-                            {e.home_logo ? (
-                              <img
-                                src={e.home_logo}
-                                alt={e.team_home || "Domicile"}
-                                className="h-4 w-4 object-contain"
-                              />
-                            ) : null}
-                            <span className="font-medium">{e.team_home || "Domicile"}</span>
-                            <span className="mx-1">VS</span>
-                            <span className="font-medium">{e.team_away || "Extérieur"}</span>
-                            {e.away_logo ? (
-                              <img
-                                src={e.away_logo}
-                                alt={e.team_away || "Extérieur"}
-                                className="h-4 w-4 object-contain"
-                              />
-                            ) : null}
-                            <ResultBadge r={computeResult(e)} />
+                    {(showAllPastMatches ? pastMatches : pastMatches.slice(0, 3)).map((e, i) => {
+                      const res = computeResult(e); // V/N/D
+                      return (
+                        <div key={`past-${i}`} className="p-0 rounded-xl border border-border/15 bg-card overflow-hidden">
+                          <div className="flex">
+                            {/* Zone contenu 85% */}
+                            <div className="basis-[85%] px-4 py-3">
+                              <div className="flex items-center justify-center gap-3 text-center">
+                                {e.home_logo && (
+                                  <img
+                                    src={e.home_logo}
+                                    alt={e.team_home || "Domicile"}
+                                    className="h-7 w-7 object-contain"
+                                  />
+                                )}
+                                <div className="flex flex-col items-center">
+                                  <span className="font-sport-condensed font-bold">
+                                    {e.team_home || "Domicile"}
+                                  </span>
+                                  {/* score sous l'équipe HOME */}
+                                  {typeof e.score_home === "number" && (
+                                    <span className="text-xs text-muted-foreground font-sport mt-0.5">
+                                      {e.score_home}
+                                    </span>
+                                  )}
+                                </div>
+
+                                <span className="text-muted-foreground">VS</span>
+
+                                <div className="flex flex-col items-center">
+                                  <span className="font-sport-condensed font-bold">
+                                    {e.team_away || "Extérieur"}
+                                  </span>
+                                  {/* score sous l'équipe AWAY */}
+                                  {typeof e.score_away === "number" && (
+                                    <span className="text-xs text-muted-foreground font-sport mt-0.5">
+                                      {e.score_away}
+                                    </span>
+                                  )}
+                                </div>
+                                {e.away_logo && (
+                                  <img
+                                    src={e.away_logo}
+                                    alt={e.team_away || "Extérieur"}
+                                    className="h-7 w-7 object-contain"
+                                  />
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Zone badge 15% */}
+                            <div className="basis-[15%] flex items-center justify-center px-2">
+                              {res && (
+                                <span
+                                  className={`px-2 py-0.5 rounded text-white text-xs font-sport ${
+                                    res === "V"
+                                      ? "bg-green-600"
+                                      : res === "N"
+                                      ? "bg-gray-600"
+                                      : "bg-red-600"
+                                  }`}
+                                >
+                                  {res}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                          <span className="text-xs text-muted-foreground font-sport">{e.date}</span>
                         </div>
-                        {(typeof e.score_home === "number" && typeof e.score_away === "number") && (
-                          <p className="text-xs text-muted-foreground mt-1 font-sport">
-                            Score: {e.score_home} - {e.score_away}
-                          </p>
-                        )}
-                        <p className="text-xs text-muted-foreground mt-1 font-sport">{e.location}</p>
-                      </div>
-                    ))}
+                      );
+                    })}
                     {pastMatches.length === 0 && (
                       <p className="text-sm text-muted-foreground font-sport">Aucun match passé</p>
                     )}
@@ -716,17 +708,12 @@ const Calendrier = () => {
         </div>
       </section>
 
-      {/* Event Details Modal */}
+      {/* Event Details Modal (optionnel, on conserve) */}
       <Dialog open={!!selectedEvent} onOpenChange={() => setSelectedEvent(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="font-sport-condensed font-bold text-foreground">
-              {selectedEvent && new Date(parseEventDate(selectedEvent.date)).toLocaleDateString("fr-FR", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+              {selectedEvent && formatLongDate(selectedEvent.date)}
             </DialogTitle>
           </DialogHeader>
 
@@ -734,51 +721,41 @@ const Calendrier = () => {
             {selectedEvent?.events.map((e, i) => (
               <Card key={i} className="border border-border/20">
                 <CardContent className="p-4 space-y-3">
-                  <div className="flex items-center gap-3">
-                    {e.type === "match" ? (
-                      <Trophy className="h-5 w-5 text-primary" />
-                    ) : (
-                      <Dumbbell className="h-5 w-5 text-secondary" />
-                    )}
-                    <span className="font-sport-condensed font-bold text-lg capitalize">
-                      {e.type}
-                    </span>
-                    <ResultBadge r={computeResult(e)} />
-                  </div>
-
+                  {/* Teams */}
                   {e.type === "match" && (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center gap-3 text-center">
                       {e.home_logo && (
-                        <img src={e.home_logo} alt={e.team_home || "Domicile"} className="h-5 w-5 object-contain" />
+                        <img src={e.home_logo} alt={e.team_home || "Domicile"} className="h-7 w-7 object-contain" />
                       )}
-                      <span className="font-sport-condensed font-bold">
-                        {e.team_home || "Domicile"}
-                      </span>
-                      <span className="mx-1">VS</span>
-                      <span className="font-sport-condensed font-bold">
-                        {e.team_away || "Extérieur"}
-                      </span>
+                      <span className="font-sport-condensed font-bold">{e.team_home || "Domicile"}</span>
+                      <span className="text-muted-foreground">VS</span>
+                      <span className="font-sport-condensed font-bold">{e.team_away || "Extérieur"}</span>
                       {e.away_logo && (
-                        <img src={e.away_logo} alt={e.team_away || "Extérieur"} className="h-5 w-5 object-contain" />
+                        <img src={e.away_logo} alt={e.team_away || "Extérieur"} className="h-7 w-7 object-contain" />
                       )}
                     </div>
                   )}
 
+                  {/* Times & place */}
                   <div className="space-y-2 text-sm font-sport">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span>
-                        {e.start_time || ""} {e.end_time ? `→ ${e.end_time}` : ""}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <span>{e.location}</span>
-                    </div>
-                    {typeof e.score_home === "number" && typeof e.score_away === "number" && (
-                      <div className="text-sm">Score : {e.score_home} - {e.score_away}</div>
+                    {(e.start_time || e.end_time) && (
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span>
+                          {e.start_time || ""} {e.end_time ? `→ ${e.end_time}` : ""}
+                        </span>
+                      </div>
                     )}
-                    {e.title && <div className="text-sm text-muted-foreground">{e.title}</div>}
+                    {e.location && (
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <span>{e.location}</span>
+                      </div>
+                    )}
+                    {(typeof e.score_home === "number" && typeof e.score_away === "number") && (
+                      <div>Score : {e.score_home} - {e.score_away}</div>
+                    )}
+                    {e.title && <div className="text-muted-foreground">{e.title}</div>}
                   </div>
                 </CardContent>
               </Card>
