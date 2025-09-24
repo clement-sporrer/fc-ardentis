@@ -6,6 +6,8 @@ import {
   AlertCircle,
   Clock,
   MapPin,
+  Trophy,
+  Dumbbell,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -22,10 +24,10 @@ type EventType = "match" | "entrainement";
 
 interface Event {
   // CSV "MATCHS" — 13 colonnes
-  date: string; // JJ/MM/AAAA (ou ISO fallback)
+  date: string;            // JJ/MM/AAAA (ou ISO fallback)
   title: string;
-  start_time?: string; // HH:MM
-  end_time?: string; // HH:MM
+  start_time?: string;     // HH:MM
+  end_time?: string;       // HH:MM
   location: string;
   type: EventType;
   team_home?: string;
@@ -84,30 +86,17 @@ const parseCSVLine = (line: string): string[] => {
 };
 
 const monthNames = [
-  "Janvier",
-  "Février",
-  "Mars",
-  "Avril",
-  "Mai",
-  "Juin",
-  "Juillet",
-  "Août",
-  "Septembre",
-  "Octobre",
-  "Novembre",
-  "Décembre",
+  "Janvier","Février","Mars","Avril","Mai","Juin",
+  "Juillet","Août","Septembre","Octobre","Novembre","Décembre",
 ];
-
-const dayNames = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+const dayNames = ["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"];
 
 const parseEventDate = (d: string): Date => {
   if (!d) return new Date(NaN);
-  // JJ/MM/AAAA
   if (/^\d{2}\/\d{2}\/\d{4}$/.test(d)) {
     const [jj, mm, aaaa] = d.split("/").map(Number);
     return new Date(aaaa, mm - 1, jj);
   }
-  // Fallback ISO
   return new Date(d);
 };
 
@@ -127,6 +116,12 @@ const computeResult = (e: Event) => {
   if (h > a) return "V";
   if (h === a) return "N";
   return "D";
+};
+
+const ResultBadge = ({ r }: { r?: string | null }) => {
+  if (!r) return null;
+  const map: Record<string, string> = { V: "bg-green-600", N: "bg-gray-600", D: "bg-red-600" };
+  return <span className={`px-2 py-0.5 rounded text-white text-xs font-sport ${map[r] || "bg-gray-600"}`}>{r}</span>;
 };
 
 /* ============================
@@ -151,9 +146,7 @@ const Calendrier = () => {
         return;
       }
       try {
-        const url = `${GOOGLE_SHEET_EVENTS_CSV_URL}${
-          GOOGLE_SHEET_EVENTS_CSV_URL.includes("?") ? "&" : "?"
-        }_ts=${Date.now()}`;
+        const url = `${GOOGLE_SHEET_EVENTS_CSV_URL}${GOOGLE_SHEET_EVENTS_CSV_URL.includes("?") ? "&" : "?"}_ts=${Date.now()}`;
         const response = await fetch(url, { cache: "no-store" });
         const raw = await response.text();
 
@@ -247,9 +240,7 @@ const Calendrier = () => {
         return;
       }
       try {
-        const url = `${GOOGLE_SHEET_STANDINGS_CSV_URL}${
-          GOOGLE_SHEET_STANDINGS_CSV_URL.includes("?") ? "&" : "?"
-        }_ts=${Date.now()}`;
+        const url = `${GOOGLE_SHEET_STANDINGS_CSV_URL}${GOOGLE_SHEET_STANDINGS_CSV_URL.includes("?") ? "&" : "?"}_ts=${Date.now()}`;
         const response = await fetch(url, { cache: "no-store" });
         const raw = await response.text();
 
@@ -351,7 +342,17 @@ const Calendrier = () => {
     }
   };
 
-  /* ------- Sélections Liste droite ------- */
+  const getEventIcons = (evts: Event[]) => {
+    const hasMatch = evts.some((e) => e.type === "match");
+    const hasTraining = evts.some((e) => e.type === "entrainement");
+    return (
+      <div className="flex gap-1 justify-center mt-1">
+        {hasMatch && <Trophy className="h-3 w-3 text-primary" />}
+        {hasTraining && <Dumbbell className="h-3 w-3 text-secondary" />}
+      </div>
+    );
+  };
+
   const pastMatches = useMemo(() => {
     const t0 = todayMidnight().getTime();
     return events
@@ -376,16 +377,13 @@ const Calendrier = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-gradient-hero min-h-[40vh] md:min-h-[50vh] flex items-center justify-center px-4 text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent" />
-        <div className="container max-w-5xl mx-auto relative z-10">
-          <h1 className="text-4xl md:text-6xl font-sport-condensed font-bold text-white mb-3">
-            <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
-              Calendrier
-            </span>
+      {/* Hero Section alignée aux autres pages */}
+      <section className="bg-gradient-hero py-24 md:py-28 px-4 text-center">
+        <div className="container max-w-5xl mx-auto">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-sport-condensed font-bold text-white mb-2">
+            <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">Calendrier</span>
           </h1>
-          <p className="text-lg text-white/90 font-sport max-w-3xl mx-auto">
+          <p className="text-base md:text-lg text-white/90 font-sport max-w-3xl mx-auto">
             Matchs et entraînements à jour.
           </p>
         </div>
@@ -454,10 +452,7 @@ const Calendrier = () => {
                     {/* Day headers (Mon→Sun) */}
                     <div className="grid grid-cols-7 gap-1">
                       {dayNames.map((d) => (
-                        <div
-                          key={d}
-                          className="p-2 text-center text-sm font-sport font-medium text-muted-foreground"
-                        >
+                        <div key={d} className="p-2 text-center text-sm font-sport font-medium text-muted-foreground">
                           {d}
                         </div>
                       ))}
@@ -475,6 +470,7 @@ const Calendrier = () => {
                           ].join(" ")}
                         >
                           <div className="text-sm font-sport font-medium mb-1">{day.date.getDate()}</div>
+                          {day.events.length > 0 && getEventIcons(day.events)}
                         </div>
                       ))}
                     </div>
@@ -495,33 +491,25 @@ const Calendrier = () => {
               {/* Upcoming */}
               <Card className="shadow-card">
                 <CardContent className="p-6">
-                  <h3 className="text-xl font-sport-condensed font-bold text-foreground mb-4">
-                    Matchs à venir
-                  </h3>
+                  <h3 className="text-xl font-sport-condensed font-bold text-foreground mb-4">Matchs à venir</h3>
                   <div className="space-y-3">
                     {upcomingMatches.slice(0, 5).map((e, i) => (
-                      <div key={`up-${i}`} className="p-4 rounded-2xl bg-white bg-[radial-gradient(120%_120%_at_50%_0%,#888ce6_0%,transparent_55%)] border border-[#888ce6]/35 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-sport">
+                      <div
+                        key={`up-${i}`}
+                        className="p-4 rounded-2xl bg-white bg-[radial-gradient(120%_120%_at_50%_0%,#888ce6_0%,transparent_55%)] border border-[#888ce6]/35 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-sport"
+                      >
                         <div className="flex items-center justify-center gap-3 text-center">
                           {e.home_logo && (
-                            <img
-                              src={e.home_logo}
-                              alt={e.team_home || "Domicile"}
-                              className="h-7 w-7 object-contain"
-                            />
+                            <img src={e.home_logo} alt={e.team_home || "Domicile"} className="h-7 w-7 object-contain" />
                           )}
                           <span className="font-sport-condensed font-bold">{e.team_home || "Domicile"}</span>
                           <span className="text-muted-foreground">VS</span>
                           <span className="font-sport-condensed font-bold">{e.team_away || "Extérieur"}</span>
                           {e.away_logo && (
-                            <img
-                              src={e.away_logo}
-                              alt={e.team_away || "Extérieur"}
-                              className="h-7 w-7 object-contain"
-                            />
+                            <img src={e.away_logo} alt={e.team_away || "Extérieur"} className="h-7 w-7 object-contain" />
                           )}
                         </div>
                         <div className="mt-2 text-center text-xs text-muted-foreground font-sport">
-                          {/* Seulement ici la date/heure en dessous */}
                           {e.date}{e.start_time ? ` • ${e.start_time}` : ""}
                         </div>
                       </div>
@@ -539,12 +527,7 @@ const Calendrier = () => {
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-xl font-sport-condensed font-bold text-foreground">Matchs passés</h3>
                     {pastMatches.length > 3 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowAllPastMatches((v) => !v)}
-                        className="text-sm"
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => setShowAllPastMatches((v) => !v)} className="text-sm">
                         {showAllPastMatches ? "Voir moins" : "Voir plus"}
                       </Button>
                     )}
@@ -552,70 +535,41 @@ const Calendrier = () => {
 
                   <div className="space-y-3">
                     {(showAllPastMatches ? pastMatches : pastMatches.slice(0, 3)).map((e, i) => {
-                      const res = computeResult(e); // V/N/D
+                      const res = computeResult(e);
                       return (
-                        <div key={`past-${i}`} className=" p-0 rounded-2xl bg-white bg-[radial-gradient(120%_120%_at_50%_0%,#888ce6_0%,transparent_55%)] border border-[#888ce6]/35 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-sport overflow-hidden">
+                        <div
+                          key={`past-${i}`}
+                          className="p-0 rounded-2xl bg-white bg-[radial-gradient(120%_120%_at_50%_0%,#888ce6_0%,transparent_55%)] border border-[#888ce6]/35 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-sport overflow-hidden"
+                        >
                           <div className="flex">
                             {/* Zone contenu 85% */}
                             <div className="basis-[85%] px-4 py-3">
                               <div className="flex items-center justify-center gap-3 text-center">
                                 {e.home_logo && (
-                                  <img
-                                    src={e.home_logo}
-                                    alt={e.team_home || "Domicile"}
-                                    className="h-7 w-7 object-contain"
-                                  />
+                                  <img src={e.home_logo} alt={e.team_home || "Domicile"} className="h-7 w-7 object-contain" />
                                 )}
                                 <div className="flex flex-col items-center">
-                                  <span className="font-sport-condensed font-bold">
-                                    {e.team_home || "Domicile"}
-                                  </span>
-                                  {/* score sous l'équipe HOME */}
+                                  <span className="font-sport-condensed font-bold">{e.team_home || "Domicile"}</span>
                                   {typeof e.score_home === "number" && (
-                                    <span className="text-xs text-muted-foreground font-sport mt-0.5">
-                                      {e.score_home}
-                                    </span>
+                                    <span className="text-xs text-muted-foreground font-sport mt-0.5">{e.score_home}</span>
                                   )}
                                 </div>
-
                                 <span className="text-muted-foreground">VS</span>
-
                                 <div className="flex flex-col items-center">
-                                  <span className="font-sport-condensed font-bold">
-                                    {e.team_away || "Extérieur"}
-                                  </span>
-                                  {/* score sous l'équipe AWAY */}
+                                  <span className="font-sport-condensed font-bold">{e.team_away || "Extérieur"}</span>
                                   {typeof e.score_away === "number" && (
-                                    <span className="text-xs text-muted-foreground font-sport mt-0.5">
-                                      {e.score_away}
-                                    </span>
+                                    <span className="text-xs text-muted-foreground font-sport mt-0.5">{e.score_away}</span>
                                   )}
                                 </div>
                                 {e.away_logo && (
-                                  <img
-                                    src={e.away_logo}
-                                    alt={e.team_away || "Extérieur"}
-                                    className="h-7 w-7 object-contain"
-                                  />
+                                  <img src={e.away_logo} alt={e.team_away || "Extérieur"} className="h-7 w-7 object-contain" />
                                 )}
                               </div>
                             </div>
 
                             {/* Zone badge 15% */}
                             <div className="basis-[15%] flex items-center justify-center px-2">
-                              {res && (
-                                <span
-                                  className={`px-2 py-0.5 rounded text-white text-xs font-sport ${
-                                    res === "V"
-                                      ? "bg-green-600"
-                                      : res === "N"
-                                      ? "bg-gray-600"
-                                      : "bg-red-600"
-                                  }`}
-                                >
-                                  {res}
-                                </span>
-                              )}
+                              <ResultBadge r={res} />
                             </div>
                           </div>
                         </div>
@@ -636,9 +590,7 @@ const Calendrier = () => {
               <Card className="shadow-card">
                 <CardContent className="p-6">
                   <h3 className="text-2xl font-sport-condensed font-bold text-foreground mb-6 text-center">
-                    <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                      Classement
-                    </span>
+                    <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Classement</span>
                   </h3>
                   {standingsLoading ? (
                     <div className="text-center py-8">
@@ -669,22 +621,11 @@ const Calendrier = () => {
                         </thead>
                         <tbody>
                           {standings.map((s, idx) => (
-                            <tr
-                              key={idx}
-                              className={`border-b border-border/10 ${
-                                s.team === "FC Ardentis" ? "bg-primary/5" : ""
-                              }`}
-                            >
+                            <tr key={idx} className={`border-b border-border/10 ${s.team === "FC Ardentis" ? "bg-primary/5" : ""}`}>
                               <td className="py-2 font-sport font-medium">{s.rank}</td>
                               <td className="py-2 font-sport font-medium">
                                 <div className="flex items-center gap-2">
-                                  {s.team_logo_url && (
-                                    <img
-                                      src={s.team_logo_url}
-                                      alt={`Logo ${s.team}`}
-                                      className="h-5 w-5 object-contain"
-                                    />
-                                  )}
+                                  {s.team_logo_url && <img src={s.team_logo_url} alt={`Logo ${s.team}`} className="h-5 w-5 object-contain" />}
                                   {s.team}
                                 </div>
                               </td>
@@ -708,7 +649,7 @@ const Calendrier = () => {
         </div>
       </section>
 
-      {/* Event Details Modal (optionnel, on conserve) */}
+      {/* Event Details Modal */}
       <Dialog open={!!selectedEvent} onOpenChange={() => setSelectedEvent(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -721,22 +662,16 @@ const Calendrier = () => {
             {selectedEvent?.events.map((e, i) => (
               <Card key={i} className="border border-border/20">
                 <CardContent className="p-4 space-y-3">
-                  {/* Teams */}
                   {e.type === "match" && (
                     <div className="flex items-center justify-center gap-3 text-center">
-                      {e.home_logo && (
-                        <img src={e.home_logo} alt={e.team_home || "Domicile"} className="h-7 w-7 object-contain" />
-                      )}
+                      {e.home_logo && <img src={e.home_logo} alt={e.team_home || "Domicile"} className="h-7 w-7 object-contain" />}
                       <span className="font-sport-condensed font-bold">{e.team_home || "Domicile"}</span>
                       <span className="text-muted-foreground">VS</span>
                       <span className="font-sport-condensed font-bold">{e.team_away || "Extérieur"}</span>
-                      {e.away_logo && (
-                        <img src={e.away_logo} alt={e.team_away || "Extérieur"} className="h-7 w-7 object-contain" />
-                      )}
+                      {e.away_logo && <img src={e.away_logo} alt={e.team_away || "Extérieur"} className="h-7 w-7 object-contain" />}
                     </div>
                   )}
 
-                  {/* Times & place */}
                   <div className="space-y-2 text-sm font-sport">
                     {(e.start_time || e.end_time) && (
                       <div className="flex items-center gap-2">
@@ -752,7 +687,7 @@ const Calendrier = () => {
                         <span>{e.location}</span>
                       </div>
                     )}
-                    {(typeof e.score_home === "number" && typeof e.score_away === "number") && (
+                    {typeof e.score_home === "number" && typeof e.score_away === "number" && (
                       <div>Score : {e.score_home} - {e.score_away}</div>
                     )}
                     {e.title && <div className="text-muted-foreground">{e.title}</div>}
