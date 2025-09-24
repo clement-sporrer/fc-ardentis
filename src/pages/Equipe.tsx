@@ -88,32 +88,32 @@ const Equipe = () => {
   }, []);
 
   const PlayerCard = ({ player }: { player: Player }) => (
-    <div className="bg-card p-4 rounded-lg shadow-card border border-border/20 transition-sport hover:shadow-sport">
-      <div className="aspect-square bg-muted rounded-lg mb-4 overflow-hidden">
+    <div className="bg-gradient-card p-6 rounded-2xl shadow-card border border-border/10 hover-lift group">
+      <div className="aspect-square bg-gradient-to-br from-muted to-muted/70 rounded-xl mb-6 overflow-hidden">
         {player.photo_url ? (
           <img 
             src={player.photo_url} 
             alt={`${player.first_name} ${player.last_name}`}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover group-hover:scale-105 transition-sport"
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-hero">
-            <Users className="h-12 w-12 text-white" />
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary to-accent">
+            <Users className="h-16 w-16 text-white" />
           </div>
         )}
       </div>
       
       <div className="text-center">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <span className="bg-primary text-primary-foreground font-sport-condensed font-bold text-lg px-3 py-1 rounded">
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <span className="bg-gradient-to-r from-accent to-primary text-white font-sport-condensed font-bold text-xl px-4 py-2 rounded-full shadow-elevated">
             #{player.number}
           </span>
         </div>
-        <h3 className="font-sport-condensed font-bold text-lg text-foreground">
+        <h3 className="font-sport-condensed font-bold text-xl text-foreground mb-1">
           {player.first_name}
         </h3>
-        <p className="font-sport-condensed font-bold text-lg text-foreground">
+        <p className="font-sport-condensed font-bold text-xl text-foreground/80">
           {player.last_name}
         </p>
       </div>
@@ -122,73 +122,79 @@ const Equipe = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-gradient-hero py-16 px-4 text-center">
-        <div className="container max-w-4xl mx-auto">
-          <h1 className="text-4xl md:text-6xl font-sport-condensed font-bold text-white mb-6">
-            Notre équipe
+      {/* Modern Hero Section */}
+      <section className="bg-gradient-hero py-20 px-4 text-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
+        <div className="container max-w-5xl mx-auto relative z-10">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-sport-condensed font-bold text-white mb-8 leading-tight">
+            Notre <span className="bg-gradient-to-r from-accent to-white bg-clip-text text-transparent">équipe</span>
           </h1>
-          <p className="text-xl text-white/90 font-sport">
-            Découvrez les joueurs qui font la fierté du FC Ardentis
+          <p className="text-2xl md:text-3xl text-white/95 font-sport font-medium">
+            🏆 Découvrez les joueurs qui font la fierté du FC Ardentis
           </p>
         </div>
       </section>
 
-      {/* Admin Notice */}
-      <section className="py-8 px-4 bg-accent/20">
-        <div className="container max-w-4xl mx-auto">
-          <div className="flex items-center gap-3 text-sm text-muted-foreground font-sport">
-            <Settings className="h-5 w-5" />
+      {/* Modern Admin Notice */}
+      <section className="py-6 px-4 bg-gradient-section border-b border-border/10">
+        <div className="container max-w-6xl mx-auto">
+          <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground font-sport bg-gradient-card p-4 rounded-xl shadow-card">
+            <Settings className="h-5 w-5 text-primary" />
             <p>
-              <strong>Notice admin :</strong> Pour mettre à jour l'effectif, modifiez la Google Sheet. 
-              La page se met à jour automatiquement.
+              <strong className="text-foreground">Notice admin :</strong> Pour mettre à jour l'effectif, modifiez la Google Sheet. 
+              La page se met à jour automatiquement toutes les 10 secondes.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Players Grid */}
-      <section className="py-16 px-4">
-        <div className="container max-w-6xl mx-auto">
+      {/* Modern Players Grid */}
+      <section className="py-20 px-4 bg-gradient-section">
+        <div className="container max-w-7xl mx-auto">
           {loading ? (
-            <div className="text-center py-12">
-              <div className="inline-flex items-center gap-3 text-muted-foreground font-sport">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+            <div className="text-center py-16">
+              <div className="inline-flex items-center gap-4 text-muted-foreground font-sport text-lg bg-gradient-card p-6 rounded-2xl shadow-card">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 Chargement de l'équipe...
               </div>
             </div>
           ) : error ? (
-            <div className="text-center py-12">
-              <div className="inline-flex items-center gap-3 text-destructive font-sport">
-                <AlertCircle className="h-6 w-6" />
+            <div className="text-center py-16">
+              <div className="inline-flex items-center gap-4 text-destructive font-sport text-lg bg-gradient-card p-6 rounded-2xl shadow-card">
+                <AlertCircle className="h-8 w-8" />
                 {error}
               </div>
             </div>
           ) : Object.keys(players).length === 0 ? (
-            <div className="text-center py-12">
-              <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-xl font-sport-condensed font-bold text-foreground mb-2">
-                Effectif à venir
-              </h3>
-              <p className="text-muted-foreground font-sport mb-4">
-                L'effectif sera affiché une fois la Google Sheet configurée
-              </p>
-              <p className="text-sm text-muted-foreground font-sport">
-                Configurez VITE_GOOGLE_SHEET_CSV_URL pour afficher automatiquement les joueurs
-              </p>
+            <div className="text-center py-16 max-w-2xl mx-auto">
+              <div className="bg-gradient-card p-12 rounded-3xl shadow-card border border-border/10">
+                <Users className="h-20 w-20 text-primary mx-auto mb-6" />
+                <h3 className="text-3xl font-sport-condensed font-bold text-foreground mb-4">
+                  🚀 Effectif à venir
+                </h3>
+                <p className="text-muted-foreground font-sport text-lg mb-6 leading-relaxed">
+                  L'effectif sera affiché une fois la Google Sheet configurée.<br />
+                  Nos joueurs taléntueux arrivent bientôt !
+                </p>
+                <p className="text-sm text-muted-foreground font-sport bg-muted/50 p-4 rounded-xl">
+                  <strong>Admin :</strong> Configurez VITE_GOOGLE_SHEET_CSV_URL pour afficher automatiquement les joueurs
+                </p>
+              </div>
             </div>
           ) : (
-            <div className="space-y-12">
+            <div className="space-y-16">
               {positionOrder.map(position => {
                 const positionPlayers = players[position] || [];
                 if (positionPlayers.length === 0) return null;
 
                 return (
-                  <div key={position} className="space-y-6">
-                    <h2 className="text-2xl md:text-3xl font-sport-condensed font-bold text-center text-foreground">
-                      {positionLabels[position]}
+                  <div key={position} className="space-y-8">
+                    <h2 className="text-3xl md:text-5xl font-sport-condensed font-bold text-center text-foreground">
+                      <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                        {positionLabels[position]}
+                      </span>
                     </h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                       {positionPlayers.map((player, index) => (
                         <PlayerCard key={`${position}-${index}`} player={player} />
                       ))}

@@ -8,9 +8,9 @@ const Footer = () => {
           {/* Logo et nom */}
           <div className="flex items-center space-x-3">
             <img 
-              src="/lovable-uploads/ad48e0e9-aa8d-4228-8e16-a621364627d3.png" 
+              src="/assets/logo.png" 
               alt="FC Ardentis Logo"
-              className="h-8 w-auto opacity-90"
+              className="h-10 w-auto opacity-90 drop-shadow-sm"
             />
             <span className="font-sport-condensed font-bold text-lg">
               FC ARDENTIS

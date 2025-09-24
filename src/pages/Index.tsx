@@ -37,66 +37,74 @@ const Index = () => {
 
   return (
     <>
-      {/* Hero Section */}
-      <section className="bg-gradient-hero min-h-[80vh] flex items-center justify-center text-center px-4">
-        <div className="container max-w-4xl">
-          <div className="mb-8">
+      {/* Modern Hero Section */}
+      <section className="bg-gradient-hero min-h-[85vh] flex items-center justify-center text-center px-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30"></div>
+        <div className="container max-w-5xl relative z-10">
+          <div className="mb-10 animate-fade-in">
             <img 
-              src="/lovable-uploads/ad48e0e9-aa8d-4228-8e16-a621364627d3.png"
+              src="/assets/logo.png"
               alt="FC Ardentis Logo"
-              className="h-32 md:h-40 w-auto mx-auto mb-6 drop-shadow-lg"
+              className="h-36 md:h-48 lg:h-56 w-auto mx-auto mb-8 drop-shadow-2xl hover-glow"
             />
           </div>
           
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-sport-condensed font-bold text-white mb-6 leading-tight">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-sport-condensed font-bold text-white mb-6 leading-tight animate-fade-in">
             Le football,<br />
-            <span className="text-accent">notre fierté locale</span>
+            <span className="bg-gradient-to-r from-accent to-primary-glow bg-clip-text text-transparent">notre fierté locale</span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-white/90 mb-8 font-sport">
-            Club fondé en 2025, passion et esprit d'équipe
+          <p className="text-xl md:text-3xl lg:text-4xl text-white/95 mb-10 font-sport font-medium max-w-4xl mx-auto animate-fade-in">
+            Club fondé en 2025 • Passion & Excellence • Région parisienne
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild variant="hero" size="lg">
-              <Link to="/rejoindre">Nous rejoindre</Link>
+          <div className="flex flex-col sm:flex-row gap-6 justify-center animate-fade-in">
+            <Button asChild variant="cta" size="lg" className="text-lg px-8 py-4 hover-lift">
+              <Link to="/rejoindre">🏆 Nous rejoindre</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="bg-white/10 border-white text-white hover:bg-white hover:text-secondary">
-              <Link to="/rejoindre">Soutenir le club</Link>
+            <Button asChild variant="outline" size="lg" className="bg-white/10 backdrop-blur-sm border-2 border-white text-white hover:bg-white hover:text-primary text-lg px-8 py-4 hover-lift">
+              <Link to="/equipe">🌟 Découvrir l'équipe</Link>
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Présentation */}
-      <section className="py-16 px-4 bg-background">
-        <div className="container max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-sport-condensed font-bold text-foreground mb-8">
-            Bienvenue au FC Ardentis
+      {/* Modern Presentation */}
+      <section className="py-20 px-4 bg-gradient-section">
+        <div className="container max-w-6xl mx-auto text-center">
+          <h2 className="text-4xl md:text-6xl font-sport-condensed font-bold text-foreground mb-12 leading-tight">
+            Bienvenue au<br />
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">FC Ardentis</span>
           </h2>
           
-          <div className="grid md:grid-cols-2 gap-8 mb-12 text-lg font-sport text-foreground/80 leading-relaxed">
-            <p>
-              Né de la passion commune pour le football, le FC Ardentis rassemble 
-              des joueurs de tous niveaux autour des valeurs de respect et d'excellence. 
-              Notre club offre un environnement bienveillant pour progresser ensemble.
-            </p>
-            <p>
-              Que vous soyez débutant ou expérimenté, notre équipe vous accueille 
-              avec enthousiasme. Rejoignez notre famille sportive et vivez 
-              l'aventure collective du football en région parisienne.
-            </p>
+          <div className="grid md:grid-cols-2 gap-12 mb-16 text-xl font-sport text-foreground/80 leading-relaxed max-w-5xl mx-auto">
+            <div className="bg-gradient-card p-8 rounded-2xl shadow-card hover-lift">
+              <p>
+                Né de la passion commune pour le football, le FC Ardentis rassemble 
+                des joueurs de tous niveaux autour des valeurs de respect et d'excellence. 
+                Notre club offre un environnement bienveillant pour progresser ensemble.
+              </p>
+            </div>
+            <div className="bg-gradient-card p-8 rounded-2xl shadow-card hover-lift">
+              <p>
+                Que vous soyez débutant ou expérimenté, notre équipe vous accueille 
+                avec enthousiasme. Rejoignez notre famille sportive et vivez 
+                l'aventure collective du football en région parisienne.
+              </p>
+            </div>
           </div>
 
-          {/* Valeurs */}
-          <div className="grid md:grid-cols-3 gap-6">
-            {values.map((value) => (
-              <div key={value.title} className="bg-card p-6 rounded-lg shadow-card border border-border/20 transition-sport hover:shadow-sport">
-                <value.icon className="h-12 w-12 text-primary mx-auto mb-4" />
-                <h3 className="text-xl font-sport-condensed font-bold text-foreground mb-2">
+          {/* Modern Values Cards */}
+          <div className="grid md:grid-cols-3 gap-8">
+            {values.map((value, index) => (
+              <div key={value.title} className="bg-gradient-card p-8 rounded-2xl shadow-card border border-border/10 hover-lift group">
+                <div className="bg-gradient-to-br from-primary to-accent p-4 rounded-full w-20 h-20 mx-auto mb-6 group-hover:shadow-glow transition-sport">
+                  <value.icon className="h-12 w-12 text-white mx-auto" />
+                </div>
+                <h3 className="text-2xl font-sport-condensed font-bold text-foreground mb-3">
                   {value.title}
                 </h3>
-                <p className="text-muted-foreground font-sport">
+                <p className="text-muted-foreground font-sport text-lg">
                   {value.description}
                 </p>
               </div>
@@ -105,23 +113,25 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Infos clés */}
-      <section className="py-16 px-4 bg-secondary">
-        <div className="container max-w-4xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-sport-condensed font-bold text-secondary-foreground text-center mb-12">
-            Infos pratiques
+      {/* Modern Info Section */}
+      <section className="py-20 px-4 bg-gradient-hero-alt">
+        <div className="container max-w-6xl mx-auto">
+          <h2 className="text-4xl md:text-6xl font-sport-condensed font-bold text-secondary-foreground text-center mb-16">
+            Infos <span className="bg-gradient-to-r from-accent to-primary-glow bg-clip-text text-transparent">pratiques</span>
           </h2>
           
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Localisation */}
-            <div className="bg-secondary-hover p-6 rounded-lg">
-              <div className="flex items-center gap-3 mb-4">
-                <MapPin className="h-6 w-6 text-primary" />
-                <h3 className="text-xl font-sport-condensed font-bold text-secondary-foreground">
-                  Localisation
+          <div className="grid md:grid-cols-2 gap-10">
+            {/* Enhanced Localisation */}
+            <div className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover-lift">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="bg-accent p-3 rounded-full">
+                  <MapPin className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-sport-condensed font-bold text-secondary-foreground">
+                  📍 Localisation
                 </h3>
               </div>
-              <p className="text-secondary-foreground/80 font-sport mb-4">
+              <p className="text-secondary-foreground/90 font-sport mb-6 text-lg">
                 Région parisienne - Île-de-France
               </p>
               <MapboxMap 
@@ -130,36 +140,48 @@ const Index = () => {
                     name: "Entraînement",
                     address: "1 Allée des Sports, 92800 Puteaux, France",
                     coordinates: [2.238, 48.884],
-                    color: "#888ce6"
+                    color: "#3b82f6"
                   },
                   {
                     name: "Matchs - Stade Suzanne Lenglen",
                     address: "4 Allée de la Bertelotte, 75015 Paris, France", 
                     coordinates: [2.279, 48.841],
-                    color: "#f4d0e4"
+                    color: "#ff6b1a"
                   }
                 ]}
-                height="h-48"
+                height="h-56"
                 zoom={12}
               />
             </div>
 
-            {/* Créneaux */}
-            <div className="bg-secondary-hover p-6 rounded-lg">
-              <div className="flex items-center gap-3 mb-4">
-                <Calendar className="h-6 w-6 text-primary" />
-                <h3 className="text-xl font-sport-condensed font-bold text-secondary-foreground">
-                  Créneaux
+            {/* Enhanced Créneaux */}
+            <div className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover-lift">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="bg-primary p-3 rounded-full">
+                  <Calendar className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-sport-condensed font-bold text-secondary-foreground">
+                  ⏰ Créneaux
                 </h3>
               </div>
-              <p className="text-secondary-foreground/80 font-sport mb-4">
+              <p className="text-secondary-foreground/90 font-sport mb-6 text-lg">
                 Entraînements et matchs le mercredi et le dimanche
               </p>
+              <div className="space-y-4">
+                <div className="bg-white/5 p-4 rounded-xl border border-white/10">
+                  <p className="text-accent font-sport-condensed font-bold mb-1">🏃‍♂️ Entraînements</p>
+                  <p className="text-secondary-foreground/80 font-sport">Mercredi 19h-21h • Puteaux</p>
+                </div>
+                <div className="bg-white/5 p-4 rounded-xl border border-white/10">
+                  <p className="text-accent font-sport-condensed font-bold mb-1">⚽ Matchs</p>
+                  <p className="text-secondary-foreground/80 font-sport">Dimanche 15h • Stade Suzanne Lenglen</p>
+                </div>
+              </div>
               <Link 
                 to="/contacts" 
-                className="text-sm text-primary hover:text-primary-hover font-sport underline transition-sport"
+                className="inline-block mt-6 text-accent hover:text-primary font-sport font-medium underline transition-sport"
               >
-                Plus d'infos sur la page Contacts
+                Plus d'infos sur la page Contacts →
               </Link>
             </div>
           </div>
@@ -196,19 +218,26 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA final */}
-      <section className="py-16 px-4 bg-primary">
-        <div className="container max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-sport-condensed font-bold text-primary-foreground mb-6">
-            Envie de jouer ou de soutenir le club ?
+      {/* Modern CTA Section */}
+      <section className="py-20 px-4 bg-gradient-hero relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+        <div className="container max-w-6xl mx-auto text-center relative z-10">
+          <h2 className="text-4xl md:text-6xl lg:text-7xl font-sport-condensed font-bold text-primary-foreground mb-8 leading-tight">
+            Prêt à rejoindre<br />
+            <span className="bg-gradient-to-r from-accent to-white bg-clip-text text-transparent">l'aventure ?</span>
           </h2>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild variant="secondary" size="lg">
-              <Link to="/rejoindre">Nous rejoindre</Link>
+          <p className="text-xl md:text-2xl text-white/90 mb-12 font-sport max-w-3xl mx-auto">
+            Que vous souhaitiez jouer, soutenir ou simplement découvrir notre club,
+            nous vous accueillons avec passion !
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            <Button asChild variant="cta" size="lg" className="text-xl px-10 py-5 hover-lift bg-white text-primary hover:bg-accent hover:text-white">
+              <Link to="/rejoindre">🚀 Nous rejoindre</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="bg-white/10 border-white text-white hover:bg-white hover:text-primary">
-              <Link to="/rejoindre">Soutenir le club</Link>
+            <Button asChild variant="outline" size="lg" className="bg-accent/20 backdrop-blur-sm border-2 border-accent text-white hover:bg-accent hover:text-white text-xl px-10 py-5 hover-lift">
+              <Link to="/equipe">👥 Rencontrer l'équipe</Link>
             </Button>
           </div>
         </div>
