@@ -37,14 +37,15 @@ const Checkout = () => {
   if (state.items.length === 0 && !submitted) {
     return (
       <div className="min-h-screen">
-        <section className="bg-gradient-hero py-20 px-4 text-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
-          <div className="container max-w-5xl mx-auto relative z-10">
-            <h1 className="text-4xl md:text-6xl font-sport-condensed font-bold text-white mb-6">
-              Votre <span className="bg-gradient-to-r from-accent to-white bg-clip-text text-transparent">commande</span>
-            </h1>
-          </div>
-        </section>
+      {/* Hero Section */}
+      <section className="bg-gradient-hero py-20 px-4 text-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
+        <div className="container max-w-5xl mx-auto relative z-10">
+          <h1 className="text-4xl md:text-6xl font-sport-condensed font-bold text-white mb-6 text-center">
+            Votre <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">commande</span>
+          </h1>
+        </div>
+      </section>
 
         <section className="py-20 px-4">
           <div className="container max-w-2xl mx-auto text-center">
@@ -56,9 +57,9 @@ const Checkout = () => {
               <p className="text-muted-foreground font-sport text-lg mb-6">
                 Ajoutez des articles à votre panier pour continuer vos achats
               </p>
-              <Button asChild variant="default" size="lg">
-                <Link to="/shop">Voir la boutique</Link>
-              </Button>
+                <Button asChild variant="cta" size="lg">
+                  <Link to="/shop">Voir la boutique</Link>
+                </Button>
             </div>
           </div>
         </section>
@@ -80,7 +81,7 @@ const Checkout = () => {
                 Votre commande a été enregistrée. Nous vous recontacterons prochainement pour finaliser le paiement et la livraison.
               </p>
               <div className="space-y-4">
-                <Button asChild variant="default" size="lg">
+                <Button asChild variant="cta" size="lg">
                   <Link to="/shop">Continuer mes achats</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg">
@@ -98,10 +99,10 @@ const Checkout = () => {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="bg-gradient-hero py-20 px-4 text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
         <div className="container max-w-5xl mx-auto relative z-10">
-          <h1 className="text-4xl md:text-6xl font-sport-condensed font-bold text-white mb-6">
-            Finaliser ma <span className="bg-gradient-to-r from-accent to-white bg-clip-text text-transparent">commande</span>
+          <h1 className="text-4xl md:text-6xl font-sport-condensed font-bold text-white mb-6 text-center">
+            Finaliser ma <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">commande</span>
           </h1>
         </div>
       </section>
@@ -228,7 +229,7 @@ const Checkout = () => {
                     />
                   </div>
 
-                  <Button type="submit" variant="default" size="lg" className="w-full">
+                  <Button type="submit" variant="cta" size="lg" className="w-full">
                     Payer plus tard
                   </Button>
                 </form>

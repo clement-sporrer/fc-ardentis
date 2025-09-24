@@ -37,35 +37,38 @@ const Index = () => {
 
   return (
     <>
-      {/* Modern Hero Section */}
-      <section className="bg-gradient-hero min-h-[85vh] flex items-center justify-center text-center px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30"></div>
-        <div className="container max-w-5xl relative z-10">
-          <div className="mb-10 animate-fade-in">
+      {/* Modern Hero Section - Full Space */}
+      <section className="bg-gradient-hero py-32 px-4 text-center relative overflow-hidden min-h-[90vh] flex items-center justify-center">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
+        <div className="container max-w-5xl mx-auto relative z-10">
+          <div className="mb-12 animate-fade-in">
             <img 
-              src="/assets/logo.png"
+              src="/public/assets/logo.png"
               alt="FC Ardentis Logo"
-              className="h-36 md:h-48 lg:h-56 w-auto object-contain mx-auto mb-8 drop-shadow-2xl hover-glow"
+              className="h-40 md:h-56 w-auto object-contain mx-auto mb-8 drop-shadow-2xl"
             />
           </div>
           
-          <h1 className="text-4xl md:text-6xl font-sport-condensed font-bold text-white mb-6 leading-tight">
-            Le football,<br />
-            <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">notre fierté locale</span>
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-sport-condensed font-bold text-white mb-6 leading-tight">
+            FC Ardentis
           </h1>
           
-          <p className="text-lg md:text-xl text-white/95 mb-10 font-sport font-medium max-w-4xl mx-auto">
-            Club fondé en 2025 • Passion & Excellence • Région parisienne
+          <p className="text-2xl md:text-3xl text-white/90 mb-12 font-sport font-medium">
+            Since 2025
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-6 justify-center animate-fade-in">
-            <Button asChild variant="cta" size="lg" className="text-lg px-8 py-4 hover-lift">
-              <Link to="/rejoindre">🏆 Nous rejoindre</Link>
+          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
+            <Button asChild variant="ctaMainWhite" size="lg" className="text-xl px-12 py-6">
+              <Link to="/rejoindre">Nous rejoindre</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="bg-white/10 backdrop-blur-sm border-2 border-white text-white hover:bg-white hover:text-primary text-lg px-8 py-4 hover-lift">
-              <Link to="/equipe">🌟 Découvrir l'équipe</Link>
+            <Button asChild variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white hover:text-primary text-xl px-12 py-6">
+              <Link to="/equipe">Découvrir l'équipe</Link>
             </Button>
           </div>
+          
+          <p className="text-lg text-white/80 font-sport max-w-2xl mx-auto">
+            Membres de la Commission de Football Loisir (<a href="https://www.cflparis.fr/" target="_blank" rel="noopener noreferrer" className="text-accent hover:text-white underline font-bold">CFL</a> — compétition parisienne)
+          </p>
         </div>
       </section>
 
@@ -128,7 +131,7 @@ const Index = () => {
                   <MapPin className="h-8 w-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-sport-condensed font-bold text-secondary-foreground">
-                  📍 Localisation
+                  Localisation
                 </h3>
               </div>
               <p className="text-secondary-foreground/90 font-sport mb-6 text-lg">
@@ -161,7 +164,7 @@ const Index = () => {
                   <Calendar className="h-8 w-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-sport-condensed font-bold text-secondary-foreground">
-                  ⏰ Créneaux
+                  Créneaux
                 </h3>
               </div>
               <p className="text-secondary-foreground/90 font-sport mb-6 text-lg">
@@ -169,11 +172,11 @@ const Index = () => {
               </p>
               <div className="space-y-4">
                 <div className="bg-white/5 p-4 rounded-xl border border-white/10">
-                  <p className="text-accent font-sport-condensed font-bold mb-1">🏃‍♂️ Entraînements</p>
+                  <p className="text-accent font-sport-condensed font-bold mb-1">Entraînements</p>
                   <p className="text-secondary-foreground/80 font-sport">Mercredi 19h-21h • Puteaux</p>
                 </div>
                 <div className="bg-white/5 p-4 rounded-xl border border-white/10">
-                  <p className="text-accent font-sport-condensed font-bold mb-1">⚽ Matchs</p>
+                  <p className="text-accent font-sport-condensed font-bold mb-1">Matchs</p>
                   <p className="text-secondary-foreground/80 font-sport">Dimanche 15h • Stade Suzanne Lenglen</p>
                 </div>
               </div>
@@ -233,11 +236,11 @@ const Index = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Button asChild variant="cta" size="lg" className="text-xl px-10 py-5 hover-lift bg-white text-primary hover:bg-accent hover:text-white">
-              <Link to="/rejoindre">🚀 Nous rejoindre</Link>
+            <Button asChild variant="ctaMainWhite" size="lg" className="text-xl px-10 py-5 hover-lift">
+              <Link to="/rejoindre">Nous rejoindre</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="bg-accent/20 backdrop-blur-sm border-2 border-accent text-white hover:bg-accent hover:text-white text-xl px-10 py-5 hover-lift">
-              <Link to="/equipe">👥 Rencontrer l'équipe</Link>
+            <Button asChild variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white hover:text-primary text-xl px-10 py-5 hover-lift">
+              <Link to="/equipe">Rencontrer l'équipe</Link>
             </Button>
           </div>
         </div>

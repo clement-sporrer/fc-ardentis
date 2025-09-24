@@ -126,12 +126,12 @@ const Shop = () => {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="bg-gradient-hero py-20 px-4 text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
         <div className="container max-w-5xl mx-auto relative z-10">
-          <h1 className="text-4xl md:text-6xl font-sport-condensed font-bold text-white mb-6">
-            Boutique <span className="bg-gradient-to-r from-accent to-white bg-clip-text text-transparent">officielle</span>
+          <h1 className="text-4xl md:text-6xl font-sport-condensed font-bold text-white mb-6 text-center">
+            Boutique <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">officielle</span>
           </h1>
-          <p className="text-lg text-white/90 font-sport max-w-3xl mx-auto">
+          <p className="text-lg text-white/90 font-sport max-w-3xl mx-auto text-center">
             Soutenez le FC Ardentis avec nos maillots officiels
           </p>
         </div>
@@ -200,7 +200,7 @@ const Shop = () => {
                       
                       <Button 
                         onClick={() => handleAddToCart(product)}
-                        variant="default" 
+                        variant="cta" 
                         size="lg"
                         className="w-full"
                       >
