@@ -26,7 +26,7 @@ const Navigation = () => {
             <img 
               src="/assets/logo.png" 
               alt="FC Ardentis Logo"
-              className="h-12 w-auto drop-shadow-md"
+              className="h-12 w-auto object-contain drop-shadow-md"
             />
             <span className="font-sport-condensed font-bold text-xl text-secondary-foreground">
               FC ARDENTIS

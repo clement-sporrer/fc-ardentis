@@ -45,16 +45,16 @@ const Index = () => {
             <img 
               src="/assets/logo.png"
               alt="FC Ardentis Logo"
-              className="h-36 md:h-48 lg:h-56 w-auto mx-auto mb-8 drop-shadow-2xl hover-glow"
+              className="h-36 md:h-48 lg:h-56 w-auto object-contain mx-auto mb-8 drop-shadow-2xl hover-glow"
             />
           </div>
           
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-sport-condensed font-bold text-white mb-6 leading-tight animate-fade-in">
+          <h1 className="text-4xl md:text-6xl font-sport-condensed font-bold text-white mb-6 leading-tight">
             Le football,<br />
-            <span className="bg-gradient-to-r from-accent to-primary-glow bg-clip-text text-transparent">notre fierté locale</span>
+            <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">notre fierté locale</span>
           </h1>
           
-          <p className="text-xl md:text-3xl lg:text-4xl text-white/95 mb-10 font-sport font-medium max-w-4xl mx-auto animate-fade-in">
+          <p className="text-lg md:text-xl text-white/95 mb-10 font-sport font-medium max-w-4xl mx-auto">
             Club fondé en 2025 • Passion & Excellence • Région parisienne
           </p>
           
@@ -72,7 +72,7 @@ const Index = () => {
       {/* Modern Presentation */}
       <section className="py-20 px-4 bg-gradient-section">
         <div className="container max-w-6xl mx-auto text-center">
-          <h2 className="text-4xl md:text-6xl font-sport-condensed font-bold text-foreground mb-12 leading-tight">
+          <h2 className="text-3xl md:text-4xl font-sport-condensed font-bold text-foreground mb-12 leading-tight">
             Bienvenue au<br />
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">FC Ardentis</span>
           </h2>
@@ -116,8 +116,8 @@ const Index = () => {
       {/* Modern Info Section */}
       <section className="py-20 px-4 bg-gradient-hero-alt">
         <div className="container max-w-6xl mx-auto">
-          <h2 className="text-4xl md:text-6xl font-sport-condensed font-bold text-secondary-foreground text-center mb-16">
-            Infos <span className="bg-gradient-to-r from-accent to-primary-glow bg-clip-text text-transparent">pratiques</span>
+          <h2 className="text-3xl md:text-4xl font-sport-condensed font-bold text-secondary-foreground text-center mb-16">
+            Infos <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">pratiques</span>
           </h2>
           
           <div className="grid md:grid-cols-2 gap-10">
@@ -222,12 +222,12 @@ const Index = () => {
       <section className="py-20 px-4 bg-gradient-hero relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
         <div className="container max-w-6xl mx-auto text-center relative z-10">
-          <h2 className="text-4xl md:text-6xl lg:text-7xl font-sport-condensed font-bold text-primary-foreground mb-8 leading-tight">
+          <h2 className="text-3xl md:text-4xl font-sport-condensed font-bold text-primary-foreground mb-8 leading-tight">
             Prêt à rejoindre<br />
             <span className="bg-gradient-to-r from-accent to-white bg-clip-text text-transparent">l'aventure ?</span>
           </h2>
           
-          <p className="text-xl md:text-2xl text-white/90 mb-12 font-sport max-w-3xl mx-auto">
+          <p className="text-lg text-white/90 mb-12 font-sport max-w-3xl mx-auto">
             Que vous souhaitiez jouer, soutenir ou simplement découvrir notre club,
             nous vous accueillons avec passion !
           </p>
