@@ -206,7 +206,7 @@ const Rejoindre = () => {
             {/* Modern Profile Selection */}
             <div className="bg-gradient-card p-8 rounded-2xl shadow-card border border-border/10">
               <Label className="text-2xl font-sport-condensed font-bold text-foreground mb-6 block">
-                🎯 Choisissez votre profil
+                Choisissez votre profil
               </Label>
               <RadioGroup 
                 value={formData.profile} 
@@ -215,11 +215,11 @@ const Rejoindre = () => {
               >
                 <div className="flex items-center space-x-3 bg-primary/10 p-6 rounded-xl border border-primary/20 hover-lift">
                   <RadioGroupItem value="Joueur" id="joueur" />
-                  <Label htmlFor="joueur" className="font-sport text-lg font-medium">⚽ Joueur</Label>
+                  <Label htmlFor="joueur" className="font-sport text-lg font-medium">Joueur</Label>
                 </div>
                 <div className="flex items-center space-x-3 bg-accent/10 p-6 rounded-xl border border-accent/20 hover-lift">
                   <RadioGroupItem value="Partenaire" id="partenaire" />
-                  <Label htmlFor="partenaire" className="font-sport text-lg font-medium">🤝 Partenaire</Label>
+                  <Label htmlFor="partenaire" className="font-sport text-lg font-medium">Partenaire</Label>
                 </div>
               </RadioGroup>
             </div>
