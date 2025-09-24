@@ -6,11 +6,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
+import { CartProvider } from "@/contexts/CartContext";
 import Index from "./pages/Index";
 import Equipe from "./pages/Equipe";
 import Calendrier from "./pages/Calendrier";
 import Contacts from "./pages/Contacts";
 import Rejoindre from "./pages/Rejoindre";
+import Shop from "./pages/Shop";
+import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -18,26 +21,30 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <ScrollToTop />
-        <div className="min-h-screen flex flex-col bg-background font-sport">
-          <Navigation />
-          <main className="flex-1">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/equipe" element={<Equipe />} />
-              <Route path="/calendrier" element={<Calendrier />} />
-              <Route path="/contacts" element={<Contacts />} />
-              <Route path="/rejoindre" element={<Rejoindre />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-      </BrowserRouter>
+      <CartProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <ScrollToTop />
+          <div className="min-h-screen flex flex-col bg-background font-sport">
+            <Navigation />
+            <main className="flex-1">
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/equipe" element={<Equipe />} />
+                <Route path="/calendrier" element={<Calendrier />} />
+                <Route path="/contacts" element={<Contacts />} />
+                <Route path="/rejoindre" element={<Rejoindre />} />
+                <Route path="/shop" element={<Shop />} />
+                <Route path="/checkout" element={<Checkout />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
+            <Footer />
+          </div>
+        </BrowserRouter>
+      </CartProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

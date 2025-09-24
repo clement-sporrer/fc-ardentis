@@ -18,10 +18,10 @@ const NotFound = () => {
       <div className="text-center max-w-lg mx-auto">
         <div className="mb-8">
           <AlertTriangle className="h-24 w-24 text-primary mx-auto mb-4" />
-          <h1 className="text-6xl md:text-8xl font-sport-condensed font-bold text-foreground mb-4">
+          <h1 className="text-4xl md:text-6xl font-sport-condensed font-bold text-foreground mb-4">
             404
           </h1>
-          <h2 className="text-2xl md:text-3xl font-sport-condensed font-bold text-foreground mb-4">
+          <h2 className="text-xl md:text-2xl font-sport-condensed font-bold text-foreground mb-4">
             Page non trouvée
           </h2>
           <p className="text-lg text-muted-foreground font-sport mb-8">
@@ -30,7 +30,7 @@ const NotFound = () => {
           </p>
         </div>
         
-        <Button asChild variant="hero" size="lg">
+        <Button asChild variant="default" size="lg">
           <Link to="/">
             <Home className="h-5 w-5 mr-2" />
             Retour à l'accueil

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Users, AlertCircle, Settings } from 'lucide-react';
+import { Users, AlertCircle } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 // Configuration parameter for Google Sheets CSV
 const GOOGLE_SHEET_CSV_URL = import.meta.env.VITE_GOOGLE_SHEET_CSV_URL || "";
@@ -10,6 +12,9 @@ interface Player {
   number: string;
   position: string;
   photo_url?: string;
+  funny_story?: string;
+  origin?: string;
+  favorite_club?: string;
 }
 
 interface PlayersByPosition {
