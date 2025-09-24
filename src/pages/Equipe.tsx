@@ -140,18 +140,6 @@ const Equipe = () => {
         </div>
       </section>
 
-      {/* Modern Admin Notice */}
-      <section className="py-6 px-4 bg-gradient-section border-b border-border/10">
-        <div className="container max-w-6xl mx-auto">
-          <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground font-sport bg-gradient-card p-4 rounded-xl shadow-card">
-            <Settings className="h-5 w-5 text-primary" />
-            <p>
-              <strong className="text-foreground">Notice admin :</strong> Pour mettre à jour l'effectif, modifiez la Google Sheet. 
-              La page se met à jour automatiquement toutes les 10 secondes.
-            </p>
-          </div>
-        </div>
-      </section>
 
       {/* Modern Players Grid */}
       <section className="py-20 px-4 bg-gradient-section">
