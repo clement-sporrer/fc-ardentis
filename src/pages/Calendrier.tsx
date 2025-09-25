@@ -379,9 +379,9 @@ const Calendrier = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section (identique à Notre équipe) */}
-      <section className="bg-gradient-hero py-28 md:py-36 px-4 text-center">
+      <section className="bg-gradient-hero py-20 md:py-28 px-4 text-center !mt-0">
         <div className="container max-w-5xl mx-auto">
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-sport-condensed font-bold text-white mb-3">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-sport-condensed font-bold text-white mb-3"><span className="text-white">Notre </span><span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">calendrier</span></h1>
             <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">Notre calendrier</span>
           </h1>
           <p className="text-lg md:text-xl text-white/90 font-sport max-w-3xl mx-auto">
