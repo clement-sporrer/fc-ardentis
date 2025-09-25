@@ -1,204 +1,293 @@
-import { useState, useEffect } from 'react';
-import { Users, AlertCircle } from 'lucide-react';
+import { useEffect, useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { AlertCircle } from "lucide-react";
 
-// Configuration parameter for Google Sheets CSV
-const GOOGLE_SHEET_CSV_URL = import.meta.env.VITE_GOOGLE_SHEET_CSV_URL || "";
+// URL CSV publié de ton Google Sheet Équipe (File > Publish to the web > CSV)
+const TEAM_CSV_URL = import.meta.env.VITE_GOOGLE_SHEET_TEAM_CSV_URL || "";
+
+type RawPoste = "Goalkeeper" | "Defender" | "Midfielder" | "Forward" | string;
 
 interface Player {
-  first_name: string;
-  last_name: string;
-  number: string;
-  position: string;
+  numero?: number;
+  prenom?: string;
+  nom?: string;
+  poste?: RawPoste;
   photo_url?: string;
-  funny_story?: string;
-  origin?: string;
-  favorite_club?: string;
+  origine?: string;
+  fun_fact?: string;
+  joueur_prefere?: string;
 }
 
-interface PlayersByPosition {
-  [key: string]: Player[];
-}
+const posteToFr = (p?: RawPoste) => {
+  const k = (p || "").toLowerCase().trim();
+  if (k === "goalkeeper") return "Gardien de but";
+  if (k === "defender") return "Défenseur";
+  if (k === "midfielder") return "Milieu de terrain";
+  if (k === "forward") return "Attaquant";
+  // Si déjà FR, on laisse (et on corrige orthographe de "defenseur")
+  if (k === "defenseur") return "Défenseur";
+  if (["gardien de but","défenseur","milieu de terrain","attaquant"].includes(k)) return p as string;
+  return p || "Poste";
+};
+
+const ORDER_SECTIONS = ["Gardien de but", "Défenseur", "Milieu de terrain", "Attaquant"];
+
+// Parse CSV robuste (gère les champs "entre guillemets, avec, virgules")
+const parseCSVLine = (line: string): string[] => {
+  const out: string[] = [];
+  let cur = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        cur += '"'; i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (c === "," && !inQuotes) {
+      out.push(cur); cur = "";
+    } else {
+      cur += c;
+    }
+  }
+  out.push(cur);
+  return out.map(s => s.trim());
+};
 
 const Equipe = () => {
-  const [players, setPlayers] = useState<PlayersByPosition>({});
+  const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const positionOrder = ['Goalkeeper', 'Defender', 'Midfielder', 'Forward'];
-  const positionLabels: { [key: string]: string } = {
-    'Goalkeeper': 'Gardiens de but',
-    'Defender': 'Défenseurs',
-    'Midfielder': 'Milieux de terrain',
-    'Forward': 'Attaquants'
-  };
+  const [selected, setSelected] = useState<Player | null>(null);
 
   useEffect(() => {
-    const fetchPlayers = async () => {
-      if (!GOOGLE_SHEET_CSV_URL) {
-        setLoading(false);
-        return;
-      }
-
+    const load = async () => {
+      if (!TEAM_CSV_URL) { setLoading(false); return; }
       try {
-        // Anti-cache: on ajoute un timestamp pour forcer le rafraîchissement côté navigateur/CDN
-        const url = `${GOOGLE_SHEET_CSV_URL}${GOOGLE_SHEET_CSV_URL.includes('?') ? '&' : '?'}_ts=${Date.now()}`;
-        const response = await fetch(url, { cache: 'no-store' });
-        const raw = await response.text();
-        
-        // Parse CSV
-        // Parsing robuste: on retire les \r (Windows) puis on ignore les lignes vides
-        const lines = raw.replace(/\r/g, '').split('\n').filter(Boolean);
-        
-        const playerData: Player[] = [];
-        
+        const url = `${TEAM_CSV_URL}${TEAM_CSV_URL.includes("?") ? "&" : "?"}_ts=${Date.now()}`;
+        const res = await fetch(url, { cache: "no-store" });
+        const raw = await res.text();
+
+        const lines = raw.replace(/\r/g, "").split("\n").filter(l => l.trim().length > 0);
+        if (lines.length < 2) { setPlayers([]); setLoading(false); return; }
+
+        const header = parseCSVLine(lines[0]);
+        // Colonnes attendues (exactement comme ton sheet) :
+        // numéro, prenom, nom, poste, photo_url, origine, fun_fact, joueur_prefere
+        const col = (name: string) => header.findIndex(h => h.trim().toLowerCase() === name.toLowerCase());
+
+        const iNum = col("numéro");
+        const iPrenom = col("prenom");
+        const iNom = col("nom");
+        const iPoste = col("poste");
+        const iPhoto = col("photo_url");
+        const iOrigine = col("origine");
+        const iFun = col("fun_fact");
+        const iFav = col("joueur_prefere");
+
+        const parsed: Player[] = [];
         for (let i = 1; i < lines.length; i++) {
-          const values = lines[i].split(',').map(v => v.trim());
-          if (values.length >= 4 && values[0]) {
-            const player: Player = {
-              first_name: values[0] || '',
-              last_name: values[1] || '',
-              number: values[2] || '',
-              position: values[3] || '',
-              photo_url: values[4] || undefined
-            };
-            playerData.push(player);
-          }
+          const cells = parseCSVLine(lines[i]);
+          const p: Player = {
+            numero: iNum >= 0 && cells[iNum] ? Number(cells[iNum]) : undefined,
+            prenom: iPrenom >= 0 ? cells[iPrenom] || "" : "",
+            nom: iNom >= 0 ? cells[iNom] || "" : "",
+            poste: iPoste >= 0 ? (cells[iPoste] || "") : "",
+            photo_url: iPhoto >= 0 ? (cells[iPhoto] || "") : "",
+            origine: iOrigine >= 0 ? (cells[iOrigine] || "") : "",
+            fun_fact: iFun >= 0 ? (cells[iFun] || "") : "",
+            joueur_prefere: iFav >= 0 ? (cells[iFav] || "") : "",
+          };
+          // On ignore une ligne totalement vide
+          if (p.prenom || p.nom || p.photo_url || p.numero != null) parsed.push(p);
         }
 
-        // Group by position
-        const grouped = playerData.reduce((acc, player) => {
-          if (!acc[player.position]) {
-            acc[player.position] = [];
-          }
-          acc[player.position].push(player);
-          return acc;
-        }, {} as PlayersByPosition);
+        // Tri par numéro si dispo, sinon par nom
+        parsed.sort((a,b) => {
+          if (a.numero != null && b.numero != null) return a.numero - b.numero;
+          return (a.nom||"").localeCompare(b.nom||"");
+        });
 
-        setPlayers(grouped);
-        setError(null); // on remet l'erreur à zéro si tout s'est bien passé
-      } catch (err) {
-        setError("Erreur lors du chargement des données");
-        console.error(err);
+        setPlayers(parsed);
+        setError(null);
+      } catch (e) {
+        console.error(e);
+        setError("Erreur lors du chargement de l'équipe");
       } finally {
         setLoading(false);
       }
     };
-
-    fetchPlayers(); // au montage
-    const interval = setInterval(fetchPlayers, 10_000); // auto-refresh toutes les 10 s
-    return () => clearInterval(interval);
-
+    load();
   }, []);
 
-  const PlayerCard = ({ player }: { player: Player }) => (
-    <div className="bg-gradient-card p-6 rounded-2xl shadow-card border border-border/10 hover-lift group">
-      <div className="aspect-square bg-gradient-to-br from-muted to-muted/70 rounded-xl mb-6 overflow-hidden">
-        {player.photo_url ? (
-          <img 
-            src={player.photo_url} 
-            alt={`${player.first_name} ${player.last_name}`}
-            className="w-full h-full object-cover group-hover:scale-105 transition-sport"
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary to-accent">
-            <Users className="h-16 w-16 text-white" />
-          </div>
-        )}
-      </div>
-      
-      <div className="text-center">
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <span className="bg-gradient-to-r from-accent to-primary text-white font-sport-condensed font-bold text-xl px-4 py-2 rounded-full shadow-elevated">
-            #{player.number}
-          </span>
-        </div>
-        <h3 className="font-sport-condensed font-bold text-xl text-foreground mb-1">
-          {player.first_name}
-        </h3>
-        <p className="font-sport-condensed font-bold text-xl text-foreground/80">
-          {player.last_name}
-        </p>
-      </div>
-    </div>
-  );
+  // Groupement par poste FR + tri interne
+  const grouped = useMemo(() => {
+    const g: Record<string, Player[]> = {};
+    for (const p of players) {
+      const key = posteToFr(p.poste);
+      if (!g[key]) g[key] = [];
+      g[key].push(p);
+    }
+    for (const k of Object.keys(g)) {
+      g[k].sort((a,b) => {
+        if (a.numero != null && b.numero != null) return a.numero - b.numero;
+        return (a.nom||"").localeCompare(b.nom||"");
+      });
+    }
+    return g;
+  }, [players]);
 
   return (
     <div className="min-h-screen">
-      {/* Modern Hero Section */}
-      <section className="bg-gradient-hero py-20 px-4 text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
-        <div className="container max-w-5xl mx-auto relative z-10">
-        <h1 className="text-4xl md:text-6xl font-sport-condensed font-bold text-white mb-6 text-center">
-          Notre <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">équipe</span>
-        </h1>
-        <p className="text-lg text-white/90 font-sport max-w-3xl mx-auto text-center">
-          Découvrez les joueurs passionnés qui forment le FC Ardentis
-        </p>
+      {/* Hero aligné aux autres pages */}
+      <section className="bg-gradient-hero py-28 md:py-36 px-4 text-center">
+        <div className="container max-w-5xl mx-auto">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-sport-condensed font-bold text-white mb-3">
+            <span className="text-white">Notre </span>
+            <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">équipe</span>
+          </h1>
+          <p className="text-lg md:text-xl text-white/90 font-sport max-w-3xl mx-auto">
+            Découvrez les joueurs qui composent notre club.
+          </p>
         </div>
       </section>
 
-
-      {/* Modern Players Grid */}
       <section className="py-20 px-4 bg-gradient-section">
         <div className="container max-w-7xl mx-auto">
           {loading ? (
-            <div className="text-center py-16">
-              <div className="inline-flex items-center gap-4 text-muted-foreground font-sport text-lg bg-gradient-card p-6 rounded-2xl shadow-card">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                Chargement de l'équipe...
-              </div>
-            </div>
+            <div className="text-center py-12 text-muted-foreground font-sport">Chargement…</div>
           ) : error ? (
-            <div className="text-center py-16">
-              <div className="inline-flex items-center gap-4 text-destructive font-sport text-lg bg-gradient-card p-6 rounded-2xl shadow-card">
-                <AlertCircle className="h-8 w-8" />
-                {error}
-              </div>
+            <div className="text-center py-12 text-destructive font-sport inline-flex items-center gap-2">
+              <AlertCircle className="h-5 w-5" /> {error}
             </div>
-          ) : Object.keys(players).length === 0 ? (
-            <div className="text-center py-16 max-w-2xl mx-auto">
-              <div className="bg-gradient-card p-12 rounded-3xl shadow-card border border-border/10">
-                <Users className="h-20 w-20 text-primary mx-auto mb-6" />
-                <h3 className="text-3xl font-sport-condensed font-bold text-foreground mb-4">
-                  🚀 Effectif à venir
-                </h3>
-                <p className="text-muted-foreground font-sport text-lg mb-6 leading-relaxed">
-                  L'effectif sera affiché une fois la Google Sheet configurée.<br />
-                  Nos joueurs taléntueux arrivent bientôt !
-                </p>
-                <p className="text-sm text-muted-foreground font-sport bg-muted/50 p-4 rounded-xl">
-                  <strong>Admin :</strong> Configurez VITE_GOOGLE_SHEET_CSV_URL pour afficher automatiquement les joueurs
-                </p>
-              </div>
-            </div>
+          ) : players.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground font-sport">Aucun joueur pour le moment.</div>
           ) : (
-            <div className="space-y-16">
-              {positionOrder.map(position => {
-                const positionPlayers = players[position] || [];
-                if (positionPlayers.length === 0) return null;
+            ORDER_SECTIONS.map((section) => {
+              const list = grouped[section] || [];
+              if (list.length === 0) return null;
+              return (
+                <div key={section} className="mb-12">
+                  <h2 className="text-[1.45rem] md:text-3xl font-sport-condensed font-bold text-foreground mb-6 uppercase tracking-wide">
+                    {section}
+                  </h2>
 
-                return (
-                  <div key={position} className="space-y-8">
-                    <h2 className="text-xl md:text-2xl font-sport-condensed font-bold text-center text-foreground">
-                      <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                        {positionLabels[position]}
-                      </span>
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                      {positionPlayers.map((player, index) => (
-                        <PlayerCard key={`${position}-${index}`} player={player} />
-                      ))}
-                    </div>
+                  <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {list.map((p, idx) => (
+                      <Card
+                        key={`${section}-${idx}`}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => setSelected(p)}
+                        onKeyDown={(e) => ((e.key === "Enter" || e.key === " ") ? setSelected(p) : null)}
+                        className="
+                          transition-sport hover:-translate-y-0.5 hover:shadow-md cursor-pointer
+                          bg-white bg-[radial-gradient(120%_120%_at_50%_0%,#888ce6_0%,transparent_55%)]
+                          border border-[#888ce6]/35 rounded-2xl
+                          outline-none focus:ring-2 focus:ring-primary/50
+                        "
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-3">
+                            <div className="shrink-0 h-12 w-12 rounded-full bg-primary text-white font-sport-condensed font-bold flex items-center justify-center">
+                              {p.numero ?? "—"}
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-sport-condensed font-bold text-lg leading-tight">
+                                {(p.prenom || "").trim()} {(p.nom || "").trim()}
+                              </div>
+                              <div className="text-xs text-muted-foreground">{posteToFr(p.poste)}</div>
+                            </div>
+                          </div>
+
+                          {/* image carrée dans la carte */}
+                          <div className="mt-4 w-full aspect-square overflow-hidden rounded-xl bg-muted/40 flex items-center justify-center">
+                            {p.photo_url ? (
+                              <img
+                                src={p.photo_url}
+                                alt={`${(p.prenom || "").trim()} ${(p.nom || "").trim()}`}
+                                className="h-full w-full object-cover"
+                                onClick={(e) => { e.stopPropagation(); setSelected(p); }}
+                              />
+                            ) : (
+                              <div className="text-xs text-muted-foreground font-sport">Photo indisponible</div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })
           )}
         </div>
       </section>
+
+      {/* Modal joueur — photo carrée à gauche, infos à droite (md+) */}
+      <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="font-sport-condensed font-bold text-foreground">
+              {selected ? (
+                <>
+                  #{selected.numero ?? "—"} {(selected.prenom || "").trim()} {(selected.nom || "").trim()}
+                </>
+              ) : "Joueur"}
+            </DialogTitle>
+          </DialogHeader>
+
+          {selected && (
+            <div className="flex flex-col md:flex-row gap-5">
+              {/* Photo à gauche (carrée) */}
+              <div className="w-full md:w-1/2 lg:w-5/12">
+                <div className="w-full aspect-square rounded-xl overflow-hidden bg-muted/30 flex items-center justify-center">
+                  {selected.photo_url ? (
+                    <img
+                      src={selected.photo_url}
+                      alt={`${(selected.prenom || "").trim()} ${(selected.nom || "").trim()}`}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="text-sm text-muted-foreground font-sport">Photo indisponible</div>
+                  )}
+                </div>
+              </div>
+
+              {/* Infos à droite */}
+              <div className="w-full md:flex-1 grid grid-cols-1 gap-3">
+                <div className="flex items-center justify-between text-sm font-sport">
+                  <span className="text-muted-foreground">Poste</span>
+                  <span className="font-medium">{posteToFr(selected.poste)}</span>
+                </div>
+
+                {selected.origine && selected.origine.trim() !== "" && (
+                  <div className="flex items-center justify-between text-sm font-sport">
+                    <span className="text-muted-foreground">Origine</span>
+                    <span className="font-medium">{selected.origine}</span>
+                  </div>
+                )}
+
+                {selected.joueur_prefere && selected.joueur_prefere.trim() !== "" && (
+                  <div className="flex items-center justify-between text-sm font-sport">
+                    <span className="text-muted-foreground">Joueur préféré</span>
+                    <span className="font-medium">{selected.joueur_prefere}</span>
+                  </div>
+                )}
+
+                {selected.fun_fact && selected.fun_fact.trim() !== "" && (
+                  <div className="text-sm font-sport">
+                    <div className="text-muted-foreground mb-1">Fun fact</div>
+                    <div className="font-medium">{selected.fun_fact}</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
