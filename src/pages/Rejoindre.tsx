@@ -1,80 +1,107 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import PhoneField from "@/components/PhoneField";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { PhoneField } from "@/components/PhoneField";
+import { CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 
 type TypeProfil = "joueur" | "partenaire";
 
 const WEBHOOK_URL = import.meta.env.VITE_JOIN_WEBHOOK_URL as string;
 
 export default function Rejoindre() {
-  // type
+  // Sélection du type
   const [type, setType] = useState<TypeProfil>("joueur");
 
-  // commun
+  // Champs communs
   const [prenom, setPrenom] = useState("");
   const [nom, setNom] = useState("");
   const [email, setEmail] = useState("");
-  const [telephone, setTelephone] = useState(""); // reçu formaté depuis PhoneField
-  const [message, setMessage] = useState("");
+  const [telephone, setTelephone] = useState("");
 
-  // joueur
+  // Spécifique joueur
   const [dateNaissance, setDateNaissance] = useState("");
-  const [poste, setPoste] = useState("");
+  const [posteSouhaite, setPosteSouhaite] = useState("");
   const [canal, setCanal] = useState("");
 
-  // partenaire
+  // Spécifique partenaire
   const [entreprise, setEntreprise] = useState("");
   const [siteWeb, setSiteWeb] = useState("");
 
-  // divers
+  // Commun
+  const [message, setMessage] = useState("");
+
+  // RGPD / état
   const [consent, setConsent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState<null | "ok" | "ko">(null);
   const [errorMsg, setErrorMsg] = useState<string>("");
 
-  // validation rapide
+  // Honeypot anti-bot
+  const [websiteTrap, setWebsiteTrap] = useState("");
+
+  // Validation minimale alignée avec l’Apps Script (type/prenom/email requis + champs métier)
   const requiredOK =
+    consent &&
     prenom.trim() !== "" &&
     email.trim() !== "" &&
     (type === "joueur"
-      ? dateNaissance.trim() !== "" && poste.trim() !== ""
-      : entreprise.trim() !== "") &&
-    consent;
+      ? dateNaissance.trim() !== "" && posteSouhaite.trim() !== ""
+      : entreprise.trim() !== "");
+
+  const resetForm = () => {
+    setPrenom("");
+    setNom("");
+    setEmail("");
+    setTelephone("");
+    setDateNaissance("");
+    setPosteSouhaite("");
+    setCanal("");
+    setEntreprise("");
+    setSiteWeb("");
+    setMessage("");
+    setConsent(false);
+    setWebsiteTrap("");
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMsg("");
     setSent(null);
+    setErrorMsg("");
 
     if (!WEBHOOK_URL) {
-      setErrorMsg(
-        "Configuration manquante : VITE_JOIN_WEBHOOK_URL n'est pas défini."
-      );
       setSent("ko");
+      setErrorMsg("Configuration manquante : VITE_JOIN_WEBHOOK_URL n'est pas défini.");
+      return;
+    }
+
+    // Honeypot: si rempli → stop (probable bot)
+    if (websiteTrap.trim() !== "") {
+      setSent("ok"); // on fait comme si tout allait bien pour ne pas donner d'indice aux bots
+      resetForm();
       return;
     }
 
     if (!requiredOK) {
-      setErrorMsg("Merci de compléter les champs requis.");
       setSent("ko");
+      setErrorMsg("Merci de compléter les champs requis.");
       return;
     }
 
     const payload =
       type === "joueur"
         ? {
+            // Schéma EXACT attendu par l’Apps Script (onglet Joueurs)
             type: "joueur",
             prenom: prenom.trim(),
             nom: nom.trim(),
             email: email.trim(),
             telephone: telephone.trim(),
             date_de_naissance: dateNaissance.trim(),
-            poste_souhaite: poste.trim(),
+            poste_souhaite: posteSouhaite.trim(),
             canal: canal.trim(),
             message: message.trim(),
           }
         : {
+            // Schéma EXACT attendu par l’Apps Script (onglet Partenaires)
             type: "partenaire",
             prenom: prenom.trim(),
             nom: nom.trim(),
@@ -92,42 +119,33 @@ export default function Rejoindre() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const json = await res.json().catch(() => ({} as any));
 
-      if (res.ok && (json.ok === true || json.status === "success")) {
+      // L’Apps Script renvoie { ok: true } ou { ok:false, error:"..." }
+      let json: any = {};
+      try {
+        json = await res.json();
+      } catch {
+        // si pas de JSON (rare), on tolère ok via res.ok
+      }
+
+      if (res.ok && (json?.ok === true || json?.status === "success" || json?.result === "success")) {
         setSent("ok");
-        // reset soft (on garde le type sélectionné)
-        setPrenom("");
-        setNom("");
-        setEmail("");
-        setTelephone("");
-        setMessage("");
-        setDateNaissance("");
-        setPoste("");
-        setCanal("");
-        setEntreprise("");
-        setSiteWeb("");
-        setConsent(false);
+        resetForm();
       } else {
         setSent("ko");
-        setErrorMsg(
-          json?.error ||
-            "Erreur inattendue pendant l’envoi. Réessayez dans un instant."
-        );
+        setErrorMsg(json?.error || "Erreur lors de l’envoi. Réessaie dans un instant.");
       }
-    } catch (err: any) {
+    } catch (err) {
       setSent("ko");
-      setErrorMsg(
-        "Impossible de contacter le serveur. Vérifie ta connexion ou réessaie."
-      );
+      setErrorMsg("Impossible de contacter le serveur. Vérifie ta connexion et réessaie.");
     } finally {
       setSubmitting(false);
     }
   };
 
-  // helpers UI
+  // Styles cartes cliquables
   const cardBase =
-    "flex-1 rounded-2xl p-5 border transition-all cursor-pointer select-none";
+    "flex-1 rounded-2xl p-5 border transition-all cursor-pointer select-none focus:outline-none";
   const cardActive =
     "bg-gradient-to-br from-primary/10 to-accent/10 border-primary/30 ring-2 ring-primary/40";
   const cardInactive =
@@ -135,7 +153,7 @@ export default function Rejoindre() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero (même logique que les autres pages) */}
+      {/* Hero section (cohérente avec les autres pages) */}
       <section className="bg-gradient-hero py-20 md:py-28 px-4 text-center !mt-0">
         <div className="container max-w-5xl mx-auto">
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-sport-condensed font-bold text-white mb-3">
@@ -152,7 +170,7 @@ export default function Rejoindre() {
 
       <section className="py-14 px-4 bg-gradient-section">
         <div className="container max-w-4xl mx-auto">
-          {/* Sélecteur type – cartes cliquables */}
+          {/* Sélecteur de profil */}
           <div className="mb-8">
             <h2 className="font-sport-condensed text-xl mb-3">Choisissez votre profil</h2>
             <div className="flex gap-4">
@@ -161,6 +179,8 @@ export default function Rejoindre() {
                 onClick={() => setType("joueur")}
                 role="button"
                 aria-pressed={type === "joueur"}
+                tabIndex={0}
+                onKeyDown={(e) => (e.key === "Enter" || e.key === " " ? setType("joueur") : null)}
               >
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
@@ -180,6 +200,8 @@ export default function Rejoindre() {
                 onClick={() => setType("partenaire")}
                 role="button"
                 aria-pressed={type === "partenaire"}
+                tabIndex={0}
+                onKeyDown={(e) => (e.key === "Enter" || e.key === " " ? setType("partenaire") : null)}
               >
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
@@ -265,8 +287,8 @@ export default function Rejoindre() {
                   <div className="grid gap-2">
                     <label className="font-sport text-sm">Poste préféré *</label>
                     <select
-                      value={poste}
-                      onChange={(e) => setPoste(e.target.value)}
+                      value={posteSouhaite}
+                      onChange={(e) => setPosteSouhaite(e.target.value)}
                       className="w-full rounded-xl border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40"
                       required
                     >
@@ -347,8 +369,8 @@ export default function Rejoindre() {
               />
             </div>
 
-            {/* Consentement */}
-            <div className="rounded-2xl bg-card border border-border/60 shadow-card p-6">
+            {/* RGPD + honeypot */}
+            <div className="rounded-2xl bg-card border border-border/60 shadow-card p-6 space-y-4">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
@@ -357,10 +379,20 @@ export default function Rejoindre() {
                   className="accent-primary mt-1"
                 />
                 <span className="text-sm font-sport text-foreground/90">
-                  J’accepte que mes données personnelles soient utilisées pour traiter ma demande et me recontacter
-                  dans le cadre des activités du FC Ardentis. Ces données ne seront pas transmises à des tiers. *
+                  J’accepte que mes données soient utilisées pour traiter ma demande et me recontacter
+                  dans le cadre des activités du FC Ardentis. *
                 </span>
               </label>
+
+              {/* Champ honeypot invisible pour bots */}
+              <div className="hidden">
+                <label>Website</label>
+                <input
+                  type="text"
+                  value={websiteTrap}
+                  onChange={(e) => setWebsiteTrap(e.target.value)}
+                />
+              </div>
             </div>
 
             {/* Messages d’état */}
@@ -371,11 +403,13 @@ export default function Rejoindre() {
               </div>
             )}
             {sent === "ko" && (
-              <div className="text-red-600 font-sport">
-                {errorMsg || "Une erreur est survenue. Réessayez."}
-            </div>
+              <div className="flex items-center gap-2 text-red-600 font-sport">
+                <AlertCircle className="h-5 w-5" />
+                {errorMsg || "Une erreur est survenue. Réessaie."}
+              </div>
             )}
 
+            {/* Submit */}
             <div className="flex justify-center">
               <Button
                 type="submit"
