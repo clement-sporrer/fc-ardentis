@@ -23,7 +23,8 @@ const GOOGLE_SHEET_STANDINGS_CSV_URL = import.meta.env.VITE_SHEET_STANDINGS_CSV_
 type EventType = "match" | "entrainement";
 
 interface Event {
-  // CSV "MATCHS" — 13 colonnes
+  // CSV "MATCHS" — colonnes attendues :
+  // date,title,start_time,end_time,location,type,team_home,team_away,score_home,score_away,resultat,home_logo,away_logo
   date: string;            // JJ/MM/AAAA (ou ISO fallback)
   title: string;
   start_time?: string;     // HH:MM
@@ -377,7 +378,7 @@ const Calendrier = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section (aligné sur Notre équipe) */}
+      {/* Hero Section (identique à Notre équipe) */}
       <section className="bg-gradient-hero py-28 md:py-36 px-4 text-center">
         <div className="container max-w-5xl mx-auto">
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-sport-condensed font-bold text-white mb-3">
