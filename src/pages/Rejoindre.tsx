@@ -1,511 +1,400 @@
-import { useState } from 'react';
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-  SelectGroup,
-  SelectLabel,
-} from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useToast } from "@/hooks/use-toast";
-import { Heart, Send, AlertCircle } from "lucide-react";
-import { PhoneField, isValidIntlPhone } from "@/components/PhoneField";
+import PhoneField from "@/components/PhoneField";
+import { CheckCircle2, Loader2 } from "lucide-react";
 
-// Config env
-const FORMSPREE_ENDPOINT = import.meta.env.VITE_FORMSPREE_ENDPOINT || "";
-const GAS_WEBAPP_URL = import.meta.env.VITE_GAS_WEBAPP_URL || "";
+type TypeProfil = "joueur" | "partenaire";
 
-interface FormData {
-  profile: 'Joueur' | 'Partenaire' | '' ;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string; // format E.164 (+33612345678)
-  birthDate: string;
-  role: string;
-  company: string;
-  message: string;
-  consent: boolean;
-  referral: '' | 'reseaux' | 'site' | 'joueurActuel' | 'ancienJoueur' | 'connaissance' | 'autre';
-  referralDetail: string;
-}
+const WEBHOOK_URL = import.meta.env.VITE_JOIN_WEBHOOK_URL as string;
 
-const Rejoindre = () => {
-  const { toast } = useToast();
+export default function Rejoindre() {
+  // type
+  const [type, setType] = useState<TypeProfil>("joueur");
 
-  const [formData, setFormData] = useState<FormData>({
-    profile: '',
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    birthDate: '',
-    role: '',
-    company: '',
-    message: '',
-    consent: false,
-    referral: '',
-    referralDetail: ''
-  });
+  // commun
+  const [prenom, setPrenom] = useState("");
+  const [nom, setNom] = useState("");
+  const [email, setEmail] = useState("");
+  const [telephone, setTelephone] = useState(""); // reçu formaté depuis PhoneField
+  const [message, setMessage] = useState("");
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // joueur
+  const [dateNaissance, setDateNaissance] = useState("");
+  const [poste, setPoste] = useState("");
+  const [canal, setCanal] = useState("");
 
-  const handleInputChange = (field: keyof FormData, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value as any }));
-  };
+  // partenaire
+  const [entreprise, setEntreprise] = useState("");
+  const [siteWeb, setSiteWeb] = useState("");
 
-  const validateForm = () => {
-    const errors: string[] = [];
-    const emailRegex = /\S+@\S+\.\S+/;
+  // divers
+  const [consent, setConsent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [sent, setSent] = useState<null | "ok" | "ko">(null);
+  const [errorMsg, setErrorMsg] = useState<string>("");
 
-    if (!formData.profile) errors.push("Veuillez sélectionner un profil");
-    if (!formData.firstName.trim()) errors.push("Le prénom est obligatoire");
-    if (!formData.lastName.trim()) errors.push("Le nom est obligatoire");
-    if (!formData.email.trim()) errors.push("L'email est obligatoire");
-    if (formData.email && !emailRegex.test(formData.email)) errors.push("Email invalide");
-    if (!formData.consent) errors.push("Vous devez accepter les conditions");
+  // validation rapide
+  const requiredOK =
+    prenom.trim() !== "" &&
+    email.trim() !== "" &&
+    (type === "joueur"
+      ? dateNaissance.trim() !== "" && poste.trim() !== ""
+      : entreprise.trim() !== "") &&
+    consent;
 
-    // Téléphone optionnel, mais valide s'il est saisi
-    if (formData.phone && !isValidIntlPhone(formData.phone)) {
-      errors.push("Téléphone invalide pour le pays sélectionné");
-    }
-
-    if (formData.profile === 'Joueur') {
-      if (!formData.birthDate) errors.push("La date de naissance est obligatoire");
-      if (!formData.role) errors.push("Veuillez sélectionner un poste préféré");
-    }
-
-    if (formData.profile === 'Partenaire' && !formData.company.trim()) {
-      errors.push("Le nom d'entreprise est obligatoire");
-    }
-
-    // Détail requis selon l’option
-    if (['reseaux', 'joueurActuel', 'ancienJoueur', 'autre'].includes(formData.referral) && !formData.referralDetail.trim()) {
-      errors.push("Merci de préciser le détail de votre provenance");
-    }
-
-    return errors;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg("");
+    setSent(null);
 
-    const errors = validateForm();
-    if (errors.length > 0) {
-      toast({ title: "Erreur de validation", description: errors.join(", "), variant: "destructive" });
+    if (!WEBHOOK_URL) {
+      setErrorMsg(
+        "Configuration manquante : VITE_JOIN_WEBHOOK_URL n'est pas défini."
+      );
+      setSent("ko");
       return;
     }
 
-    setIsSubmitting(true);
+    if (!requiredOK) {
+      setErrorMsg("Merci de compléter les champs requis.");
+      setSent("ko");
+      return;
+    }
+
+    const payload =
+      type === "joueur"
+        ? {
+            type: "joueur",
+            prenom: prenom.trim(),
+            nom: nom.trim(),
+            email: email.trim(),
+            telephone: telephone.trim(),
+            date_de_naissance: dateNaissance.trim(),
+            poste_souhaite: poste.trim(),
+            canal: canal.trim(),
+            message: message.trim(),
+          }
+        : {
+            type: "partenaire",
+            prenom: prenom.trim(),
+            nom: nom.trim(),
+            email: email.trim(),
+            telephone: telephone.trim(),
+            entreprise: entreprise.trim(),
+            site_web: siteWeb.trim(), // optionnel OK si vide
+            message: message.trim(),
+          };
 
     try {
-      const submitData = {
-        profile: formData.profile,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone, // E.164
-        ...(formData.profile === 'Joueur' && {
-          birthDate: formData.birthDate,
-          role: formData.role,
-        }),
-        ...(formData.profile === 'Partenaire' && { company: formData.company }),
-        referral: formData.referral,
-        referralDetail: formData.referralDetail,
-        message: formData.message,
-        subject: "Nouvelle demande d'adhésion FC Ardentis",
-        timestamp: new Date().toISOString()
-      };
-
-      let success = false;
-
-      if (FORMSPREE_ENDPOINT) {
-        try {
-          const response = await fetch(FORMSPREE_ENDPOINT, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(submitData)
-          });
-          success = response.ok;
-        } catch (error) {
-          console.error('Formspree error:', error);
-        }
-      }
-
-      if (!success && GAS_WEBAPP_URL) {
-        try {
-          const response = await fetch(GAS_WEBAPP_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(submitData)
-          });
-          success = response.ok;
-        } catch (error) {
-          console.error('Google Apps Script error:', error);
-        }
-      }
-
-      if (success) {
-        toast({ title: "Demande envoyée !", description: "Nous vous répondrons sous 48h. Merci !" });
-        setFormData({
-          profile: '',
-          firstName: '',
-          lastName: '',
-          email: '',
-          phone: '',
-          birthDate: '',
-          role: '',
-          company: '',
-          message: '',
-          consent: false,
-          referral: '',
-          referralDetail: ''
-        });
-      } else {
-        throw new Error('Tous les services sont indisponibles');
-      }
-    } catch {
-      toast({
-        title: "Erreur d'envoi",
-        description: "Une erreur est survenue. Essayez plutôt d'envoyer un email à fcardentis@gmail.com",
-        variant: "destructive",
+      setSubmitting(true);
+      const res = await fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
+      const json = await res.json().catch(() => ({} as any));
+
+      if (res.ok && (json.ok === true || json.status === "success")) {
+        setSent("ok");
+        // reset soft (on garde le type sélectionné)
+        setPrenom("");
+        setNom("");
+        setEmail("");
+        setTelephone("");
+        setMessage("");
+        setDateNaissance("");
+        setPoste("");
+        setCanal("");
+        setEntreprise("");
+        setSiteWeb("");
+        setConsent(false);
+      } else {
+        setSent("ko");
+        setErrorMsg(
+          json?.error ||
+            "Erreur inattendue pendant l’envoi. Réessayez dans un instant."
+        );
+      }
+    } catch (err: any) {
+      setSent("ko");
+      setErrorMsg(
+        "Impossible de contacter le serveur. Vérifie ta connexion ou réessaie."
+      );
     } finally {
-      setIsSubmitting(false);
+      setSubmitting(false);
     }
   };
 
+  // helpers UI
+  const cardBase =
+    "flex-1 rounded-2xl p-5 border transition-all cursor-pointer select-none";
+  const cardActive =
+    "bg-gradient-to-br from-primary/10 to-accent/10 border-primary/30 ring-2 ring-primary/40";
+  const cardInactive =
+    "bg-card border-border hover:border-primary/40 hover:bg-primary/5";
+
   return (
     <div className="min-h-screen">
-      {/* Modern Hero Section */}
-      <section className="bg-gradient-hero py-20 px-4 text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
-        <div className="container max-w-5xl mx-auto relative z-10">
-        <h1 className="text-4xl md:text-6xl font-sport-condensed font-bold text-white mb-6 text-center">
-          Nous <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">rejoindre</span>
-        </h1>
-        <p className="text-lg text-white/90 font-sport max-w-3xl mx-auto text-center">
-          Choisissez votre profil et remplissez le formulaire.<br />
-          <span className="text-accent">Nous répondons sous 48h !</span>
-        </p>
+      {/* Hero (même logique que les autres pages) */}
+      <section className="bg-gradient-hero py-20 md:py-28 px-4 text-center !mt-0">
+        <div className="container max-w-5xl mx-auto">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-sport-condensed font-bold text-white mb-3">
+            <span className="text-white">Nous </span>
+            <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
+              rejoindre
+            </span>
+          </h1>
+          <p className="text-lg md:text-xl text-white/90 font-sport max-w-3xl mx-auto">
+            Devenez joueur ou partenaire du FC Ardentis.
+          </p>
         </div>
       </section>
 
-      {/* Modern Form */}
-      <section className="py-20 px-4 overflow-visible bg-gradient-section">
-        <div className="container max-w-3xl mx-auto">
-          <form onSubmit={handleSubmit} className="space-y-10">
-            
-            {/* Modern Profile Selection */}
-            <div className="bg-gradient-card p-8 rounded-2xl shadow-card border border-border/10">
-              <Label className="text-2xl font-sport-condensed font-bold text-foreground mb-6 block">
-                Choisissez votre profil
-              </Label>
-              <RadioGroup 
-                value={formData.profile} 
-                onValueChange={(value) => handleInputChange('profile', value as FormData['profile'])}
-                className="grid grid-cols-1 md:grid-cols-2 gap-4"
+      <section className="py-14 px-4 bg-gradient-section">
+        <div className="container max-w-4xl mx-auto">
+          {/* Sélecteur type – cartes cliquables */}
+          <div className="mb-8">
+            <h2 className="font-sport-condensed text-xl mb-3">Choisissez votre profil</h2>
+            <div className="flex gap-4">
+              <div
+                className={`${cardBase} ${type === "joueur" ? cardActive : cardInactive}`}
+                onClick={() => setType("joueur")}
+                role="button"
+                aria-pressed={type === "joueur"}
               >
-                <div className="flex items-center space-x-3 bg-primary/10 p-6 rounded-xl border border-primary/20 hover-lift">
-                  <RadioGroupItem value="Joueur" id="joueur" />
-                  <Label htmlFor="joueur" className="font-sport text-lg font-medium">Joueur</Label>
-                </div>
-                <div className="flex items-center space-x-3 bg-accent/10 p-6 rounded-xl border border-accent/20 hover-lift">
-                  <RadioGroupItem value="Partenaire" id="partenaire" />
-                  <Label htmlFor="partenaire" className="font-sport text-lg font-medium">Partenaire</Label>
-                </div>
-              </RadioGroup>
-            </div>
-
-            {/* Infos personnelles */}
-            {formData.profile && (
-              <div className="bg-card p-6 rounded-lg shadow-card border border-border/20 space-y-6 overflow-visible">
-                <h3 className="text-lg font-sport-condensed font-bold text-foreground">
-                  Informations personnelles
-                </h3>
-                
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="firstName" className="font-sport">Prénom *</Label>
-                    <Input
-                      id="firstName"
-                      type="text"
-                      value={formData.firstName}
-                      onChange={(e) => handleInputChange('firstName', e.target.value)}
-                      className="font-sport"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="lastName" className="font-sport">Nom *</Label>
-                    <Input
-                      id="lastName"
-                      type="text"
-                      value={formData.lastName}
-                      onChange={(e) => handleInputChange('lastName', e.target.value)}
-                      className="font-sport"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="email" className="font-sport">Email *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="font-sport"
-                    required
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="type"
+                    value="joueur"
+                    checked={type === "joueur"}
+                    onChange={() => setType("joueur")}
+                    className="accent-primary h-4 w-4"
                   />
-                </div>
+                  <span className="font-sport font-medium">Joueur</span>
+                </label>
+              </div>
 
-                {/* Téléphone international */}
-                <div>
-                  <Label className="font-sport">Téléphone (optionnel)</Label>
-                  <PhoneField
-                    value={formData.phone || undefined}
-                    onChange={(v) => handleInputChange("phone", v || "")}
-                    defaultCountry="FR"
+              <div
+                className={`${cardBase} ${type === "partenaire" ? cardActive : cardInactive}`}
+                onClick={() => setType("partenaire")}
+                role="button"
+                aria-pressed={type === "partenaire"}
+              >
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="type"
+                    value="partenaire"
+                    checked={type === "partenaire"}
+                    onChange={() => setType("partenaire")}
+                    className="accent-primary h-4 w-4"
                   />
-                  <p className="text-xs text-muted-foreground mt-1 font-sport">
-                    Choisissez le pays puis tapez le numéro. Le format et l’indicatif s’adaptent automatiquement.
-                  </p>
-                </div>
+                  <span className="font-sport font-medium">Partenaire</span>
+                </label>
               </div>
-            )}
-
-            {/* Infos sportives (Joueur) */}
-            {formData.profile === 'Joueur' && (
-              <div className="bg-card p-6 rounded-lg shadow-card border border-border/20 space-y-6 overflow-visible">
-                <h3 className="text-lg font-sport-condensed font-bold text-foreground">
-                  Informations sportives
-                </h3>
-                
-                <div>
-                  <Label htmlFor="birthDate" className="font-sport">Date de naissance *</Label>
-                  <Input
-                    id="birthDate"
-                    type="date"
-                    value={formData.birthDate}
-                    onChange={(e) => handleInputChange('birthDate', e.target.value)}
-                    className="font-sport"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label className="font-sport">Poste préféré *</Label>
-                  <Select value={formData.role} onValueChange={(value) => handleInputChange('role', value)}>
-                    <SelectTrigger className="font-sport">
-                      <SelectValue placeholder="Sélectionnez un poste" />
-                    </SelectTrigger>
-                    {/* Menu flottant + très au-dessus */}
-                    <SelectContent position="popper" sideOffset={6} className="z-[9999] bg-card text-card-foreground border border-border shadow-lg">
-                      <SelectGroup>
-                        <SelectLabel>Gardien</SelectLabel>
-                        <SelectItem value="Gardien de but">Gardien de but</SelectItem>
-                      </SelectGroup>
-
-                      <SelectGroup>
-                        <SelectLabel>Défense</SelectLabel>
-                        <SelectItem value="Latéral droit">Latéral droit</SelectItem>
-                        <SelectItem value="Défenseur central">Défenseur central</SelectItem>
-                        <SelectItem value="Latéral gauche">Latéral gauche</SelectItem>
-                      </SelectGroup>
-
-                      <SelectGroup>
-                        <SelectLabel>Milieu</SelectLabel>
-                        <SelectItem value="Milieu défensif">Milieu défensif</SelectItem>
-                        <SelectItem value="Milieu relayeur">Milieu relayeur</SelectItem>
-                        <SelectItem value="Milieu offensif">Milieu offensif</SelectItem>
-                      </SelectGroup>
-
-                      <SelectGroup>
-                        <SelectLabel>Attaque</SelectLabel>
-                        <SelectItem value="Ailier droit">Ailier droit</SelectItem>
-                        <SelectItem value="Ailier gauche">Ailier gauche</SelectItem>
-                        <SelectItem value="Attaquant axial">Attaquant axial</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Référencement / provenance */}
-                <div className="space-y-2">
-                  <Label className="font-sport">Comment nous avez-vous connu ?</Label>
-                  <Select
-                    value={formData.referral}
-                    onValueChange={(v) => handleInputChange('referral', v)}
-                  >
-                    <SelectTrigger className="font-sport">
-                      <SelectValue placeholder="Sélectionnez une option" />
-                    </SelectTrigger>
-                    <SelectContent position="popper" sideOffset={6} className="z-[9999] bg-card text-card-foreground border border-border shadow-lg">
-                      <SelectItem value="reseaux">Réseaux sociaux</SelectItem>
-                      <SelectItem value="site">Site web</SelectItem>
-                      <SelectItem value="joueurActuel">Joueur actuel</SelectItem>
-                      <SelectItem value="ancienJoueur">Ancien joueur</SelectItem>
-                      <SelectItem value="connaissance">Connaissance personnelle</SelectItem>
-                      <SelectItem value="autre">Autre</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  {(formData.referral === 'reseaux' ||
-                    formData.referral === 'joueurActuel' ||
-                    formData.referral === 'ancienJoueur' ||
-                    formData.referral === 'autre') && (
-                    <div>
-                      <Label htmlFor="refDetail" className="font-sport">
-                        {formData.referral === 'reseaux'
-                          ? 'Précisez le réseau'
-                          : formData.referral === 'autre'
-                          ? 'Précisez'
-                          : 'Nom du joueur'}
-                      </Label>
-                      <Input
-                        id="refDetail"
-                        type="text"
-                        value={formData.referralDetail}
-                        onChange={(e) => handleInputChange('referralDetail', e.target.value)}
-                        className="font-sport"
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Infos Partenaire */}
-            {formData.profile === 'Partenaire' && (
-              <div className="bg-card p-6 rounded-lg shadow-card border border-border/20 space-y-6 overflow-visible">
-                <h3 className="text-lg font-sport-condensed font-bold text-foreground">
-                  Informations partenaire
-                </h3>
-                
-                <div>
-                  <Label htmlFor="company" className="font-sport">Entreprise *</Label>
-                  <Input
-                    id="company"
-                    type="text"
-                    value={formData.company}
-                    onChange={(e) => handleInputChange('company', e.target.value)}
-                    className="font-sport"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="supportReason" className="font-sport">Pourquoi voulez-vous nous soutenir ?</Label>
-                  <Textarea
-                    id="supportReason"
-                    value={formData.message}
-                    onChange={(e) => handleInputChange('message', e.target.value)}
-                    className="font-sport"
-                    rows={4}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Message libre (joueur) */}
-            {formData.profile === 'Joueur' && (
-              <div className="bg-card p-6 rounded-lg shadow-card border border-border/20">
-                <Label htmlFor="message" className="font-sport block mb-2">
-                  Message libre (optionnel)
-                </Label>
-                <Textarea
-                  id="message"
-                  value={formData.message}
-                  onChange={(e) => handleInputChange('message', e.target.value)}
-                  className="font-sport"
-                  rows={4}
-                />
-              </div>
-            )}
-
-            {/* RGPD */}
-            {formData.profile && (
-              <div className="bg-card p-6 rounded-lg shadow-card border border-border/20">
-                <div className="flex items-start space-x-3">
-                  <Checkbox
-                    id="consent"
-                    checked={formData.consent}
-                    onCheckedChange={(checked) => handleInputChange('consent', !!checked)}
-                  />
-                  <Label htmlFor="consent" className="text-sm font-sport leading-relaxed">
-                    J'accepte que mes données personnelles soient utilisées pour traiter ma demande 
-                    et me recontacter dans le cadre des activités du FC Ardentis. 
-                    Ces données ne seront pas transmises à des tiers. *
-                  </Label>
-                </div>
-              </div>
-            )}
-
-            {/* Submit */}
-            {formData.profile && (
-              <div className="text-center">
-                <Button 
-                  type="submit" 
-                  size="lg" 
-                  variant="cta"
-                  disabled={isSubmitting}
-                  className="w-full md:w-auto"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Envoi en cours...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="h-4 w-4 mr-2" />
-                      Envoyer ma demande
-                    </>
-                  )}
-                </Button>
-              </div>
-            )}
-          </form>
-
-          {/* Rappels */}
-          <div className="mt-12 bg-secondary p-6 rounded-lg">
-            <div className="flex items-center gap-3 mb-4">
-              <Heart className="h-6 w-6 text-primary" />
-              <h3 className="text-lg font-sport-condensed font-bold text-secondary-foreground">
-                Rappels importants
-              </h3>
-            </div>
-            <div className="text-secondary-foreground/90 font-sport space-y-2">
-              <p>• Essais possibles le mercredi ou le dimanche</p>
-              <p>• Les horaires seront confirmés par email</p>
-              <p>• Réponse garantie sous 48h</p>
             </div>
           </div>
 
-          {/* Info config */}
-          {!FORMSPREE_ENDPOINT && !GAS_WEBAPP_URL && (
-            <div className="mt-8 bg-destructive/10 border border-destructive/20 p-4 rounded-lg">
-              <div className="flex items-center gap-2 text-destructive">
-                <AlertCircle className="h-5 w-5" />
-                <p className="text-sm font-sport">
-                  Configuration requise : VITE_FORMSPREE_ENDPOINT ou VITE_GAS_WEBAPP_URL
-                </p>
+          <form onSubmit={onSubmit} className="space-y-8">
+            {/* Bloc infos personnelles */}
+            <div className="rounded-2xl bg-card border border-border/60 shadow-card p-6 space-y-5">
+              <h3 className="font-sport-condensed text-lg">Informations personnelles</h3>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <label className="font-sport text-sm">Prénom *</label>
+                  <input
+                    type="text"
+                    value={prenom}
+                    onChange={(e) => setPrenom(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40"
+                    placeholder="Ex. Antoine"
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <label className="font-sport text-sm">Nom</label>
+                  <input
+                    type="text"
+                    value={nom}
+                    onChange={(e) => setNom(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40"
+                    placeholder="Ex. Durand"
+                  />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <label className="font-sport text-sm">Email *</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40"
+                    placeholder="prenom@exemple.com"
+                    required
+                  />
+                </div>
+
+                <div className="grid gap-2">
+                  <label className="font-sport text-sm">Téléphone (optionnel)</label>
+                  <PhoneField value={telephone} onChange={setTelephone} />
+                </div>
               </div>
             </div>
-          )}
+
+            {/* Bloc spécifique JOUEUR */}
+            {type === "joueur" && (
+              <div className="rounded-2xl bg-card border border-border/60 shadow-card p-6 space-y-5">
+                <h3 className="font-sport-condensed text-lg">Informations sportives</h3>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <label className="font-sport text-sm">Date de naissance *</label>
+                    <input
+                      type="date"
+                      value={dateNaissance}
+                      onChange={(e) => setDateNaissance(e.target.value)}
+                      className="w-full rounded-xl border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <label className="font-sport text-sm">Poste préféré *</label>
+                    <select
+                      value={poste}
+                      onChange={(e) => setPoste(e.target.value)}
+                      className="w-full rounded-xl border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40"
+                      required
+                    >
+                      <option value="">Sélectionnez un poste</option>
+                      <option>Gardien</option>
+                      <option>Défenseur</option>
+                      <option>Milieu</option>
+                      <option>Attaquant</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <label className="font-sport text-sm">Comment nous avez-vous connu ?</label>
+                    <select
+                      value={canal}
+                      onChange={(e) => setCanal(e.target.value)}
+                      className="w-full rounded-xl border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40"
+                    >
+                      <option value="">Sélectionnez une option</option>
+                      <option>Instagram</option>
+                      <option>TikTok</option>
+                      <option>Google</option>
+                      <option>Ami / bouche-à-oreille</option>
+                      <option>Autre</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Bloc spécifique PARTENAIRE */}
+            {type === "partenaire" && (
+              <div className="rounded-2xl bg-card border border-border/60 shadow-card p-6 space-y-5">
+                <h3 className="font-sport-condensed text-lg">Informations partenaire</h3>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <label className="font-sport text-sm">Entreprise *</label>
+                    <input
+                      type="text"
+                      value={entreprise}
+                      onChange={(e) => setEntreprise(e.target.value)}
+                      className="w-full rounded-xl border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40"
+                      placeholder="Nom de l’entreprise"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <label className="font-sport text-sm">Site web (optionnel)</label>
+                    <input
+                      type="url"
+                      value={siteWeb}
+                      onChange={(e) => setSiteWeb(e.target.value)}
+                      className="w-full rounded-xl border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40"
+                      placeholder="https://exemple.com"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Message libre */}
+            <div className="rounded-2xl bg-card border border-border/60 shadow-card p-6 space-y-5">
+              <h3 className="font-sport-condensed text-lg">Message libre (optionnel)</h3>
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={4}
+                className="w-full rounded-xl border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40"
+                placeholder={
+                  type === "joueur"
+                    ? "Ajoute des précisions (disponibilités, expérience...)"
+                    : "Parle-nous de ton intérêt (sponsoring maillots, visibilité, etc.)"
+                }
+              />
+            </div>
+
+            {/* Consentement */}
+            <div className="rounded-2xl bg-card border border-border/60 shadow-card p-6">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={consent}
+                  onChange={(e) => setConsent(e.target.checked)}
+                  className="accent-primary mt-1"
+                />
+                <span className="text-sm font-sport text-foreground/90">
+                  J’accepte que mes données personnelles soient utilisées pour traiter ma demande et me recontacter
+                  dans le cadre des activités du FC Ardentis. Ces données ne seront pas transmises à des tiers. *
+                </span>
+              </label>
+            </div>
+
+            {/* Messages d’état */}
+            {sent === "ok" && (
+              <div className="flex items-center gap-2 text-green-600 font-sport">
+                <CheckCircle2 className="h-5 w-5" />
+                Votre demande a bien été envoyée. Merci !
+              </div>
+            )}
+            {sent === "ko" && (
+              <div className="text-red-600 font-sport">
+                {errorMsg || "Une erreur est survenue. Réessayez."}
+            </div>
+            )}
+
+            <div className="flex justify-center">
+              <Button
+                type="submit"
+                disabled={submitting || !requiredOK}
+                className="px-6 py-6 text-base rounded-2xl min-w-[240px]"
+              >
+                {submitting ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Envoi en cours…
+                  </span>
+                ) : (
+                  "Envoyer ma demande"
+                )}
+              </Button>
+            </div>
+          </form>
         </div>
       </section>
     </div>
   );
-};
-
-export default Rejoindre;
+}
