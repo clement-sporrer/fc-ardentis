@@ -3,13 +3,9 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCart } from "@/contexts/CartContext";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 type ProductType = "maillot" | "short";
 
@@ -28,10 +24,7 @@ interface Product {
 }
 
 function buildCsvUrl() {
-  let base =
-    (import.meta as any).env?.VITE_SHEET_PRODUCTS_CSV_URL ||
-    (import.meta as any).env?.NEXT_PUBLIC_SHEET_PRODUCTS_CSV_URL ||
-    "";
+  let base = (import.meta as any).env?.VITE_SHEET_PRODUCTS_CSV_URL || (import.meta as any).env?.NEXT_PUBLIC_SHEET_PRODUCTS_CSV_URL || "";
   try { base = decodeURIComponent(base); } catch {}
   base = base.replace(/([?&])_ts=[^&]*/g, "").replace(/[?&]$/, "");
   return base + (base.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
@@ -87,6 +80,7 @@ export default function ProductPage() {
         }).filter(Boolean) as Product[];
 
         const found = list.find((p) => (p.id || "").toLowerCase() === safeSlug);
+        console.log("🧩 Produit trouvé ([slug]):", found);
         setProduct(found || null);
       } catch (e: any) {
         console.error(e);
@@ -99,17 +93,24 @@ export default function ProductPage() {
   }, [safeSlug]);
 
   const handleAddToCart = () => {
+    console.log("🧩 AJOUT AU PANIER : produit brut =", product);
     if (!product) return;
     if (!size) return alert("Choisis ta taille !");
     const safePrice = Number.isFinite(product.price_eur)
       ? product.price_eur
       : parseFloat(String(product.price_eur).replace(",", "."));
+    console.log("🧩 Produit envoyé au panier =", {
+      id: product.id,
+      name: product.name,
+      price_eur: safePrice,
+      type: typeof safePrice,
+    });
     dispatch({
       type: "ADD_ITEM",
       payload: {
         id: product.id,
         name: product.name,
-        price_eur: Number.isFinite(safePrice) ? safePrice : 0,
+        price_eur: safePrice,
         quantity: 1,
         image_url: product.image1,
         size,
@@ -141,74 +142,13 @@ export default function ProductPage() {
               <p className="text-2xl font-semibold text-primary">
                 {Number(product.price_eur || 0).toFixed(2)}€
               </p>
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">
-                  ⚠️ Taille petit —{" "}
-                  <button
-                    type="button"
-                    onClick={() => setOpenGuide(true)}
-                    className="text-primary underline underline-offset-4"
-                  >
-                    consulter le guide des tailles
-                  </button>
-                </p>
-                <Select onValueChange={setSize}>
-                  <SelectTrigger className="bg-background text-foreground border-border">
-                    <SelectValue placeholder="Choisir une taille" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background text-foreground border-border">
-                    {["3XS","2XS","XS","S","M","L","XL","2XL","3XL","4XL","5XL"].map((t) => (
-                      <SelectItem key={t} value={t}>{t}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              {product.type === "maillot" && (
-                <>
-                  <Input placeholder="Numéro (optionnel)" value={number} onChange={(e) => setNumber(e.target.value)} />
-                  <Input placeholder="Nom flocage (optionnel)" value={flocage} onChange={(e) => setFlocage(e.target.value)} />
-                </>
-              )}
-              {product.type === "short" && (
-                <Input placeholder="Numéro short (optionnel)" value={number} onChange={(e) => setNumber(e.target.value)} />
-              )}
-              <p className="text-sm text-muted-foreground mt-4">
-                Livraison sous 2 mois. À récupérer en main propre auprès du club.
-              </p>
               <Button onClick={handleAddToCart} disabled={product.soldout} className="w-full mt-4">
-                {product.soldout ? "Rupture de stock" : "Ajouter au panier"}
+                Ajouter au panier
               </Button>
             </CardContent>
           </Card>
         </div>
       </section>
-      <Dialog open={openGuide} onOpenChange={setOpenGuide}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Guide des tailles</DialogTitle>
-          </DialogHeader>
-          <div className="max-h-[70vh] overflow-auto flex justify-center">
-            {product.size_guide_url ? (
-              <img src={product.size_guide_url} alt="Guide des tailles" className="max-w-full h-auto rounded-lg" />
-            ) : (
-              <p>Guide non disponible.</p>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-      <Dialog open={openAdded} onOpenChange={setOpenAdded}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Ajouté au panier</DialogTitle></DialogHeader>
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => { setOpenAdded(false); navigate("/shop"); }}>
-              Continuer mes achats
-            </Button>
-            <Button onClick={() => { setOpenAdded(false); navigate("/checkout"); }}>
-              Voir mon panier
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
