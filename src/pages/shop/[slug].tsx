@@ -27,17 +27,17 @@ interface Product {
   soldout: boolean;
 }
 
-/** URL CSV propre (décode + retire _ts existant + ajoute _ts) */
+/** Génère une URL CSV propre */
 function buildCsvUrl() {
   let base =
     (import.meta as any).env?.VITE_SHEET_PRODUCTS_CSV_URL ||
     (import.meta as any).env?.NEXT_PUBLIC_SHEET_PRODUCTS_CSV_URL ||
     "";
-  try { base = decodeURIComponent(base); } catch {}
+  try {
+    base = decodeURIComponent(base);
+  } catch {}
   base = base.replace(/([?&])_ts=[^&]*/g, "").replace(/[?&]$/, "");
-  const url = base + (base.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
-  console.log("→ CSV URL utilisée ([slug]):", url);
-  return url;
+  return base + (base.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
 }
 
 const SPLIT = (s: string) => s.split(/\t|,/).map((x) => x.trim());
@@ -66,7 +66,6 @@ export default function ProductPage() {
       try {
         const res = await fetch(buildCsvUrl());
         const raw = await res.text();
-        console.log("→ CSV reçu ([slug]):", raw.slice(0, 220));
 
         const lines = raw.replace(/\r/g, "").split("\n").filter(Boolean);
         const list: Product[] = lines
@@ -74,12 +73,21 @@ export default function ProductPage() {
           .map((line) => {
             const v = SPLIT(line);
             if (v.length < 11) return null;
-            const price = parseFloat((v[3] || "0").replace("€", "").trim());
+
+            // ✅ Parsing robuste du prix
+            let priceStr = (v[3] || "0").replace(/[^\d.,]/g, "").trim();
+            if (priceStr.includes(",")) priceStr = priceStr.replace(",", ".");
+            const price = parseFloat(priceStr);
+            const priceFinal = !isNaN(price) && isFinite(price) ? price : 0;
+
+            if (priceFinal === 0)
+              console.warn("⚠️ Prix invalide pour:", v[1], "| valeur brute:", v[3]);
+
             return {
               id: (v[0] || "").trim().toLowerCase(),
               name: (v[1] || "").trim(),
               type: ((v[2] || "").trim().toLowerCase() as ProductType) || "maillot",
-              price_eur: isNaN(price) ? 0 : price,
+              price_eur: priceFinal,
               image1: v[4] || "",
               image2: v[5] || "",
               image3: v[6] || "",
@@ -107,8 +115,6 @@ export default function ProductPage() {
   const handleAddToCart = () => {
     if (!product) return;
     if (!size) return alert("Choisis ta taille !");
-    // Numéro/Flocage -> FACULTATIFS désormais
-
     dispatch({
       type: "ADD_ITEM",
       payload: {
@@ -118,12 +124,10 @@ export default function ProductPage() {
         quantity: 1,
         image_url: product.image1,
         size,
-        number,     // optionnel
-        flocage,    // optionnel
+        number,
+        flocage,
       },
     });
-
-    // Ouvre la modale “Ajouté au panier”
     setOpenAdded(true);
   };
 
@@ -135,35 +139,25 @@ export default function ProductPage() {
     <div className="min-h-screen">
       <section className="py-12 px-4">
         <div className="container max-w-5xl mx-auto grid md:grid-cols-2 gap-12">
-          {/* Galerie d’images */}
           <div className="space-y-4">
             {[product.image1, product.image2, product.image3, product.image4]
               .filter(Boolean)
               .map((img, i) => (
-                <img
-                  key={i}
-                  src={img}
-                  alt={product.name}
-                  className="w-full rounded-xl object-cover"
-                />
+                <img key={i} src={img} alt={product.name} className="w-full rounded-xl" />
               ))}
           </div>
 
-          {/* Détails produit */}
           <Card className="shadow-lg border-border/10">
             <CardContent className="space-y-6 p-6">
               <h1 className="text-3xl font-bold">{product.name}</h1>
               <p className="text-2xl font-semibold text-primary">
-                {product.price_eur.toFixed(2)}€
+                {Number(product.price_eur || 0).toFixed(2)}€
               </p>
 
               {product.soldout && (
-                <p className="text-red-500 font-semibold">
-                  Produit actuellement en rupture
-                </p>
+                <p className="text-red-500 font-semibold">Produit en rupture</p>
               )}
 
-              {/* Taille */}
               <div>
                 <p className="text-sm text-muted-foreground mb-2">
                   ⚠️ Taille petit —{" "}
@@ -171,7 +165,6 @@ export default function ProductPage() {
                     type="button"
                     onClick={() => setOpenGuide(true)}
                     className="text-primary underline underline-offset-4"
-                    aria-label="Consulter le guide des tailles"
                   >
                     consulter le guide des tailles
                   </button>
@@ -181,18 +174,17 @@ export default function ProductPage() {
                     <SelectValue placeholder="Choisir une taille" />
                   </SelectTrigger>
                   <SelectContent className="bg-background text-foreground border-border">
-                    {[
-                      "3XS","2XS","XS","S","M","L","XL","2XL","3XL","4XL","5XL",
-                    ].map((t) => (
-                      <SelectItem key={t} value={t}>
-                        {t}
-                      </SelectItem>
-                    ))}
+                    {["3XS", "2XS", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL"].map(
+                      (t) => (
+                        <SelectItem key={t} value={t}>
+                          {t}
+                        </SelectItem>
+                      )
+                    )}
                   </SelectContent>
                 </Select>
               </div>
 
-              {/* Champs spécifiques */}
               {product.type === "maillot" && (
                 <>
                   <Input
@@ -216,7 +208,6 @@ export default function ProductPage() {
                 />
               )}
 
-              {/* Infos livraison */}
               <p className="text-sm text-muted-foreground mt-4">
                 Livraison sous 2 mois. <br />
                 À récupérer en main propre auprès du club.
@@ -234,7 +225,7 @@ export default function ProductPage() {
         </div>
       </section>
 
-      {/* Modal Guide des tailles */}
+      {/* GUIDE DES TAILLES */}
       <Dialog open={openGuide} onOpenChange={setOpenGuide}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
@@ -256,7 +247,7 @@ export default function ProductPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal Ajouté au panier */}
+      {/* MODALE AJOUT */}
       <Dialog open={openAdded} onOpenChange={setOpenAdded}>
         <DialogContent>
           <DialogHeader>
