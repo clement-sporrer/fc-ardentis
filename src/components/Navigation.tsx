@@ -3,7 +3,6 @@ import { useMemo } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 
-/** Sécurise les nombres avec ou sans virgule */
 function toNumberSafe(v: any, fallback = 0): number {
   if (typeof v === "number" && Number.isFinite(v)) return v;
   const s = String(v ?? "").replace(",", ".");
@@ -11,15 +10,11 @@ function toNumberSafe(v: any, fallback = 0): number {
   return Number.isFinite(n) ? n : fallback;
 }
 
-/** Dégradé violet = cohérent avec vos bandeaux */
-const violetGradient =
-  "bg-gradient-to-r from-[#7C3AED] via-[#8B5CF6] to-[#A78BFA]"; // ajustable si besoin
-
 export default function Navigation() {
   const location = useLocation();
   const { state } = useCart();
 
-  // Total panier robuste
+  // Calcul du total panier sans crash
   const total = useMemo(() => {
     const items = Array.isArray(state?.items) ? state.items : [];
     return items.reduce((sum, item) => {
@@ -32,73 +27,77 @@ export default function Navigation() {
   const totalDisplay = Number.isFinite(total) ? total.toFixed(2) : "0.00";
   const itemCount = state?.items?.length || 0;
 
-  const links = [
-    { path: "/", label: "Accueil" },
-    { path: "/equipe", label: "Équipe" },
-    { path: "/calendrier", label: "Calendrier" },
-    { path: "/shop", label: "Boutique" },
-    { path: "/contacts", label: "Contacts" },
-  ];
-
   return (
-    <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur border-b border-border/40">
-      <div className="container mx-auto h-16 px-4 flex items-center justify-between">
-        {/* Logo + nom club */}
-        <Link to="/" className="flex items-center gap-3 group">
+    <header className="sticky top-0 z-50 w-full bg-white shadow-md">
+      <div className="container mx-auto flex justify-between items-center py-3 px-6">
+        {/* LOGO + NOM */}
+        <Link to="/" className="flex items-center gap-2">
           <img
             src="/assets/logo.png"
             alt="FC Ardentis"
-            className="h-9 w-auto object-contain transition-transform group-hover:scale-105"
+            className="h-10 w-auto object-contain"
           />
-          <span className="font-sport-condensed text-2xl font-bold text-foreground tracking-wide group-hover:text-primary transition-colors">
+          <span className="font-sport text-2xl font-bold text-black">
             FC Ardentis
           </span>
         </Link>
 
-        {/* Liens centraux (style bandeaux : condensed, plus gros, espacés) */}
-        <nav className="hidden md:flex items-center gap-10">
-          {links.map((link) => {
-            const isActive = location.pathname === link.path
-              || (link.path !== "/" && location.pathname.startsWith(link.path));
-            return (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={[
-                  "relative font-sport-condensed",
-                  "text-base md:text-lg font-semibold tracking-wider uppercase",
-                  "px-3 py-2 rounded-full transition-colors",
-                  isActive
-                    ? "text-transparent bg-clip-text " + violetGradient
-                    : "text-foreground/80 hover:text-foreground"
-                ].join(" ")}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
+        {/* NAVIGATION */}
+        <nav className="flex items-center space-x-8 font-sport text-base font-medium text-black">
+          <Link
+            to="/"
+            className={`hover:text-primary ${
+              location.pathname === "/" ? "text-primary" : ""
+            }`}
+          >
+            Accueil
+          </Link>
+          <Link
+            to="/equipe"
+            className={`hover:text-primary ${
+              location.pathname === "/equipe" ? "text-primary" : ""
+            }`}
+          >
+            Équipe
+          </Link>
+          <Link
+            to="/calendrier"
+            className={`hover:text-primary ${
+              location.pathname === "/calendrier" ? "text-primary" : ""
+            }`}
+          >
+            Calendrier
+          </Link>
+          <Link
+            to="/shop"
+            className={`hover:text-primary ${
+              location.pathname === "/shop" ? "text-primary" : ""
+            }`}
+          >
+            Boutique
+          </Link>
+          <Link
+            to="/contacts"
+            className={`hover:text-primary ${
+              location.pathname === "/contacts" ? "text-primary" : ""
+            }`}
+          >
+            Contact
+          </Link>
         </nav>
 
-        {/* Actions à droite */}
-        <div className="flex items-center gap-3">
-          {/* CTA Nous rejoindre – dégradé violet, plus visible */}
+        {/* CTA + PANIER */}
+        <div className="flex items-center space-x-4">
           <Link to="/rejoindre">
-            <Button
-              className={[
-                "font-sport-condensed text-base md:text-lg font-bold",
-                "rounded-full px-6 py-2 text-white border-0 shadow-sm hover:shadow-md transition",
-                violetGradient
-              ].join(" ")}
-            >
+            <Button className="bg-gradient-to-r from-purple-600 to-fuchsia-500 text-white font-sport px-5 py-2 rounded-full hover:opacity-90 transition">
               Nous rejoindre
             </Button>
           </Link>
 
-          {/* Panier – style outline cohérent + total safe */}
           <Link to="/checkout">
             <Button
               variant="outline"
-              className="font-sport rounded-full border-primary text-primary hover:bg-primary hover:text-white transition px-5"
+              className="border border-gray-300 text-gray-800 font-sport rounded-full px-5 py-2 hover:bg-gray-100 transition"
             >
               🛒 {itemCount} • {totalDisplay}€
             </Button>
