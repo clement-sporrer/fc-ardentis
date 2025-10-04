@@ -24,13 +24,24 @@ interface Product {
 }
 
 function buildCsvUrl() {
-  let base = (import.meta as any).env?.VITE_SHEET_PRODUCTS_CSV_URL || (import.meta as any).env?.NEXT_PUBLIC_SHEET_PRODUCTS_CSV_URL || "";
+  let base =
+    (import.meta as any).env?.VITE_SHEET_PRODUCTS_CSV_URL ||
+    (import.meta as any).env?.NEXT_PUBLIC_SHEET_PRODUCTS_CSV_URL ||
+    "";
   try { base = decodeURIComponent(base); } catch {}
   base = base.replace(/([?&])_ts=[^&]*/g, "").replace(/[?&]$/, "");
   return base + (base.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
 }
 
 const SPLIT = (s: string) => s.split(/\t|,/).map((x) => x.trim());
+const SIZES = ["3XS","2XS","XS","S","M","L","XL","2XL","3XL","4XL","5XL"];
+
+function toNumberSafe(v: any, fallback = 0): number {
+  if (typeof v === "number" && Number.isFinite(v)) return v;
+  const s = String(v ?? "").replace(",", ".");
+  const n = parseFloat(s);
+  return Number.isFinite(n) ? n : fallback;
+}
 
 export default function ProductPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -41,14 +52,17 @@ export default function ProductPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
   const [size, setSize] = useState("");
   const [number, setNumber] = useState("");
   const [flocage, setFlocage] = useState("");
+
   const [openAdded, setOpenAdded] = useState(false);
   const [openGuide, setOpenGuide] = useState(false);
 
   useEffect(() => {
     async function fetchProduct() {
+      setErrorMsg(null);
       setLoading(true);
       try {
         const res = await fetch(buildCsvUrl());
@@ -59,10 +73,7 @@ export default function ProductPage() {
           const v = SPLIT(line);
           if (v.length < 11) return null;
 
-          let priceStr = (v[3] || "0").replace(/[^\d,.-]/g, "").trim();
-          priceStr = priceStr.replace(",", ".");
-          let price = parseFloat(priceStr);
-          if (isNaN(price) || !isFinite(price)) price = 0;
+          const price = toNumberSafe((v[3] || "0"), 0);
 
           return {
             id: (v[0] || "").trim().toLowerCase(),
@@ -80,11 +91,11 @@ export default function ProductPage() {
         }).filter(Boolean) as Product[];
 
         const found = list.find((p) => (p.id || "").toLowerCase() === safeSlug);
-        console.log("🧩 Produit trouvé ([slug]):", found);
         setProduct(found || null);
       } catch (e: any) {
-        console.error(e);
+        console.error("Erreur chargement produit:", e);
         setErrorMsg("Impossible de charger ce produit.");
+        setProduct(null);
       } finally {
         setLoading(false);
       }
@@ -93,24 +104,15 @@ export default function ProductPage() {
   }, [safeSlug]);
 
   const handleAddToCart = () => {
-    console.log("🧩 AJOUT AU PANIER : produit brut =", product);
     if (!product) return;
     if (!size) return alert("Choisis ta taille !");
-    const safePrice = Number.isFinite(product.price_eur)
-      ? product.price_eur
-      : parseFloat(String(product.price_eur).replace(",", "."));
-    console.log("🧩 Produit envoyé au panier =", {
-      id: product.id,
-      name: product.name,
-      price_eur: safePrice,
-      type: typeof safePrice,
-    });
+
     dispatch({
       type: "ADD_ITEM",
       payload: {
         id: product.id,
         name: product.name,
-        price_eur: safePrice,
+        price_eur: toNumberSafe(product.price_eur, 0),
         quantity: 1,
         image_url: product.image1,
         size,
@@ -118,6 +120,7 @@ export default function ProductPage() {
         flocage,
       },
     });
+
     setOpenAdded(true);
   };
 
@@ -129,6 +132,7 @@ export default function ProductPage() {
     <div className="min-h-screen">
       <section className="py-12 px-4">
         <div className="container max-w-5xl mx-auto grid md:grid-cols-2 gap-12">
+          {/* Galerie */}
           <div className="space-y-4">
             {[product.image1, product.image2, product.image3, product.image4]
               .filter(Boolean)
@@ -136,19 +140,139 @@ export default function ProductPage() {
                 <img key={i} src={img} alt={product.name} className="w-full rounded-xl" />
               ))}
           </div>
+
+          {/* Détails produit */}
           <Card className="shadow-lg border-border/10">
             <CardContent className="space-y-6 p-6">
               <h1 className="text-3xl font-bold">{product.name}</h1>
+
               <p className="text-2xl font-semibold text-primary">
-                {Number(product.price_eur || 0).toFixed(2)}€
+                {Number(toNumberSafe(product.price_eur, 0)).toFixed(2)}€
               </p>
-              <Button onClick={handleAddToCart} disabled={product.soldout} className="w-full mt-4">
-                Ajouter au panier
+
+              {product.soldout && (
+                <p className="text-red-500 font-semibold">
+                  Produit actuellement en rupture
+                </p>
+              )}
+
+              {/* Taille */}
+              <div>
+                <p className="text-sm text-muted-foreground mb-2">
+                  ⚠️ Ça taille petit —{" "}
+                  <button
+                    type="button"
+                    onClick={() => setOpenGuide(true)}
+                    className="text-primary underline underline-offset-4"
+                    aria-label="Consulter le guide des tailles"
+                  >
+                    consulter le guide des tailles
+                  </button>
+                </p>
+                <Select onValueChange={setSize}>
+                  <SelectTrigger className="bg-background text-foreground border-border">
+                    <SelectValue placeholder="Choisir une taille" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background text-foreground border-border">
+                    {SIZES.map((t) => (
+                      <SelectItem key={t} value={t}>
+                        {t}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Champs spécifiques */}
+              {product.type === "maillot" && (
+                <>
+                  <Input
+                    placeholder="Numéro de maillot (optionnel)"
+                    value={number}
+                    onChange={(e) => setNumber(e.target.value)}
+                  />
+                  <Input
+                    placeholder="Nom flocage (optionnel)"
+                    value={flocage}
+                    onChange={(e) => setFlocage(e.target.value)}
+                  />
+                </>
+              )}
+
+              {product.type === "short" && (
+                <Input
+                  placeholder="Numéro short (optionnel)"
+                  value={number}
+                  onChange={(e) => setNumber(e.target.value)}
+                />
+              )}
+
+              {/* Infos livraison */}
+              <p className="text-sm text-muted-foreground mt-4">
+                Livraison sous 2&nbsp;mois.<br />
+                À récupérer en main propre auprès du club.
+              </p>
+
+              <Button
+                onClick={handleAddToCart}
+                disabled={product.soldout}
+                className="w-full mt-4"
+              >
+                {product.soldout ? "Rupture de stock" : "Ajouter au panier"}
               </Button>
             </CardContent>
           </Card>
         </div>
       </section>
+
+      {/* Modal Guide des tailles */}
+      <Dialog open={openGuide} onOpenChange={setOpenGuide}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Guide des tailles</DialogTitle>
+          </DialogHeader>
+          <div className="max-h-[70vh] overflow-auto flex justify-center">
+            {product.size_guide_url ? (
+              <img
+                src={product.size_guide_url}
+                alt="Guide des tailles"
+                className="max-w-full h-auto rounded-lg"
+              />
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Guide indisponible pour ce produit.
+              </p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Ajouté au panier */}
+      <Dialog open={openAdded} onOpenChange={setOpenAdded}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ajouté au panier</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <p className="text-sm">
+              <b>{product.name}</b> a été ajouté à votre panier.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Taille : {size}{" "}
+              {number ? <>• Numéro : {number} </> : null}
+              {product.type === "maillot" && flocage ? <>• Flocage : {flocage}</> : null}
+            </p>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => { setOpenAdded(false); navigate("/shop"); }}>
+              Continuer mes achats
+            </Button>
+            <Button onClick={() => { setOpenAdded(false); navigate("/checkout"); }}>
+              Voir mon panier
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
