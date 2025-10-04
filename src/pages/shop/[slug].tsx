@@ -36,11 +36,9 @@ function buildCsvUrl() {
   try { base = decodeURIComponent(base); } catch {}
   base = base.replace(/([?&])_ts=[^&]*/g, "").replace(/[?&]$/, "");
   const url = base + (base.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
-  console.log("→ CSV URL utilisée ([slug]):", url);
   return url;
 }
 
-/** Split simple CSV */
 const SPLIT = (s: string) => s.split(/\t|,/).map((x) => x.trim());
 
 export default function ProductPage() {
@@ -69,17 +67,21 @@ export default function ProductPage() {
         const res = await fetch(buildCsvUrl());
         const raw = await res.text();
         const lines = raw.replace(/\r/g, "").split("\n").filter(Boolean);
+
         const list: Product[] = lines
           .slice(1)
           .map((line) => {
             const v = SPLIT(line);
             if (v.length < 11) return null;
-            const price = parseFloat((v[3] || "0").replace("€", "").trim());
+
+            let price = parseFloat((v[3] || "0").replace(/[^\d.]/g, ""));
+            if (isNaN(price)) price = 0;
+
             return {
               id: (v[0] || "").trim().toLowerCase(),
               name: (v[1] || "").trim(),
               type: ((v[2] || "").trim().toLowerCase() as ProductType) || "maillot",
-              price_eur: isNaN(price) ? 0 : price,
+              price_eur: price,
               image1: v[4] || "",
               image2: v[5] || "",
               image3: v[6] || "",
@@ -104,7 +106,7 @@ export default function ProductPage() {
     fetchProduct();
   }, [safeSlug]);
 
-  /** Ajout au panier (robuste) */
+  /** Ajout au panier */
   const handleAddToCart = () => {
     if (!product) return;
     if (!size) {
@@ -139,6 +141,16 @@ export default function ProductPage() {
 
   return (
     <div className="min-h-screen">
+      {/* Bandeau titre */}
+      <section className="bg-gradient-to-r from-[#050505] via-[#101010] to-[#151515] py-20 text-center text-white">
+        <h1 className="text-5xl font-bold">
+          Notre <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">Boutique</span>
+        </h1>
+        <p className="text-gray-400 mt-3">
+          Découvrez les maillots et équipements officiels du FC Ardentis.
+        </p>
+      </section>
+
       <section className="py-12 px-4">
         <div className="container max-w-5xl mx-auto grid md:grid-cols-2 gap-12">
           {/* Galerie */}
@@ -150,12 +162,12 @@ export default function ProductPage() {
               ))}
           </div>
 
-          {/* Détails */}
+          {/* Détails produit */}
           <Card className="shadow-lg border-border/10">
             <CardContent className="space-y-6 p-6">
               <h1 className="text-3xl font-bold">{product.name}</h1>
               <p className="text-2xl font-semibold text-primary">
-                {product.price_eur.toFixed(2)}€
+                {Number(product.price_eur || 0).toFixed(2)}€
               </p>
 
               {product.soldout && (
@@ -213,7 +225,7 @@ export default function ProductPage() {
         </div>
       </section>
 
-      {/* Modale guide tailles */}
+      {/* Modal guide des tailles */}
       <Dialog open={openGuide} onOpenChange={setOpenGuide}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
@@ -221,11 +233,7 @@ export default function ProductPage() {
           </DialogHeader>
           <div className="max-h-[70vh] overflow-auto flex justify-center">
             {product.size_guide_url ? (
-              <img
-                src={product.size_guide_url}
-                alt="Guide des tailles"
-                className="max-w-full h-auto rounded-lg"
-              />
+              <img src={product.size_guide_url} alt="Guide des tailles" className="max-w-full h-auto rounded-lg" />
             ) : (
               <p className="text-sm text-muted-foreground">
                 Aucun guide des tailles disponible pour ce produit.
@@ -235,7 +243,7 @@ export default function ProductPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Modale ajout panier */}
+      {/* Modal ajout panier */}
       <Dialog open={openAdded} onOpenChange={setOpenAdded}>
         <DialogContent>
           <DialogHeader>
