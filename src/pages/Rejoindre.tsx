@@ -116,7 +116,7 @@ export default function Rejoindre() {
       setSubmitting(true);
       const res = await fetch(WEBHOOK_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "text/plain" }, // évite le préflight CORS
         body: JSON.stringify(payload),
       });
 
