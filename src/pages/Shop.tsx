@@ -19,14 +19,18 @@ interface Product {
   soldout: boolean;
 }
 
+/** URL propre du CSV depuis variable d'environnement */
 function buildCsvUrl() {
   let base =
     (import.meta as any).env?.VITE_SHEET_PRODUCTS_CSV_URL ||
     (import.meta as any).env?.NEXT_PUBLIC_SHEET_PRODUCTS_CSV_URL ||
     "";
-  try { base = decodeURIComponent(base); } catch {}
+  try {
+    base = decodeURIComponent(base);
+  } catch {}
   base = base.replace(/([?&])_ts=[^&]*/g, "").replace(/[?&]$/, "");
-  return base + (base.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
+  const url = base + (base.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
+  return url;
 }
 
 const SPLIT = (s: string) => s.split(/\t|,/).map((x) => x.trim());
@@ -43,33 +47,39 @@ export default function Shop() {
         const res = await fetch(buildCsvUrl());
         const raw = await res.text();
         const lines = raw.replace(/\r/g, "").split("\n").filter(Boolean);
-        if (lines.length < 2) { setProducts([]); return; }
+        if (lines.length < 2) return;
 
-        const items: Product[] = lines.slice(1).map((line) => {
-          const v = SPLIT(line);
-          if (v.length < 11) return null;
+        const items: Product[] = lines
+          .slice(1)
+          .map((line) => {
+            const v = SPLIT(line);
+            if (v.length < 11) return null;
 
-          let price = parseFloat((v[3] || "0").replace(/[^\d.]/g, ""));
-          if (!Number.isFinite(price)) price = 0;
+            // --- parse prix sécurisé (gère , et .)
+            let priceStr = (v[3] || "0").replace(/[^\d,.-]/g, "").trim();
+            priceStr = priceStr.replace(",", ".");
+            let price = parseFloat(priceStr);
+            if (isNaN(price) || !isFinite(price)) price = 0;
 
-          return {
-            id: (v[0] || "").trim().toLowerCase(),
-            name: (v[1] || "").trim(),
-            type: ((v[2] || "").trim().toLowerCase() as ProductType) || "maillot",
-            price_eur: price,
-            image1: v[4] || "",
-            image2: v[5] || "",
-            image3: v[6] || "",
-            image4: v[7] || "",
-            size_guide_url: v[8] || "",
-            active: (v[9] || "").toLowerCase() === "true",
-            soldout: (v[10] || "").toLowerCase() === "true",
-          } as Product;
-        }).filter(Boolean) as Product[];
+            return {
+              id: (v[0] || "").trim().toLowerCase(),
+              name: (v[1] || "").trim(),
+              type: ((v[2] || "").trim().toLowerCase() as ProductType) || "maillot",
+              price_eur: price,
+              image1: v[4] || "",
+              image2: v[5] || "",
+              image3: v[6] || "",
+              image4: v[7] || "",
+              size_guide_url: v[8] || "",
+              active: (v[9] || "").toLowerCase() === "true",
+              soldout: (v[10] || "").toLowerCase() === "true",
+            } as Product;
+          })
+          .filter(Boolean) as Product[];
 
         setProducts(items.filter((p) => p.active && p.id));
-      } catch (err) {
-        console.error(err);
+      } catch (err: any) {
+        console.error("Erreur chargement produits:", err);
         setErrorMsg("Impossible de charger les produits.");
       } finally {
         setLoading(false);
@@ -83,37 +93,61 @@ export default function Shop() {
 
   return (
     <div className="min-h-screen">
-      {/* Bandeau UNIQUEMENT sur la page boutique */}
-      <section className="bg-gradient-to-r from-[#050505] via-[#101010] to-[#151515] py-20 text-center text-white">
-        <h1 className="text-5xl font-bold">
-          Notre <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">Boutique</span>
-        </h1>
-        <p className="text-gray-400 mt-3">
-          Découvrez les maillots et équipements officiels du FC Ardentis.
-        </p>
+      {/* Bandeau titre */}
+      <section className="relative bg-gradient-to-r from-[#0A0A0A] to-[#151515] py-20 text-center text-white">
+        <div className="container mx-auto">
+          <h1 className="text-5xl font-bold mb-3">
+            <span className="text-white">Notre</span>{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2b7fff] to-[#55bfff]">
+              Boutique
+            </span>
+          </h1>
+          <p className="text-gray-400 max-w-2xl mx-auto">
+            Découvrez les maillots et shorts officiels du FC Ardentis.
+          </p>
+        </div>
       </section>
 
       <section className="py-12 px-4">
         <div className="container max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
           {products.map((product) => (
-            <Card key={product.id} className="bg-background shadow-card border-border/10 hover:shadow-xl transition-all">
+            <Card
+              key={product.id}
+              className="bg-background shadow-card border-border/10 hover:shadow-xl transition-all"
+            >
               <CardContent className="p-4 space-y-4 flex flex-col justify-between">
                 <img
                   src={product.image1}
                   alt={product.name}
-                  className={`w-full aspect-square object-cover rounded-xl ${product.soldout ? "opacity-50" : ""}`}
+                  className={`w-full aspect-square object-cover rounded-xl ${
+                    product.soldout ? "opacity-50" : ""
+                  }`}
                 />
+
                 <div>
                   <h3 className="font-bold text-lg">{product.name}</h3>
                   <p className="text-muted-foreground font-sport text-sm">
                     {Number(product.price_eur || 0).toFixed(2)}€
                   </p>
                   {product.soldout && (
-                    <p className="text-red-500 font-sport text-sm font-semibold">En rupture de stock</p>
+                    <p className="text-red-500 font-sport text-sm font-semibold">
+                      En rupture de stock
+                    </p>
                   )}
                 </div>
-                <Button asChild variant="cta" disabled={product.soldout} className="w-full">
-                  <Link to={`/shop/${encodeURIComponent(product.id)}`} onClick={(e) => { if (product.soldout) e.preventDefault(); }}>
+
+                <Button
+                  asChild
+                  variant="cta"
+                  disabled={product.soldout}
+                  className="w-full"
+                >
+                  <Link
+                    to={`/shop/${encodeURIComponent(product.id)}`}
+                    onClick={(e) => {
+                      if (product.soldout) e.preventDefault();
+                    }}
+                  >
                     {product.soldout ? "Rupture" : "Voir le produit"}
                   </Link>
                 </Button>
