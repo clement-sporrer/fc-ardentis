@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 
-/** Fonction de sécurité pour convertir correctement les nombres (y compris avec des virgules) */
+/** Sécurise les nombres avec ou sans virgule */
 function toNumberSafe(v: any, fallback = 0): number {
   if (typeof v === "number" && Number.isFinite(v)) return v;
   const s = String(v ?? "").replace(",", ".");
@@ -15,7 +15,6 @@ export default function Navigation() {
   const location = useLocation();
   const { state } = useCart();
 
-  // Calcul propre du total du panier
   const total = useMemo(() => {
     if (!state?.items?.length) return 0;
     return state.items.reduce((sum, item) => {
@@ -28,7 +27,6 @@ export default function Navigation() {
   const totalDisplay = Number.isFinite(total) ? total.toFixed(2) : "0.00";
   const itemCount = state?.items?.length || 0;
 
-  // Liens du menu principal
   const links = [
     { path: "/", label: "Accueil" },
     { path: "/equipe", label: "Équipe" },
@@ -38,22 +36,22 @@ export default function Navigation() {
   ];
 
   return (
-    <header className="w-full bg-[#111111] border-b border-[#222222] sticky top-0 z-50">
+    <header className="sticky top-0 z-50 w-full bg-background border-b border-border/40 backdrop-blur-sm">
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
-        {/* Logo à gauche */}
-        <Link to="/" className="flex items-center gap-3">
+        
+        {/* Logo FC36 */}
+        <Link to="/" className="flex items-center gap-3 group">
           <img
-            src="/logo.svg"
+            src="/assets/logo.png"
             alt="FC Ardentis"
-            className="w-8 h-8 rounded-md object-contain"
-            onError={(e) => ((e.target as HTMLImageElement).style.display = "none")}
+            className="h-9 w-auto object-contain transition-transform group-hover:scale-105"
           />
-          <span className="text-white font-sport text-xl tracking-wide">
+          <span className="font-sport text-xl font-semibold text-foreground group-hover:text-primary transition-colors">
             FC Ardentis
           </span>
         </Link>
 
-        {/* Liens centraux */}
+        {/* Navigation principale */}
         <nav className="hidden md:flex items-center gap-8">
           {links.map((link) => {
             const isActive = location.pathname === link.path;
@@ -61,10 +59,10 @@ export default function Navigation() {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`font-sport text-sm transition-colors ${
+                className={`font-sport-condensed tracking-wide text-sm uppercase transition-colors ${
                   isActive
-                    ? "text-[#2b7fff]"
-                    : "text-gray-300 hover:text-white"
+                    ? "text-primary"
+                    : "text-foreground/70 hover:text-foreground"
                 }`}
               >
                 {link.label}
@@ -73,11 +71,11 @@ export default function Navigation() {
           })}
         </nav>
 
-        {/* Boutons à droite */}
+        {/* Actions */}
         <div className="flex items-center gap-3">
-          {/* Bouton "Nous rejoindre" */}
+          {/* CTA "Nous rejoindre" */}
           <Link to="/rejoindre">
-            <Button className="font-sport rounded-full bg-gradient-to-r from-[#2b7fff] to-[#55bfff] text-white px-5 py-2 hover:shadow-lg transition">
+            <Button className="font-sport rounded-full bg-gradient-to-r from-[#2b7fff] to-[#55bfff] text-white border-0 px-6 py-2 shadow hover:shadow-md transition">
               Nous rejoindre
             </Button>
           </Link>
@@ -86,7 +84,7 @@ export default function Navigation() {
           <Link to="/checkout">
             <Button
               variant="outline"
-              className="font-sport rounded-full border-[#2b7fff] text-[#2b7fff] hover:bg-[#2b7fff] hover:text-white transition"
+              className="font-sport rounded-full border-primary text-primary hover:bg-primary hover:text-white transition"
             >
               🛒 {itemCount} • {totalDisplay}€
             </Button>
