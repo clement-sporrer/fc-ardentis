@@ -1,96 +1,86 @@
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from "react-router-dom";
+import { useCart } from "@/contexts/CartContext";
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from 'lucide-react';
-import CartDrawer from './CartDrawer';
 
-const Navigation = () => {
-  const [isOpen, setIsOpen] = useState(false);
+export default function Navigation() {
   const location = useLocation();
+  const { state } = useCart();
 
-  const navItems = [
-    { name: 'Accueil', path: '/' },
-    { name: 'Notre équipe', path: '/equipe' },
-    { name: 'Calendrier', path: '/calendrier' },
-    { name: 'Boutique', path: '/shop' },
-    { name: 'Contacts', path: '/contacts' },
-    { name: 'Nous rejoindre', path: '/rejoindre' }
-  ];
+  // total safe
+  const total = useMemo(() => {
+    if (!Array.isArray(state?.items)) return 0;
+    return state.items.reduce((sum, it) => {
+      const price = parseFloat(String(it?.price_eur ?? "0").replace(",", "."));
+      const qty = Math.max(1, parseFloat(String(it?.quantity ?? "1")));
+      if (!Number.isFinite(price) || !Number.isFinite(qty)) return sum;
+      return sum + price * qty;
+    }, 0);
+  }, [state?.items]);
+
+  const totalDisplay = Number.isFinite(total) ? total.toFixed(2) : "0.00";
 
   return (
-    <nav className="bg-background/95 backdrop-blur-sm border-b border-border/20 sticky top-0 z-50">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo et nom du club */}
-          <Link to="/" className="flex items-center space-x-3 hover:opacity-80 transition-sport" onClick={() => setIsOpen(false)}>
-            <img 
-              src="/assets/logo.png"
-              alt="FC Ardentis Logo"
-              className="h-12 w-auto object-contain"
-            />
-            <span className="font-sport-condensed font-bold text-xl text-foreground">
-              FC ARDENTIS
-            </span>
+    <header className="bg-background border-b border-border/20 sticky top-0 z-50">
+      <div className="container mx-auto flex items-center justify-between h-16 px-4">
+        {/* LOGO */}
+        <Link to="/" className="text-xl font-bold font-sport hover:opacity-80 transition">
+          FC Ardentis
+        </Link>
+
+        {/* NAV LINKS */}
+        <nav className="hidden md:flex gap-6 text-sm font-sport">
+          <Link
+            to="/"
+            className={`hover:text-primary transition ${
+              location.pathname === "/" ? "text-primary" : ""
+            }`}
+          >
+            Accueil
           </Link>
+          <Link
+            to="/equipe"
+            className={`hover:text-primary transition ${
+              location.pathname === "/equipe" ? "text-primary" : ""
+            }`}
+          >
+            Équipe
+          </Link>
+          <Link
+            to="/calendrier"
+            className={`hover:text-primary transition ${
+              location.pathname === "/calendrier" ? "text-primary" : ""
+            }`}
+          >
+            Calendrier
+          </Link>
+          <Link
+            to="/shop"
+            className={`hover:text-primary transition ${
+              location.pathname.startsWith("/shop") ? "text-primary" : ""
+            }`}
+          >
+            Boutique
+          </Link>
+          <Link
+            to="/contacts"
+            className={`hover:text-primary transition ${
+              location.pathname === "/contacts" ? "text-primary" : ""
+            }`}
+          >
+            Contacts
+          </Link>
+        </nav>
 
-          {/* Navigation desktop */}
-          <div className="hidden md:flex items-center space-x-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`px-4 py-2 rounded-lg font-sport font-medium transition-sport ${
-                  location.pathname === item.path
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-foreground hover:bg-primary/10 hover:text-primary'
-                }`}
-              >
-                {item.name}
-              </Link>
-            ))}
-            <CartDrawer />
-          </div>
-
-          {/* Actions mobiles et desktop */}
-          <div className="flex items-center space-x-2">
-            <div className="md:hidden">
-              <CartDrawer />
-            </div>
-            <div className="md:hidden">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsOpen(!isOpen)}
-                className="text-foreground"
-              >
-                {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </Button>
-            </div>
-          </div>
+        {/* CART SECTION */}
+        <div className="flex items-center gap-4">
+          <Link to="/checkout">
+            <Button variant="outline" className="font-sport">
+              🛒 Panier ({state?.items?.length || 0}) • {totalDisplay}€
+            </Button>
+          </Link>
         </div>
-
-        {/* Navigation mobile */}
-        {isOpen && (
-          <div className="md:hidden pb-4 space-y-2 border-t border-border/20 pt-4">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`block px-4 py-2 rounded-lg font-sport font-medium transition-sport ${
-                  location.pathname === item.path
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-foreground hover:bg-primary/10 hover:text-primary'
-                }`}
-                onClick={() => setIsOpen(false)}
-              >
-                {item.name}
-              </Link>
-            ))}
-          </div>
-        )}
       </div>
-    </nav>
+    </header>
   );
-};
-
-export default Navigation;
+}
