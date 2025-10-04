@@ -1,9 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 
-/** Convertit toute valeur en nombre sûr (gère virgule, NaN) */
+/** Fonction de sécurité pour convertir correctement les nombres (y compris avec des virgules) */
 function toNumberSafe(v: any, fallback = 0): number {
   if (typeof v === "number" && Number.isFinite(v)) return v;
   const s = String(v ?? "").replace(",", ".");
@@ -14,122 +14,85 @@ function toNumberSafe(v: any, fallback = 0): number {
 export default function Navigation() {
   const location = useLocation();
   const { state } = useCart();
-  const [menuOpen, setMenuOpen] = useState(false);
 
-  // Total panier robuste
+  // Calcul propre du total du panier
   const total = useMemo(() => {
-    const items = Array.isArray(state?.items) ? state.items : [];
-    return items.reduce((sum, it) => {
-      const price = toNumberSafe(it?.price_eur, 0);
-      const qty = Math.max(1, toNumberSafe(it?.quantity, 1));
+    if (!state?.items?.length) return 0;
+    return state.items.reduce((sum, item) => {
+      const price = toNumberSafe(item?.price_eur, 0);
+      const qty = Math.max(1, toNumberSafe(item?.quantity, 1));
       return sum + price * qty;
     }, 0);
   }, [state?.items]);
 
   const totalDisplay = Number.isFinite(total) ? total.toFixed(2) : "0.00";
+  const itemCount = state?.items?.length || 0;
 
+  // Liens du menu principal
   const links = [
-    { to: "/", label: "Accueil", match: (p: string) => p === "/" },
-    { to: "/equipe", label: "Équipe", match: (p: string) => p.startsWith("/equipe") },
-    { to: "/calendrier", label: "Calendrier", match: (p: string) => p.startsWith("/calendrier") },
-    { to: "/shop", label: "Boutique", match: (p: string) => p.startsWith("/shop") },
-    { to: "/contacts", label: "Contacts", match: (p: string) => p.startsWith("/contacts") },
+    { path: "/", label: "Accueil" },
+    { path: "/equipe", label: "Équipe" },
+    { path: "/calendrier", label: "Calendrier" },
+    { path: "/shop", label: "Boutique" },
+    { path: "/contacts", label: "Contacts" },
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-[#0B0B0B]/90 backdrop-blur border-b border-border/20">
-      <div className="container mx-auto h-16 px-4 flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 group">
-          {/* Si /logo.svg existe, il s’affichera. Sinon, on garde un fallback texte */}
+    <header className="w-full bg-[#111111] border-b border-[#222222] sticky top-0 z-50">
+      <div className="container mx-auto flex items-center justify-between h-16 px-4">
+        {/* Logo à gauche */}
+        <Link to="/" className="flex items-center gap-3">
           <img
             src="/logo.svg"
-            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
             alt="FC Ardentis"
-            className="h-8 w-8 rounded"
+            className="w-8 h-8 rounded-md object-contain"
+            onError={(e) => ((e.target as HTMLImageElement).style.display = "none")}
           />
-          <span className="text-xl font-bold font-sport group-hover:opacity-90 transition">
+          <span className="text-white font-sport text-xl tracking-wide">
             FC Ardentis
           </span>
         </Link>
 
-        {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-6">
-          {links.map((l) => {
-            const active = l.match(location.pathname);
+        {/* Liens centraux */}
+        <nav className="hidden md:flex items-center gap-8">
+          {links.map((link) => {
+            const isActive = location.pathname === link.path;
             return (
               <Link
-                key={l.to}
-                to={l.to}
-                className={`text-sm font-sport transition hover:text-primary ${
-                  active ? "text-primary" : "text-foreground/80"
+                key={link.path}
+                to={link.path}
+                className={`font-sport text-sm transition-colors ${
+                  isActive
+                    ? "text-[#2b7fff]"
+                    : "text-gray-300 hover:text-white"
                 }`}
               >
-                {l.label}
+                {link.label}
               </Link>
             );
           })}
+        </nav>
 
-          {/* CTA Nous rejoindre */}
+        {/* Boutons à droite */}
+        <div className="flex items-center gap-3">
+          {/* Bouton "Nous rejoindre" */}
           <Link to="/rejoindre">
-            <Button className="font-sport rounded-2xl shadow hover:shadow-md transition bg-gradient-to-r from-[#2b7fff] to-[#55bfff] text-white border-0">
+            <Button className="font-sport rounded-full bg-gradient-to-r from-[#2b7fff] to-[#55bfff] text-white px-5 py-2 hover:shadow-lg transition">
               Nous rejoindre
             </Button>
           </Link>
 
           {/* Panier */}
           <Link to="/checkout">
-            <Button variant="outline" className="font-sport rounded-2xl">
-              🛒 Panier ({state?.items?.length || 0}) • {totalDisplay}€
+            <Button
+              variant="outline"
+              className="font-sport rounded-full border-[#2b7fff] text-[#2b7fff] hover:bg-[#2b7fff] hover:text-white transition"
+            >
+              🛒 {itemCount} • {totalDisplay}€
             </Button>
           </Link>
-        </nav>
-
-        {/* Mobile actions */}
-        <div className="md:hidden flex items-center gap-2">
-          <Link to="/checkout">
-            <Button variant="outline" className="font-sport">
-              🛒 {state?.items?.length || 0}
-            </Button>
-          </Link>
-          <Button
-            variant="outline"
-            className="font-sport"
-            aria-label="Ouvrir le menu"
-            onClick={() => setMenuOpen((v) => !v)}
-          >
-            ☰
-          </Button>
         </div>
       </div>
-
-      {/* Mobile menu */}
-      {menuOpen && (
-        <div className="md:hidden border-t border-border/20 bg-[#0B0B0B]">
-          <div className="container mx-auto px-4 py-3 flex flex-col gap-3">
-            {links.map((l) => {
-              const active = l.match(location.pathname);
-              return (
-                <Link
-                  key={l.to}
-                  to={l.to}
-                  onClick={() => setMenuOpen(false)}
-                  className={`text-sm font-sport py-1 ${
-                    active ? "text-primary" : "text-foreground/80"
-                  }`}
-                >
-                  {l.label}
-                </Link>
-              );
-            })}
-            <Link to="/rejoindre" onClick={() => setMenuOpen(false)}>
-              <Button className="w-full font-sport rounded-2xl mt-1 bg-gradient-to-r from-[#2b7fff] to-[#55bfff] text-white border-0">
-                Nous rejoindre
-              </Button>
-            </Link>
-          </div>
-        </div>
-      )}
     </header>
   );
 }
