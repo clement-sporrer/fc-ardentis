@@ -1,20 +1,18 @@
 import { createContext, useContext, useEffect, useReducer } from "react";
 
 export type CartItem = {
-  lineItemId: string;         // identifiant unique de ligne
-  id: string;                 // slug produit
+  lineItemId: string;   // id unique de ligne
+  id: string;           // slug produit
   name: string;
-  price_eur: number;          // en euros (nombre)
-  quantity?: number;          // défaut 1
+  price_eur: number;    // nombre (euros)
+  quantity?: number;    // par défaut 1
   image_url?: string;
   size?: string;
   number?: string;
   flocage?: string;
 };
 
-type CartState = {
-  items: CartItem[];
-};
+type CartState = { items: CartItem[] };
 
 type AddPayload = Omit<CartItem, "lineItemId">;
 
@@ -42,13 +40,12 @@ function reducer(state: CartState, action: CartAction): CartState {
       const incoming = Array.isArray(action.payload?.items)
         ? (action.payload!.items as CartItem[])
         : [];
-      // On normalise les items
       const items = incoming.map((it) => ({
         lineItemId: String(it.lineItemId ?? `${Date.now()}-${Math.random()}`),
         id: String(it.id ?? ""),
         name: String(it.name ?? ""),
         price_eur: safeNumber(it.price_eur, 0),
-        quantity: safeNumber(it.quantity, 1),
+        quantity: safeNumber(it.quantity, 1) || 1,
         image_url: it.image_url ?? "",
         size: it.size ?? "",
         number: it.number ?? "",
@@ -60,32 +57,24 @@ function reducer(state: CartState, action: CartAction): CartState {
     case "ADD_ITEM": {
       const lineItemId =
         (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`);
-      const payload = action.payload ?? ({} as AddPayload);
-
+      const p = action.payload ?? ({} as AddPayload);
       const item: CartItem = {
         lineItemId,
-        id: String(payload.id ?? ""),
-        name: String(payload.name ?? ""),
-        price_eur: safeNumber(payload.price_eur, 0),
-        quantity: safeNumber(payload.quantity, 1) || 1,
-        image_url: payload.image_url ?? "",
-        size: payload.size ?? "",
-        number: payload.number ?? "",
-        flocage: payload.flocage ?? "",
+        id: String(p.id ?? ""),
+        name: String(p.name ?? ""),
+        price_eur: safeNumber(p.price_eur, 0),
+        quantity: safeNumber(p.quantity, 1) || 1,
+        image_url: p.image_url ?? "",
+        size: p.size ?? "",
+        number: p.number ?? "",
+        flocage: p.flocage ?? "",
       };
-
-      // si id ou name manquent, on ignore pour éviter un crash
-      if (!item.id || !item.name) return state;
-
+      if (!item.id || !item.name) return state; // garde-fou
       return { items: [...state.items, item] };
     }
 
     case "REMOVE_ITEM":
-      return {
-        items: state.items.filter(
-          (i) => i.lineItemId !== action.payload.lineItemId
-        ),
-      };
+      return { items: state.items.filter((i) => i.lineItemId !== action.payload.lineItemId) };
 
     case "CLEAR":
       return { items: [] };
@@ -107,7 +96,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       dispatch({ type: "HYDRATE", payload: parsed || {} });
     } catch (e) {
       console.warn("Cart HYDRATE error → reset", e);
-      // reset en cas de JSON corrompu
       localStorage.removeItem(STORAGE_KEY);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -122,11 +110,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state]);
 
-  return (
-    <CartContext.Provider value={{ state, dispatch }}>
-      {children}
-    </CartContext.Provider>
-  );
+  return <CartContext.Provider value={{ state, dispatch }}>{children}</CartContext.Provider>;
 }
 
 export function useCart() {
