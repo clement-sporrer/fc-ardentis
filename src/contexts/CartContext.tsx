@@ -23,6 +23,7 @@ const CartContext = createContext<{ state: State; dispatch: React.Dispatch<Actio
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "ADD_ITEM": {
+      console.log("🧩 CartContext reçoit payload :", action.payload);
       const p = action.payload ?? {};
       const safePrice = Number.isFinite(p.price_eur)
         ? p.price_eur
@@ -38,6 +39,7 @@ const reducer = (state: State, action: Action): State => {
         number: p.number || "",
         flocage: p.flocage || "",
       };
+      console.log("🧩 CartContext construit item final :", item);
       return { items: [...state.items, item] };
     }
     case "REMOVE_ITEM":
@@ -57,4 +59,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     localStorage.setItem("fc-ardentis-cart-v2", JSON.stringify(state));
   }, [state]);
-  return <CartContext.Provider value={{
+  return <CartContext.Provider value={{ state, dispatch }}>{children}</CartContext.Provider>;
+};
+
+export const useCart = () => {
+  const ctx = useContext(CartContext);
+  if (!ctx) throw new Error("useCart must be used within CartProvider");
+  return ctx;
+};
