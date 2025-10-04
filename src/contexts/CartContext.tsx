@@ -35,22 +35,23 @@ const CartContext = createContext<{
 }>({ state: { items: [] }, dispatch: () => {} });
 
 function reducer(state: State, action: Action): State {
-  switch (action.type) {
-    case "HYDRATE": {
-      const raw = Array.isArray(action.payload?.items) ? action.payload?.items! : [];
-      const items = raw.map((it: any) => ({
-        lineItemId: String(it?.lineItemId ?? `${Date.now()}-${Math.random()}`),
-        id: String(it?.id ?? ""),
-        name: String(it?.name ?? ""),
-        price_eur: toNumberSafe(it?.price_eur, 0),
-        quantity: Math.max(1, toNumberSafe(it?.quantity, 1)),
-        image_url: it?.image_url ?? "",
-        size: it?.size ?? "",
-        number: it?.number ?? "",
-        flocage: it?.flocage ?? "",
-      }));
-      return { items };
-    }
+  console.log("🧩 Reducer action:", action.type, action.payload);
+    switch (action.type) {
+      case "HYDRATE": {
+        const raw = Array.isArray(action.payload?.items) ? action.payload?.items! : [];
+        const items = raw.map((it: any) => ({
+          lineItemId: String(it?.lineItemId ?? `${Date.now()}-${Math.random()}`),
+          id: String(it?.id ?? ""),
+          name: String(it?.name ?? ""),
+          price_eur: toNumberSafe(it?.price_eur, 0),
+          quantity: Math.max(1, toNumberSafe(it?.quantity, 1)),
+          image_url: it?.image_url ?? "",
+          size: it?.size ?? "",
+          number: it?.number ?? "",
+          flocage: it?.flocage ?? "",
+        }));
+        return { items };
+      }
 
     case "ADD_ITEM": {
       const p = action.payload ?? {};
