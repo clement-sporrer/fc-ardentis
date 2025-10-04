@@ -26,9 +26,7 @@ function buildCsvUrl() {
     (import.meta as any).env?.NEXT_PUBLIC_SHEET_PRODUCTS_CSV_URL ||
     "";
 
-  try {
-    base = decodeURIComponent(base);
-  } catch {}
+  try { base = decodeURIComponent(base); } catch {}
   base = base.replace(/([?&])_ts=[^&]*/g, "").replace(/[?&]$/, "");
   const url = base + (base.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
   console.log("→ CSV URL utilisée (Shop):", url);
@@ -63,9 +61,9 @@ export default function Shop() {
             if (v.length < 11) return null;
             const price = parseFloat((v[3] || "0").replace("€", "").trim());
             return {
-              id: (v[0] || "").trim(),
-              name: v[1],
-              type: (v[2] as ProductType) || "maillot",
+              id: (v[0] || "").trim().toLowerCase(),
+              name: (v[1] || "").trim(),
+              type: ((v[2] || "").trim().toLowerCase() as ProductType) || "maillot",
               price_eur: isNaN(price) ? 0 : price,
               image1: v[4] || "",
               image2: v[5] || "",
@@ -122,20 +120,11 @@ export default function Shop() {
                   )}
                 </div>
 
-                <Button
-                  asChild
-                  variant="cta"
-                  disabled={product.soldout}
-                  className="w-full"
-                >
+                <Button asChild variant="cta" disabled={product.soldout} className="w-full">
                   <Link
-                    to={`/shop/${encodeURIComponent(
-                      (product.id || "").trim().toLowerCase()
-                    )}`}
+                    to={`/shop/${encodeURIComponent(product.id)}`}
                     aria-disabled={product.soldout ? "true" : "false"}
-                    onClick={(e) => {
-                      if (product.soldout) e.preventDefault();
-                    }}
+                    onClick={(e) => { if (product.soldout) e.preventDefault(); }}
                   >
                     {product.soldout ? "Rupture" : "Voir le produit"}
                   </Link>
