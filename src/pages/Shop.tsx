@@ -26,8 +26,7 @@ function buildCsvUrl() {
     "";
   try { base = decodeURIComponent(base); } catch {}
   base = base.replace(/([?&])_ts=[^&]*/g, "").replace(/[?&]$/, "");
-  const url = base + (base.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
-  return url;
+  return base + (base.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
 }
 
 const SPLIT = (s: string) => s.split(/\t|,/).map((x) => x.trim());
@@ -44,14 +43,14 @@ export default function Shop() {
         const res = await fetch(buildCsvUrl());
         const raw = await res.text();
         const lines = raw.replace(/\r/g, "").split("\n").filter(Boolean);
-        if (lines.length < 2) return;
+        if (lines.length < 2) { setProducts([]); return; }
 
         const items: Product[] = lines.slice(1).map((line) => {
           const v = SPLIT(line);
           if (v.length < 11) return null;
 
           let price = parseFloat((v[3] || "0").replace(/[^\d.]/g, ""));
-          if (isNaN(price)) price = 0;
+          if (!Number.isFinite(price)) price = 0;
 
           return {
             id: (v[0] || "").trim().toLowerCase(),
@@ -69,7 +68,8 @@ export default function Shop() {
         }).filter(Boolean) as Product[];
 
         setProducts(items.filter((p) => p.active && p.id));
-      } catch (err: any) {
+      } catch (err) {
+        console.error(err);
         setErrorMsg("Impossible de charger les produits.");
       } finally {
         setLoading(false);
@@ -83,7 +83,7 @@ export default function Shop() {
 
   return (
     <div className="min-h-screen">
-      {/* Bandeau titre */}
+      {/* Bandeau UNIQUEMENT sur la page boutique */}
       <section className="bg-gradient-to-r from-[#050505] via-[#101010] to-[#151515] py-20 text-center text-white">
         <h1 className="text-5xl font-bold">
           Notre <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">Boutique</span>
@@ -109,17 +109,11 @@ export default function Shop() {
                     {Number(product.price_eur || 0).toFixed(2)}€
                   </p>
                   {product.soldout && (
-                    <p className="text-red-500 font-sport text-sm font-semibold">
-                      En rupture de stock
-                    </p>
+                    <p className="text-red-500 font-sport text-sm font-semibold">En rupture de stock</p>
                   )}
                 </div>
-
                 <Button asChild variant="cta" disabled={product.soldout} className="w-full">
-                  <Link
-                    to={`/shop/${encodeURIComponent(product.id)}`}
-                    onClick={(e) => { if (product.soldout) e.preventDefault(); }}
-                  >
+                  <Link to={`/shop/${encodeURIComponent(product.id)}`} onClick={(e) => { if (product.soldout) e.preventDefault(); }}>
                     {product.soldout ? "Rupture" : "Voir le produit"}
                   </Link>
                 </Button>
