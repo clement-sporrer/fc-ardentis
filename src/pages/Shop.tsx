@@ -55,7 +55,6 @@ export default function Shop() {
             const v = SPLIT(line);
             if (v.length < 11) return null;
 
-            // --- parse prix sécurisé (gère , et .)
             let priceStr = (v[3] || "0").replace(/[^\d,.-]/g, "").trim();
             priceStr = priceStr.replace(",", ".");
             let price = parseFloat(priceStr);
@@ -77,6 +76,7 @@ export default function Shop() {
           })
           .filter(Boolean) as Product[];
 
+        console.log("🧩 Produits chargés (Shop):", items);
         setProducts(items.filter((p) => p.active && p.id));
       } catch (err: any) {
         console.error("Erreur chargement produits:", err);
@@ -93,7 +93,6 @@ export default function Shop() {
 
   return (
     <div className="min-h-screen">
-      {/* Bandeau titre */}
       <section className="relative bg-gradient-to-r from-[#0A0A0A] to-[#151515] py-20 text-center text-white">
         <div className="container mx-auto">
           <h1 className="text-5xl font-bold mb-3">
@@ -111,43 +110,24 @@ export default function Shop() {
       <section className="py-12 px-4">
         <div className="container max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
           {products.map((product) => (
-            <Card
-              key={product.id}
-              className="bg-background shadow-card border-border/10 hover:shadow-xl transition-all"
-            >
+            <Card key={product.id} className="bg-background shadow-card border-border/10 hover:shadow-xl transition-all">
               <CardContent className="p-4 space-y-4 flex flex-col justify-between">
                 <img
                   src={product.image1}
                   alt={product.name}
-                  className={`w-full aspect-square object-cover rounded-xl ${
-                    product.soldout ? "opacity-50" : ""
-                  }`}
+                  className={`w-full aspect-square object-cover rounded-xl ${product.soldout ? "opacity-50" : ""}`}
                 />
-
                 <div>
                   <h3 className="font-bold text-lg">{product.name}</h3>
                   <p className="text-muted-foreground font-sport text-sm">
                     {Number(product.price_eur || 0).toFixed(2)}€
                   </p>
                   {product.soldout && (
-                    <p className="text-red-500 font-sport text-sm font-semibold">
-                      En rupture de stock
-                    </p>
+                    <p className="text-red-500 font-sport text-sm font-semibold">En rupture de stock</p>
                   )}
                 </div>
-
-                <Button
-                  asChild
-                  variant="cta"
-                  disabled={product.soldout}
-                  className="w-full"
-                >
-                  <Link
-                    to={`/shop/${encodeURIComponent(product.id)}`}
-                    onClick={(e) => {
-                      if (product.soldout) e.preventDefault();
-                    }}
-                  >
+                <Button asChild variant="cta" disabled={product.soldout} className="w-full">
+                  <Link to={`/shop/${encodeURIComponent(product.id)}`} onClick={(e) => { if (product.soldout) e.preventDefault(); }}>
                     {product.soldout ? "Rupture" : "Voir le produit"}
                   </Link>
                 </Button>
