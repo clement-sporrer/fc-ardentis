@@ -3,13 +3,9 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCart } from "@/contexts/CartContext";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 type ProductType = "maillot" | "short";
 
@@ -27,7 +23,6 @@ interface Product {
   soldout: boolean;
 }
 
-/** Génère une URL CSV propre à partir de la variable d'environnement */
 function buildCsvUrl() {
   let base =
     (import.meta as any).env?.VITE_SHEET_PRODUCTS_CSV_URL ||
@@ -35,8 +30,7 @@ function buildCsvUrl() {
     "";
   try { base = decodeURIComponent(base); } catch {}
   base = base.replace(/([?&])_ts=[^&]*/g, "").replace(/[?&]$/, "");
-  const url = base + (base.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
-  return url;
+  return base + (base.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
 }
 
 const SPLIT = (s: string) => s.split(/\t|,/).map((x) => x.trim());
@@ -58,7 +52,6 @@ export default function ProductPage() {
   const [openAdded, setOpenAdded] = useState(false);
   const [openGuide, setOpenGuide] = useState(false);
 
-  // Chargement du produit
   useEffect(() => {
     async function fetchProduct() {
       setErrorMsg(null);
@@ -68,37 +61,33 @@ export default function ProductPage() {
         const raw = await res.text();
         const lines = raw.replace(/\r/g, "").split("\n").filter(Boolean);
 
-        const list: Product[] = lines
-          .slice(1)
-          .map((line) => {
-            const v = SPLIT(line);
-            if (v.length < 11) return null;
+        const list: Product[] = lines.slice(1).map((line) => {
+          const v = SPLIT(line);
+          if (v.length < 11) return null;
 
-            let price = parseFloat((v[3] || "0").replace(/[^\d.]/g, ""));
-            if (isNaN(price)) price = 0;
+          let price = parseFloat((v[3] || "0").replace(/[^\d.]/g, ""));
+          if (!Number.isFinite(price)) price = 0;
 
-            return {
-              id: (v[0] || "").trim().toLowerCase(),
-              name: (v[1] || "").trim(),
-              type: ((v[2] || "").trim().toLowerCase() as ProductType) || "maillot",
-              price_eur: price,
-              image1: v[4] || "",
-              image2: v[5] || "",
-              image3: v[6] || "",
-              image4: v[7] || "",
-              size_guide_url: v[8] || "",
-              active: (v[9] || "").toLowerCase() === "true",
-              soldout: (v[10] || "").toLowerCase() === "true",
-            } as Product;
-          })
-          .filter(Boolean) as Product[];
+          return {
+            id: (v[0] || "").trim().toLowerCase(),
+            name: (v[1] || "").trim(),
+            type: ((v[2] || "").trim().toLowerCase() as ProductType) || "maillot",
+            price_eur: price,
+            image1: v[4] || "",
+            image2: v[5] || "",
+            image3: v[6] || "",
+            image4: v[7] || "",
+            size_guide_url: v[8] || "",
+            active: (v[9] || "").toLowerCase() === "true",
+            soldout: (v[10] || "").toLowerCase() === "true",
+          } as Product;
+        }).filter(Boolean) as Product[];
 
         const found = list.find((p) => (p.id || "").toLowerCase() === safeSlug);
         setProduct(found || null);
-      } catch (e: any) {
-        console.error("Erreur chargement produit:", e);
+      } catch (e) {
+        console.error("Erreur CSV produit:", e);
         setErrorMsg("Impossible de charger ce produit.");
-        setProduct(null);
       } finally {
         setLoading(false);
       }
@@ -106,13 +95,9 @@ export default function ProductPage() {
     fetchProduct();
   }, [safeSlug]);
 
-  /** Ajout au panier */
   const handleAddToCart = () => {
     if (!product) return;
-    if (!size) {
-      alert("Choisis ta taille !");
-      return;
-    }
+    if (!size) { alert("Choisis ta taille !"); return; }
 
     try {
       dispatch({
@@ -141,16 +126,6 @@ export default function ProductPage() {
 
   return (
     <div className="min-h-screen">
-      {/* Bandeau titre */}
-      <section className="bg-gradient-to-r from-[#050505] via-[#101010] to-[#151515] py-20 text-center text-white">
-        <h1 className="text-5xl font-bold">
-          Notre <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">Boutique</span>
-        </h1>
-        <p className="text-gray-400 mt-3">
-          Découvrez les maillots et équipements officiels du FC Ardentis.
-        </p>
-      </section>
-
       <section className="py-12 px-4">
         <div className="container max-w-5xl mx-auto grid md:grid-cols-2 gap-12">
           {/* Galerie */}
@@ -162,7 +137,7 @@ export default function ProductPage() {
               ))}
           </div>
 
-          {/* Détails produit */}
+          {/* Détails */}
           <Card className="shadow-lg border-border/10">
             <CardContent className="space-y-6 p-6">
               <h1 className="text-3xl font-bold">{product.name}</h1>
@@ -174,17 +149,12 @@ export default function ProductPage() {
                 <p className="text-red-500 font-semibold">Produit en rupture de stock</p>
               )}
 
-              {/* Taille */}
               <div>
                 <p className="text-sm text-muted-foreground mb-2">
                   ⚠️ Taille petit —{" "}
                   <button
                     type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setOpenGuide(true);
-                    }}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpenGuide(true); }}
                     className="text-primary underline underline-offset-4"
                   >
                     consulter le guide des tailles
@@ -202,7 +172,6 @@ export default function ProductPage() {
                 </Select>
               </div>
 
-              {/* Champs personnalisés */}
               {product.type === "maillot" && (
                 <>
                   <Input placeholder="Numéro de maillot (optionnel)" value={number} onChange={(e) => setNumber(e.target.value)} />
@@ -225,37 +194,28 @@ export default function ProductPage() {
         </div>
       </section>
 
-      {/* Modal guide des tailles */}
+      {/* Modale guide */}
       <Dialog open={openGuide} onOpenChange={setOpenGuide}>
         <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Guide des tailles</DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>Guide des tailles</DialogTitle></DialogHeader>
           <div className="max-h-[70vh] overflow-auto flex justify-center">
             {product.size_guide_url ? (
               <img src={product.size_guide_url} alt="Guide des tailles" className="max-w-full h-auto rounded-lg" />
             ) : (
-              <p className="text-sm text-muted-foreground">
-                Aucun guide des tailles disponible pour ce produit.
-              </p>
+              <p className="text-sm text-muted-foreground">Aucun guide des tailles disponible pour ce produit.</p>
             )}
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Modal ajout panier */}
+      {/* Modale ajout panier */}
       <Dialog open={openAdded} onOpenChange={setOpenAdded}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Ajouté au panier</DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>Ajouté au panier</DialogTitle></DialogHeader>
           <div className="space-y-2">
-            <p className="text-sm">
-              <b>{product.name}</b> a été ajouté à votre panier.
-            </p>
+            <p className="text-sm"><b>{product.name}</b> a été ajouté à votre panier.</p>
             <p className="text-sm text-muted-foreground">
-              Taille : {size}{" "}
-              {number ? <>• Numéro : {number} </> : null}
+              Taille : {size} {number ? <>• Numéro : {number} </> : null}
               {flocage ? <>• Flocage : {flocage}</> : null}
             </p>
           </div>
