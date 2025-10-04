@@ -19,21 +19,24 @@ interface Product {
   soldout: boolean;
 }
 
-/** URL propre du CSV depuis variable d'environnement */
 function buildCsvUrl() {
   let base =
     (import.meta as any).env?.VITE_SHEET_PRODUCTS_CSV_URL ||
     (import.meta as any).env?.NEXT_PUBLIC_SHEET_PRODUCTS_CSV_URL ||
     "";
-  try {
-    base = decodeURIComponent(base);
-  } catch {}
+  try { base = decodeURIComponent(base); } catch {}
   base = base.replace(/([?&])_ts=[^&]*/g, "").replace(/[?&]$/, "");
-  const url = base + (base.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
-  return url;
+  return base + (base.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
 }
 
 const SPLIT = (s: string) => s.split(/\t|,/).map((x) => x.trim());
+
+function toNumberSafe(v: any, fallback = 0): number {
+  if (typeof v === "number" && Number.isFinite(v)) return v;
+  const s = String(v ?? "").replace(",", ".");
+  const n = parseFloat(s);
+  return Number.isFinite(n) ? n : fallback;
+}
 
 export default function Shop() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -47,39 +50,32 @@ export default function Shop() {
         const res = await fetch(buildCsvUrl());
         const raw = await res.text();
         const lines = raw.replace(/\r/g, "").split("\n").filter(Boolean);
-        if (lines.length < 2) return;
+        if (lines.length < 2) { setProducts([]); return; }
 
-        const items: Product[] = lines
-          .slice(1)
-          .map((line) => {
-            const v = SPLIT(line);
-            if (v.length < 11) return null;
+        const items: Product[] = lines.slice(1).map((line) => {
+          const v = SPLIT(line);
+          if (v.length < 11) return null;
 
-            let priceStr = (v[3] || "0").replace(/[^\d,.-]/g, "").trim();
-            priceStr = priceStr.replace(",", ".");
-            let price = parseFloat(priceStr);
-            if (isNaN(price) || !isFinite(price)) price = 0;
+          const price = toNumberSafe((v[3] || "0"), 0);
 
-            return {
-              id: (v[0] || "").trim().toLowerCase(),
-              name: (v[1] || "").trim(),
-              type: ((v[2] || "").trim().toLowerCase() as ProductType) || "maillot",
-              price_eur: price,
-              image1: v[4] || "",
-              image2: v[5] || "",
-              image3: v[6] || "",
-              image4: v[7] || "",
-              size_guide_url: v[8] || "",
-              active: (v[9] || "").toLowerCase() === "true",
-              soldout: (v[10] || "").toLowerCase() === "true",
-            } as Product;
-          })
-          .filter(Boolean) as Product[];
+          return {
+            id: (v[0] || "").trim().toLowerCase(),
+            name: (v[1] || "").trim(),
+            type: ((v[2] || "").trim().toLowerCase() as ProductType) || "maillot",
+            price_eur: price,
+            image1: v[4] || "",
+            image2: v[5] || "",
+            image3: v[6] || "",
+            image4: v[7] || "",
+            size_guide_url: v[8] || "",
+            active: (v[9] || "").toLowerCase() === "true",
+            soldout: (v[10] || "").toLowerCase() === "true",
+          } as Product;
+        }).filter(Boolean) as Product[];
 
-        console.log("🧩 Produits chargés (Shop):", items);
         setProducts(items.filter((p) => p.active && p.id));
-      } catch (err: any) {
-        console.error("Erreur chargement produits:", err);
+      } catch (err) {
+        console.error(err);
         setErrorMsg("Impossible de charger les produits.");
       } finally {
         setLoading(false);
@@ -93,7 +89,8 @@ export default function Shop() {
 
   return (
     <div className="min-h-screen">
-      <section className="relative bg-gradient-to-r from-[#0A0A0A] to-[#151515] py-20 text-center text-white">
+      {/* Bandeau “comme Nous rejoindre” */}
+      <section className="relative bg-gradient-to-r from-[#0B0B0B] to-[#151515] py-20 text-center text-white">
         <div className="container mx-auto">
           <h1 className="text-5xl font-bold mb-3">
             <span className="text-white">Notre</span>{" "}
@@ -102,7 +99,7 @@ export default function Shop() {
             </span>
           </h1>
           <p className="text-gray-400 max-w-2xl mx-auto">
-            Découvrez les maillots et shorts officiels du FC Ardentis.
+            Maillots et shorts officiels du FC Ardentis — personnalisez, ajoutez au panier, payez plus tard.
           </p>
         </div>
       </section>
@@ -120,14 +117,17 @@ export default function Shop() {
                 <div>
                   <h3 className="font-bold text-lg">{product.name}</h3>
                   <p className="text-muted-foreground font-sport text-sm">
-                    {Number(product.price_eur || 0).toFixed(2)}€
+                    {Number(toNumberSafe(product.price_eur, 0)).toFixed(2)}€
                   </p>
                   {product.soldout && (
                     <p className="text-red-500 font-sport text-sm font-semibold">En rupture de stock</p>
                   )}
                 </div>
                 <Button asChild variant="cta" disabled={product.soldout} className="w-full">
-                  <Link to={`/shop/${encodeURIComponent(product.id)}`} onClick={(e) => { if (product.soldout) e.preventDefault(); }}>
+                  <Link
+                    to={`/shop/${encodeURIComponent(product.id)}`}
+                    onClick={(e) => { if (product.soldout) e.preventDefault(); }}
+                  >
                     {product.soldout ? "Rupture" : "Voir le produit"}
                   </Link>
                 </Button>
