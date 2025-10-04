@@ -4,11 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { useCart } from "@/contexts/CartContext";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 
 type ProductType = "maillot" | "short";
@@ -27,7 +35,6 @@ interface Product {
   soldout: boolean;
 }
 
-/** Génère une URL CSV propre */
 function buildCsvUrl() {
   let base =
     (import.meta as any).env?.VITE_SHEET_PRODUCTS_CSV_URL ||
@@ -40,8 +47,6 @@ function buildCsvUrl() {
   return base + (base.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
 }
 
-const SPLIT = (s: string) => s.split(/\t|,/).map((x) => x.trim());
-
 export default function ProductPage() {
   const { slug } = useParams<{ slug: string }>();
   const safeSlug = decodeURIComponent((slug || "").trim().toLowerCase());
@@ -50,65 +55,59 @@ export default function ProductPage() {
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
+  const [error, setError] = useState<string | null>(null);
   const [size, setSize] = useState("");
   const [number, setNumber] = useState("");
   const [flocage, setFlocage] = useState("");
-
   const [openAdded, setOpenAdded] = useState(false);
   const [openGuide, setOpenGuide] = useState(false);
 
   useEffect(() => {
     async function fetchProduct() {
-      setErrorMsg(null);
-      setLoading(true);
       try {
         const res = await fetch(buildCsvUrl());
-        const raw = await res.text();
+        if (!res.ok) throw new Error("Erreur CSV");
+        const text = await res.text();
 
-        const lines = raw.replace(/\r/g, "").split("\n").filter(Boolean);
-        const list: Product[] = lines
-          .slice(1)
-          .map((line) => {
-            const v = SPLIT(line);
-            if (v.length < 11) return null;
+        const lines = text.trim().split("\n").filter(Boolean);
+        const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
 
-            // ✅ Parsing robuste du prix
-            let priceStr = (v[3] || "0").replace(/[^\d.,]/g, "").trim();
-            if (priceStr.includes(",")) priceStr = priceStr.replace(",", ".");
-            const price = parseFloat(priceStr);
-            const priceFinal = !isNaN(price) && isFinite(price) ? price : 0;
+        const products = lines.slice(1).map((line) => {
+          const cols = line.split(",").map((v) => v.trim());
+          const get = (key: string) => cols[headers.indexOf(key)] || "";
 
-            if (priceFinal === 0)
-              console.warn("⚠️ Prix invalide pour:", v[1], "| valeur brute:", v[3]);
+          // ✅ Support prix avec virgule
+          let priceStr = get("price_eur")
+            .replace(/[^\d,.-]/g, "")
+            .replace(",", ".");
+          const parsedPrice = parseFloat(priceStr);
+          const price = isNaN(parsedPrice) ? 0 : parsedPrice;
 
-            return {
-              id: (v[0] || "").trim().toLowerCase(),
-              name: (v[1] || "").trim(),
-              type: ((v[2] || "").trim().toLowerCase() as ProductType) || "maillot",
-              price_eur: priceFinal,
-              image1: v[4] || "",
-              image2: v[5] || "",
-              image3: v[6] || "",
-              image4: v[7] || "",
-              size_guide_url: v[8] || "",
-              active: (v[9] || "").toLowerCase() === "true",
-              soldout: (v[10] || "").toLowerCase() === "true",
-            } as Product;
-          })
-          .filter(Boolean) as Product[];
+          return {
+            id: get("id").toLowerCase(),
+            name: get("name"),
+            type: (get("type") as ProductType) || "maillot",
+            price_eur: price,
+            image1: get("image1"),
+            image2: get("image2"),
+            image3: get("image3"),
+            image4: get("image4"),
+            size_guide_url: get("size_guide_url"),
+            active: get("active").toLowerCase() === "true",
+            soldout: get("soldout").toLowerCase() === "true",
+          } as Product;
+        });
 
-        const found = list.find((p) => (p.id || "").toLowerCase() === safeSlug);
+        const found = products.find((p) => p.id === safeSlug);
         setProduct(found || null);
-      } catch (e: any) {
-        console.error("Erreur chargement produit:", e);
-        setErrorMsg("Impossible de charger ce produit.");
-        setProduct(null);
+      } catch (err) {
+        console.error("Erreur CSV produit:", err);
+        setError("Impossible de charger ce produit.");
       } finally {
         setLoading(false);
       }
     }
+
     fetchProduct();
   }, [safeSlug]);
 
@@ -132,147 +131,87 @@ export default function ProductPage() {
   };
 
   if (loading) return <p className="text-center py-20">Chargement...</p>;
-  if (errorMsg) return <p className="text-center py-20 text-red-500">{errorMsg}</p>;
+  if (error)
+    return <p className="text-center py-20 text-red-500">{error}</p>;
   if (!product) return <p className="text-center py-20">Produit introuvable.</p>;
 
   return (
-    <div className="min-h-screen">
-      <section className="py-12 px-4">
-        <div className="container max-w-5xl mx-auto grid md:grid-cols-2 gap-12">
-          <div className="space-y-4">
-            {[product.image1, product.image2, product.image3, product.image4]
-              .filter(Boolean)
-              .map((img, i) => (
-                <img key={i} src={img} alt={product.name} className="w-full rounded-xl" />
-              ))}
-          </div>
+    <div className="min-h-screen py-12 px-4">
+      <div className="container max-w-5xl mx-auto grid md:grid-cols-2 gap-12">
+        <div className="space-y-4">
+          {[product.image1, product.image2, product.image3, product.image4]
+            .filter(Boolean)
+            .map((img, i) => (
+              <img key={i} src={img} alt={product.name} className="w-full rounded-xl" />
+            ))}
+        </div>
 
-          <Card className="shadow-lg border-border/10">
-            <CardContent className="space-y-6 p-6">
-              <h1 className="text-3xl font-bold">{product.name}</h1>
-              <p className="text-2xl font-semibold text-primary">
-                {Number(product.price_eur || 0).toFixed(2)}€
+        <Card className="shadow-lg border-border/10">
+          <CardContent className="space-y-6 p-6">
+            <h1 className="text-3xl font-bold">{product.name}</h1>
+            <p className="text-2xl font-semibold text-primary">
+              {product.price_eur.toFixed(2)} €
+            </p>
+
+            <div>
+              <p className="text-sm text-muted-foreground mb-2">
+                ⚠️ Taille petit —{" "}
+                <button
+                  type="button"
+                  onClick={() => setOpenGuide(true)}
+                  className="text-primary underline"
+                >
+                  consulter le guide des tailles
+                </button>
               </p>
+              <Select onValueChange={setSize}>
+                <SelectTrigger className="bg-background text-foreground border-border">
+                  <SelectValue placeholder="Choisir une taille" />
+                </SelectTrigger>
+                <SelectContent className="bg-background text-foreground border-border">
+                  {["3XS","2XS","XS","S","M","L","XL","2XL","3XL","4XL","5XL"].map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-              {product.soldout && (
-                <p className="text-red-500 font-semibold">Produit en rupture</p>
-              )}
-
-              <div>
-                <p className="text-sm text-muted-foreground mb-2">
-                  ⚠️ Taille petit —{" "}
-                  <button
-                    type="button"
-                    onClick={() => setOpenGuide(true)}
-                    className="text-primary underline underline-offset-4"
-                  >
-                    consulter le guide des tailles
-                  </button>
-                </p>
-                <Select onValueChange={setSize}>
-                  <SelectTrigger className="bg-background text-foreground border-border">
-                    <SelectValue placeholder="Choisir une taille" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background text-foreground border-border">
-                    {["3XS", "2XS", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL"].map(
-                      (t) => (
-                        <SelectItem key={t} value={t}>
-                          {t}
-                        </SelectItem>
-                      )
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {product.type === "maillot" && (
-                <>
-                  <Input
-                    placeholder="Numéro de maillot (optionnel)"
-                    value={number}
-                    onChange={(e) => setNumber(e.target.value)}
-                  />
-                  <Input
-                    placeholder="Nom flocage (optionnel)"
-                    value={flocage}
-                    onChange={(e) => setFlocage(e.target.value)}
-                  />
-                </>
-              )}
-
-              {product.type === "short" && (
+            {product.type === "maillot" && (
+              <>
                 <Input
-                  placeholder="Numéro short (optionnel)"
+                  placeholder="Numéro de maillot (optionnel)"
                   value={number}
                   onChange={(e) => setNumber(e.target.value)}
                 />
-              )}
-
-              <p className="text-sm text-muted-foreground mt-4">
-                Livraison sous 2 mois. <br />
-                À récupérer en main propre auprès du club.
-              </p>
-
-              <Button
-                onClick={handleAddToCart}
-                disabled={product.soldout}
-                className="w-full mt-4"
-              >
-                {product.soldout ? "Rupture de stock" : "Ajouter au panier"}
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* GUIDE DES TAILLES */}
-      <Dialog open={openGuide} onOpenChange={setOpenGuide}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Guide des tailles</DialogTitle>
-          </DialogHeader>
-          <div className="max-h-[70vh] overflow-auto">
-            {product.size_guide_url ? (
-              <img
-                src={product.size_guide_url}
-                alt="Guide des tailles"
-                className="w-full h-auto rounded-lg"
-              />
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Guide indisponible pour ce produit.
-              </p>
+                <Input
+                  placeholder="Nom flocage (optionnel)"
+                  value={flocage}
+                  onChange={(e) => setFlocage(e.target.value)}
+                />
+              </>
             )}
-          </div>
-        </DialogContent>
-      </Dialog>
 
-      {/* MODALE AJOUT */}
-      <Dialog open={openAdded} onOpenChange={setOpenAdded}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Ajouté au panier</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-2">
-            <p className="text-sm">
-              <b>{product.name}</b> a été ajouté à votre panier.
-            </p>
+            {product.type === "short" && (
+              <Input
+                placeholder="Numéro short (optionnel)"
+                value={number}
+                onChange={(e) => setNumber(e.target.value)}
+              />
+            )}
+
             <p className="text-sm text-muted-foreground">
-              Taille : {size}{" "}
-              {number ? <>• Numéro : {number} </> : null}
-              {product.type === "maillot" && flocage ? <>• Flocage : {flocage}</> : null}
+              Livraison sous 2 mois. <br />
+              À récupérer en main propre auprès du club.
             </p>
-          </div>
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => { setOpenAdded(false); navigate("/shop"); }}>
-              Continuer mes achats
+
+            <Button onClick={handleAddToCart} className="w-full mt-4">
+              Ajouter au panier
             </Button>
-            <Button onClick={() => { setOpenAdded(false); navigate("/checkout"); }}>
-              Voir mon panier
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
