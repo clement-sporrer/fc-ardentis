@@ -4,13 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { useCart } from "@/contexts/CartContext";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
 
 type ProductType = "maillot" | "short";
 
@@ -28,15 +27,13 @@ interface Product {
   soldout: boolean;
 }
 
-/** URL CSV propre (décode + ajoute _ts) */
+/** URL CSV propre (décode + retire _ts existant + ajoute _ts) */
 function buildCsvUrl() {
   let base =
     (import.meta as any).env?.VITE_SHEET_PRODUCTS_CSV_URL ||
     (import.meta as any).env?.NEXT_PUBLIC_SHEET_PRODUCTS_CSV_URL ||
     "";
-  try {
-    base = decodeURIComponent(base);
-  } catch {}
+  try { base = decodeURIComponent(base); } catch {}
   base = base.replace(/([?&])_ts=[^&]*/g, "").replace(/[?&]$/, "");
   const url = base + (base.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
   console.log("→ CSV URL utilisée ([slug]):", url);
@@ -59,6 +56,9 @@ export default function ProductPage() {
   const [number, setNumber] = useState("");
   const [flocage, setFlocage] = useState("");
 
+  const [openAdded, setOpenAdded] = useState(false);
+  const [openGuide, setOpenGuide] = useState(false);
+
   useEffect(() => {
     async function fetchProduct() {
       setErrorMsg(null);
@@ -76,9 +76,9 @@ export default function ProductPage() {
             if (v.length < 11) return null;
             const price = parseFloat((v[3] || "0").replace("€", "").trim());
             return {
-              id: (v[0] || "").trim(),
-              name: v[1],
-              type: (v[2] as ProductType) || "maillot",
+              id: (v[0] || "").trim().toLowerCase(),
+              name: (v[1] || "").trim(),
+              type: ((v[2] || "").trim().toLowerCase() as ProductType) || "maillot",
               price_eur: isNaN(price) ? 0 : price,
               image1: v[4] || "",
               image2: v[5] || "",
@@ -91,9 +91,7 @@ export default function ProductPage() {
           })
           .filter(Boolean) as Product[];
 
-        const found = list.find(
-          (p) => (p.id || "").trim().toLowerCase() === safeSlug
-        );
+        const found = list.find((p) => (p.id || "").toLowerCase() === safeSlug);
         setProduct(found || null);
       } catch (e: any) {
         console.error("Erreur chargement produit:", e);
@@ -109,10 +107,7 @@ export default function ProductPage() {
   const handleAddToCart = () => {
     if (!product) return;
     if (!size) return alert("Choisis ta taille !");
-    if (product.type === "maillot" && (!number || !flocage))
-      return alert("Ajoute ton numéro et ton nom pour le flocage !");
-    if (product.type === "short" && !number)
-      return alert("Ajoute ton numéro de short !");
+    // Numéro/Flocage -> FACULTATIFS désormais
 
     dispatch({
       type: "ADD_ITEM",
@@ -123,12 +118,13 @@ export default function ProductPage() {
         quantity: 1,
         image_url: product.image1,
         size,
-        number,
-        flocage,
+        number,     // optionnel
+        flocage,    // optionnel
       },
     });
 
-    navigate("/checkout");
+    // Ouvre la modale “Ajouté au panier”
+    setOpenAdded(true);
   };
 
   if (loading) return <p className="text-center py-20">Chargement...</p>;
@@ -139,7 +135,7 @@ export default function ProductPage() {
     <div className="min-h-screen">
       <section className="py-12 px-4">
         <div className="container max-w-5xl mx-auto grid md:grid-cols-2 gap-12">
-          {/* Images */}
+          {/* Galerie d’images */}
           <div className="space-y-4">
             {[product.image1, product.image2, product.image3, product.image4]
               .filter(Boolean)
@@ -171,32 +167,22 @@ export default function ProductPage() {
               <div>
                 <p className="text-sm text-muted-foreground mb-2">
                   ⚠️ Taille petit —{" "}
-                  <a
-                    href={product.size_guide_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary underline"
+                  <button
+                    type="button"
+                    onClick={() => setOpenGuide(true)}
+                    className="text-primary underline underline-offset-4"
+                    aria-label="Consulter le guide des tailles"
                   >
                     consulter le guide des tailles
-                  </a>
+                  </button>
                 </p>
                 <Select onValueChange={setSize}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-background text-foreground border-border">
                     <SelectValue placeholder="Choisir une taille" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-background text-foreground border-border">
                     {[
-                      "3XS",
-                      "2XS",
-                      "XS",
-                      "S",
-                      "M",
-                      "L",
-                      "XL",
-                      "2XL",
-                      "3XL",
-                      "4XL",
-                      "5XL",
+                      "3XS","2XS","XS","S","M","L","XL","2XL","3XL","4XL","5XL",
                     ].map((t) => (
                       <SelectItem key={t} value={t}>
                         {t}
@@ -210,12 +196,12 @@ export default function ProductPage() {
               {product.type === "maillot" && (
                 <>
                   <Input
-                    placeholder="Numéro de maillot"
+                    placeholder="Numéro de maillot (optionnel)"
                     value={number}
                     onChange={(e) => setNumber(e.target.value)}
                   />
                   <Input
-                    placeholder="Nom flocage"
+                    placeholder="Nom flocage (optionnel)"
                     value={flocage}
                     onChange={(e) => setFlocage(e.target.value)}
                   />
@@ -224,7 +210,7 @@ export default function ProductPage() {
 
               {product.type === "short" && (
                 <Input
-                  placeholder="Numéro short"
+                  placeholder="Numéro short (optionnel)"
                   value={number}
                   onChange={(e) => setNumber(e.target.value)}
                 />
@@ -247,6 +233,55 @@ export default function ProductPage() {
           </Card>
         </div>
       </section>
+
+      {/* Modal Guide des tailles */}
+      <Dialog open={openGuide} onOpenChange={setOpenGuide}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Guide des tailles</DialogTitle>
+          </DialogHeader>
+          <div className="max-h-[70vh] overflow-auto">
+            {product.size_guide_url ? (
+              <img
+                src={product.size_guide_url}
+                alt="Guide des tailles"
+                className="w-full h-auto rounded-lg"
+              />
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Guide indisponible pour ce produit.
+              </p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Ajouté au panier */}
+      <Dialog open={openAdded} onOpenChange={setOpenAdded}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ajouté au panier</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <p className="text-sm">
+              <b>{product.name}</b> a été ajouté à votre panier.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Taille : {size}{" "}
+              {number ? <>• Numéro : {number} </> : null}
+              {product.type === "maillot" && flocage ? <>• Flocage : {flocage}</> : null}
+            </p>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => { setOpenAdded(false); navigate("/shop"); }}>
+              Continuer mes achats
+            </Button>
+            <Button onClick={() => { setOpenAdded(false); navigate("/checkout"); }}>
+              Voir mon panier
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
