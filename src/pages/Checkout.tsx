@@ -9,7 +9,7 @@ export default function Checkout() {
   const navigate = useNavigate();
 
   const total = useMemo(
-    () => state.items.reduce((s, it) => s + it.price_eur * (it.quantity || 1), 0),
+    () => (state.items || []).reduce((s, it) => s + (Number.isFinite(it.price_eur) ? it.price_eur : 0) * (it.quantity || 1), 0),
     [state.items]
   );
 
@@ -17,13 +17,11 @@ export default function Checkout() {
     dispatch({ type: "REMOVE_ITEM", payload: { lineItemId } });
   };
 
-  if (!state.items.length) {
+  if (!state.items || state.items.length === 0) {
     return (
       <div className="container max-w-4xl mx-auto py-16 px-4 text-center">
         <h1 className="text-3xl font-bold mb-2">Votre panier est vide</h1>
-        <p className="text-muted-foreground mb-6">
-          Parcourez la boutique et ajoutez des articles personnalisés.
-        </p>
+        <p className="text-muted-foreground mb-6">Parcourez la boutique et ajoutez des articles personnalisés.</p>
         <Button onClick={() => navigate("/shop")}>Aller à la boutique</Button>
       </div>
     );
@@ -37,11 +35,7 @@ export default function Checkout() {
         {state.items.map((it) => (
           <Card key={it.lineItemId} className="border-border/10">
             <CardContent className="p-4 flex items-start gap-4">
-              <img
-                src={it.image_url}
-                alt={it.name}
-                className="w-24 h-24 object-cover rounded-lg"
-              />
+              <img src={it.image_url || ""} alt={it.name} className="w-24 h-24 object-cover rounded-lg" />
               <div className="flex-1">
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -53,22 +47,14 @@ export default function Checkout() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <div className="font-semibold">{it.price_eur.toFixed(2)}€</div>
+                    <div className="font-semibold">{Number(it.price_eur || 0).toFixed(2)}€</div>
                     <div className="text-xs text-muted-foreground">Qté : {it.quantity || 1}</div>
                   </div>
                 </div>
 
                 <div className="mt-3 flex gap-2">
-                  <Button variant="outline" onClick={() => navigate("/shop")}>
-                    Continuer mes achats
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="text-red-500"
-                    onClick={() => removeLine(it.lineItemId)}
-                  >
-                    Supprimer
-                  </Button>
+                  <Button variant="outline" onClick={() => navigate("/shop")}>Continuer mes achats</Button>
+                  <Button variant="ghost" className="text-red-500" onClick={() => removeLine(it.lineItemId)}>Supprimer</Button>
                 </div>
               </div>
             </CardContent>
@@ -77,12 +63,8 @@ export default function Checkout() {
       </div>
 
       <div className="mt-8 flex items-center justify-between">
-        <div className="text-lg">
-          Total : <b>{total.toFixed(2)}€</b>
-        </div>
-        <Button onClick={() => navigate("/checkout") /* branchement Stripe ensuite */}>
-          Passer la commande
-        </Button>
+        <div className="text-lg">Total : <b>{total.toFixed(2)}€</b></div>
+        <Button onClick={() => {/* TODO: brancher Stripe */}}>Passer la commande</Button>
       </div>
     </div>
   );
