@@ -19,18 +19,17 @@ interface Product {
   soldout: boolean;
 }
 
-/** Construit une URL CSV propre depuis la variable d'env */
+/** Génère une URL CSV propre */
 function buildCsvUrl() {
   let base =
     (import.meta as any).env?.VITE_SHEET_PRODUCTS_CSV_URL ||
     (import.meta as any).env?.NEXT_PUBLIC_SHEET_PRODUCTS_CSV_URL ||
     "";
-
-  try { base = decodeURIComponent(base); } catch {}
+  try {
+    base = decodeURIComponent(base);
+  } catch {}
   base = base.replace(/([?&])_ts=[^&]*/g, "").replace(/[?&]$/, "");
-  const url = base + (base.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
-  console.log("→ CSV URL utilisée (Shop):", url);
-  return url;
+  return base + (base.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
 }
 
 const SPLIT = (s: string) => s.split(/\t|,/).map((x) => x.trim());
@@ -46,7 +45,6 @@ export default function Shop() {
       try {
         const res = await fetch(buildCsvUrl());
         const raw = await res.text();
-        console.log("→ CSV reçu (Shop):", raw.slice(0, 200));
 
         const lines = raw.replace(/\r/g, "").split("\n").filter(Boolean);
         if (lines.length < 2) {
@@ -59,12 +57,21 @@ export default function Shop() {
           .map((line) => {
             const v = SPLIT(line);
             if (v.length < 11) return null;
-            const price = parseFloat((v[3] || "0").replace("€", "").trim());
+
+            // ✅ Parsing robuste du prix
+            let priceStr = (v[3] || "0").replace(/[^\d.,]/g, "").trim();
+            if (priceStr.includes(",")) priceStr = priceStr.replace(",", ".");
+            const price = parseFloat(priceStr);
+            const priceFinal = !isNaN(price) && isFinite(price) ? price : 0;
+
+            if (priceFinal === 0)
+              console.warn("⚠️ Prix invalide pour:", v[1], "| valeur brute:", v[3]);
+
             return {
               id: (v[0] || "").trim().toLowerCase(),
               name: (v[1] || "").trim(),
               type: ((v[2] || "").trim().toLowerCase() as ProductType) || "maillot",
-              price_eur: isNaN(price) ? 0 : price,
+              price_eur: priceFinal,
               image1: v[4] || "",
               image2: v[5] || "",
               image3: v[6] || "",
@@ -124,7 +131,9 @@ export default function Shop() {
                   <Link
                     to={`/shop/${encodeURIComponent(product.id)}`}
                     aria-disabled={product.soldout ? "true" : "false"}
-                    onClick={(e) => { if (product.soldout) e.preventDefault(); }}
+                    onClick={(e) => {
+                      if (product.soldout) e.preventDefault();
+                    }}
                   >
                     {product.soldout ? "Rupture" : "Voir le produit"}
                   </Link>
