@@ -7,6 +7,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import { CartProvider } from "@/contexts/CartContext";
+
 import Index from "./pages/Index";
 import Equipe from "./pages/Equipe";
 import Calendrier from "./pages/Calendrier";
@@ -15,6 +16,9 @@ import Rejoindre from "./pages/Rejoindre";
 import Shop from "./pages/Shop";
 import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
+
+// ✅ nouvelle importation de la page produit
+import ProductPage from "./pages/shop/[slug]";
 
 const queryClient = new QueryClient();
 
@@ -35,9 +39,15 @@ const App = () => (
                 <Route path="/calendrier" element={<Calendrier />} />
                 <Route path="/contacts" element={<Contacts />} />
                 <Route path="/rejoindre" element={<Rejoindre />} />
+
+                {/* SHOP PAGES */}
                 <Route path="/shop" element={<Shop />} />
+                {/* ✅ nouvelle route dynamique pour la page produit */}
+                <Route path="/shop/:slug" element={<ProductPage />} />
+
                 <Route path="/checkout" element={<Checkout />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+
+                {/* CATCH-ALL */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
