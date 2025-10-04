@@ -3,9 +3,13 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { useCart } from "@/contexts/CartContext";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
 
 type ProductType = "maillot" | "short";
 
@@ -44,17 +48,14 @@ export default function ProductPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
   const [size, setSize] = useState("");
   const [number, setNumber] = useState("");
   const [flocage, setFlocage] = useState("");
-
   const [openAdded, setOpenAdded] = useState(false);
   const [openGuide, setOpenGuide] = useState(false);
 
   useEffect(() => {
     async function fetchProduct() {
-      setErrorMsg(null);
       setLoading(true);
       try {
         const res = await fetch(buildCsvUrl());
@@ -65,8 +66,10 @@ export default function ProductPage() {
           const v = SPLIT(line);
           if (v.length < 11) return null;
 
-          let price = parseFloat((v[3] || "0").replace(/[^\d.]/g, ""));
-          if (!Number.isFinite(price)) price = 0;
+          let priceStr = (v[3] || "0").replace(/[^\d,.-]/g, "").trim();
+          priceStr = priceStr.replace(",", ".");
+          let price = parseFloat(priceStr);
+          if (isNaN(price) || !isFinite(price)) price = 0;
 
           return {
             id: (v[0] || "").trim().toLowerCase(),
@@ -85,8 +88,8 @@ export default function ProductPage() {
 
         const found = list.find((p) => (p.id || "").toLowerCase() === safeSlug);
         setProduct(found || null);
-      } catch (e) {
-        console.error("Erreur CSV produit:", e);
+      } catch (e: any) {
+        console.error(e);
         setErrorMsg("Impossible de charger ce produit.");
       } finally {
         setLoading(false);
@@ -97,27 +100,24 @@ export default function ProductPage() {
 
   const handleAddToCart = () => {
     if (!product) return;
-    if (!size) { alert("Choisis ta taille !"); return; }
-
-    try {
-      dispatch({
-        type: "ADD_ITEM",
-        payload: {
-          id: product.id || "",
-          name: product.name || "",
-          price_eur: Number.isFinite(product.price_eur) ? product.price_eur : 0,
-          quantity: 1,
-          image_url: product.image1 || "",
-          size,
-          number,
-          flocage,
-        },
-      });
-      setOpenAdded(true);
-    } catch (e) {
-      console.error("ADD_ITEM failed", e);
-      alert("Erreur lors de l’ajout au panier.");
-    }
+    if (!size) return alert("Choisis ta taille !");
+    const safePrice = Number.isFinite(product.price_eur)
+      ? product.price_eur
+      : parseFloat(String(product.price_eur).replace(",", "."));
+    dispatch({
+      type: "ADD_ITEM",
+      payload: {
+        id: product.id,
+        name: product.name,
+        price_eur: Number.isFinite(safePrice) ? safePrice : 0,
+        quantity: 1,
+        image_url: product.image1,
+        size,
+        number,
+        flocage,
+      },
+    });
+    setOpenAdded(true);
   };
 
   if (loading) return <p className="text-center py-20">Chargement...</p>;
@@ -128,7 +128,6 @@ export default function ProductPage() {
     <div className="min-h-screen">
       <section className="py-12 px-4">
         <div className="container max-w-5xl mx-auto grid md:grid-cols-2 gap-12">
-          {/* Galerie */}
           <div className="space-y-4">
             {[product.image1, product.image2, product.image3, product.image4]
               .filter(Boolean)
@@ -136,25 +135,18 @@ export default function ProductPage() {
                 <img key={i} src={img} alt={product.name} className="w-full rounded-xl" />
               ))}
           </div>
-
-          {/* Détails */}
           <Card className="shadow-lg border-border/10">
             <CardContent className="space-y-6 p-6">
               <h1 className="text-3xl font-bold">{product.name}</h1>
               <p className="text-2xl font-semibold text-primary">
                 {Number(product.price_eur || 0).toFixed(2)}€
               </p>
-
-              {product.soldout && (
-                <p className="text-red-500 font-semibold">Produit en rupture de stock</p>
-              )}
-
               <div>
                 <p className="text-sm text-muted-foreground mb-2">
                   ⚠️ Taille petit —{" "}
                   <button
                     type="button"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpenGuide(true); }}
+                    onClick={() => setOpenGuide(true)}
                     className="text-primary underline underline-offset-4"
                   >
                     consulter le guide des tailles
@@ -171,21 +163,18 @@ export default function ProductPage() {
                   </SelectContent>
                 </Select>
               </div>
-
               {product.type === "maillot" && (
                 <>
-                  <Input placeholder="Numéro de maillot (optionnel)" value={number} onChange={(e) => setNumber(e.target.value)} />
+                  <Input placeholder="Numéro (optionnel)" value={number} onChange={(e) => setNumber(e.target.value)} />
                   <Input placeholder="Nom flocage (optionnel)" value={flocage} onChange={(e) => setFlocage(e.target.value)} />
                 </>
               )}
               {product.type === "short" && (
                 <Input placeholder="Numéro short (optionnel)" value={number} onChange={(e) => setNumber(e.target.value)} />
               )}
-
               <p className="text-sm text-muted-foreground mt-4">
-                Livraison sous 2 mois. <br /> À récupérer en main propre auprès du club.
+                Livraison sous 2 mois. À récupérer en main propre auprès du club.
               </p>
-
               <Button onClick={handleAddToCart} disabled={product.soldout} className="w-full mt-4">
                 {product.soldout ? "Rupture de stock" : "Ajouter au panier"}
               </Button>
@@ -193,32 +182,23 @@ export default function ProductPage() {
           </Card>
         </div>
       </section>
-
-      {/* Modale guide */}
       <Dialog open={openGuide} onOpenChange={setOpenGuide}>
         <DialogContent className="max-w-3xl">
-          <DialogHeader><DialogTitle>Guide des tailles</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>Guide des tailles</DialogTitle>
+          </DialogHeader>
           <div className="max-h-[70vh] overflow-auto flex justify-center">
             {product.size_guide_url ? (
               <img src={product.size_guide_url} alt="Guide des tailles" className="max-w-full h-auto rounded-lg" />
             ) : (
-              <p className="text-sm text-muted-foreground">Aucun guide des tailles disponible pour ce produit.</p>
+              <p>Guide non disponible.</p>
             )}
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Modale ajout panier */}
       <Dialog open={openAdded} onOpenChange={setOpenAdded}>
         <DialogContent>
           <DialogHeader><DialogTitle>Ajouté au panier</DialogTitle></DialogHeader>
-          <div className="space-y-2">
-            <p className="text-sm"><b>{product.name}</b> a été ajouté à votre panier.</p>
-            <p className="text-sm text-muted-foreground">
-              Taille : {size} {number ? <>• Numéro : {number} </> : null}
-              {flocage ? <>• Flocage : {flocage}</> : null}
-            </p>
-          </div>
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => { setOpenAdded(false); navigate("/shop"); }}>
               Continuer mes achats
