@@ -1,8 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 
+/** Nombre sûr (gère virgules / NaN) */
 function toNumberSafe(v: any, fallback = 0): number {
   if (typeof v === "number" && Number.isFinite(v)) return v;
   const s = String(v ?? "").replace(",", ".");
@@ -13,8 +14,9 @@ function toNumberSafe(v: any, fallback = 0): number {
 export default function Navigation() {
   const location = useLocation();
   const { state } = useCart();
+  const [open, setOpen] = useState(false);
 
-  // Calcul du total panier sans crash
+  // Total panier robuste
   const total = useMemo(() => {
     const items = Array.isArray(state?.items) ? state.items : [];
     return items.reduce((sum, item) => {
@@ -26,6 +28,17 @@ export default function Navigation() {
 
   const totalDisplay = Number.isFinite(total) ? total.toFixed(2) : "0.00";
   const itemCount = state?.items?.length || 0;
+
+  const links = [
+    { path: "/", label: "Accueil" },
+    { path: "/equipe", label: "Équipe" },
+    { path: "/calendrier", label: "Calendrier" },
+    { path: "/shop", label: "Boutique" },
+    { path: "/contacts", label: "Contacts" },
+  ];
+
+  const isActive = (path: string) =>
+    location.pathname === path || (path !== "/" && location.pathname.startsWith(path));
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white shadow-md">
@@ -42,54 +55,26 @@ export default function Navigation() {
           </span>
         </Link>
 
-        {/* NAVIGATION */}
-        <nav className="flex items-center space-x-8 font-sport text-base font-medium text-black">
-          <Link
-            to="/"
-            className={`hover:text-primary ${
-              location.pathname === "/" ? "text-primary" : ""
-            }`}
-          >
-            Accueil
-          </Link>
-          <Link
-            to="/equipe"
-            className={`hover:text-primary ${
-              location.pathname === "/equipe" ? "text-primary" : ""
-            }`}
-          >
-            Équipe
-          </Link>
-          <Link
-            to="/calendrier"
-            className={`hover:text-primary ${
-              location.pathname === "/calendrier" ? "text-primary" : ""
-            }`}
-          >
-            Calendrier
-          </Link>
-          <Link
-            to="/shop"
-            className={`hover:text-primary ${
-              location.pathname === "/shop" ? "text-primary" : ""
-            }`}
-          >
-            Boutique
-          </Link>
-          <Link
-            to="/contacts"
-            className={`hover:text-primary ${
-              location.pathname === "/contacts" ? "text-primary" : ""
-            }`}
-          >
-            Contact
-          </Link>
+        {/* NAVIGATION DESKTOP */}
+        <nav className="hidden md:flex items-center space-x-8 font-sport text-base font-medium text-black">
+          {links.map((l) => (
+            <Link
+              key={l.path}
+              to={l.path}
+              className={`hover:text-primary transition ${
+                isActive(l.path) ? "text-primary" : ""
+              }`}
+            >
+              {l.label}
+            </Link>
+          ))}
         </nav>
 
-        {/* CTA + PANIER */}
-        <div className="flex items-center space-x-4">
+        {/* ACTIONS DESKTOP */}
+        <div className="hidden md:flex items-center space-x-4">
+          {/* CTA violet : branché sur les variables de thème */}
           <Link to="/rejoindre">
-            <Button className="bg-gradient-to-r from-purple-600 to-fuchsia-500 text-white font-sport px-5 py-2 rounded-full hover:opacity-90 transition">
+            <Button className="font-sport px-5 py-2 rounded-full text-white border-0 hover:opacity-90 transition bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary-hover))]">
               Nous rejoindre
             </Button>
           </Link>
@@ -103,7 +88,57 @@ export default function Navigation() {
             </Button>
           </Link>
         </div>
+
+        {/* BOUTONS MOBILE (burger + panier) */}
+        <div className="md:hidden flex items-center gap-2">
+          <Link to="/checkout" aria-label="Ouvrir le panier">
+            <Button
+              variant="outline"
+              className="border border-gray-300 text-gray-800 font-sport rounded-full px-4 py-2 hover:bg-gray-100 transition"
+            >
+              🛒 {itemCount}
+            </Button>
+          </Link>
+          <Button
+            variant="outline"
+            className="border border-gray-300 text-gray-800 font-sport rounded-full px-3 py-2 hover:bg-gray-100 transition"
+            aria-label="Ouvrir le menu"
+            onClick={() => setOpen((v) => !v)}
+          >
+            {/* Icône burger simple */}
+            <span className="block w-5 h-[2px] bg-gray-800 mb-[5px]" />
+            <span className="block w-5 h-[2px] bg-gray-800 mb-[5px]" />
+            <span className="block w-5 h-[2px] bg-gray-800" />
+          </Button>
+        </div>
       </div>
+
+      {/* MENU MOBILE */}
+      {open && (
+        <div className="md:hidden border-t border-gray-200 bg-white">
+          <div className="container mx-auto px-6 py-4 flex flex-col gap-3">
+            {links.map((l) => (
+              <Link
+                key={l.path}
+                to={l.path}
+                onClick={() => setOpen(false)}
+                className={`font-sport text-base py-2 ${
+                  isActive(l.path) ? "text-primary" : "text-gray-800"
+                }`}
+              >
+                {l.label}
+              </Link>
+            ))}
+
+            {/* CTA violet aussi en mobile */}
+            <Link to="/rejoindre" onClick={() => setOpen(false)}>
+              <Button className="w-full font-sport px-5 py-2 rounded-full text-white border-0 hover:opacity-90 transition bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary-hover))]">
+                Nous rejoindre
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
