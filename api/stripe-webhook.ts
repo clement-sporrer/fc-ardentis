@@ -16,7 +16,7 @@ function buffer(req: any): Promise<Buffer> {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") return res.status(405).send("Method not allowed");
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, { apiVersion: "2024-06-20" });
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, { apiVersion: '2025-09-30.clover' });
   const sig = req.headers["stripe-signature"] as string;
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET as string;
   const sheetUrl = process.env.SHEET_ORDERS_WEBAPP_URL as string;
@@ -41,12 +41,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const paymentIntent = session.payment_intent as string | null;
 
       if (orderId) {
+        const token = process.env.SHEET_APP_TOKEN || process.env.APP_TOKEN || "";
         await fetch(sheetUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             action: "update_status",
-            data: { order_id: orderId, status: "paid", stripe_payment_intent: paymentIntent || "" },
+            data: { order_id: orderId, payment_status: "paid", stripe_session_id: paymentIntent || "" },
+            token,
           }),
         });
       }

@@ -2,7 +2,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, { apiVersion: "2024-06-20" });
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, { apiVersion: '2025-09-30.clover' });
 
 // --- Utils ---
 function toNumberSafe(v: any, fallback = 0) {
@@ -133,24 +133,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!sheetUrl) return res.status(500).json({ error: "Missing SHEET_ORDERS_WEBAPP_URL" });
 
     const orderPayload = {
+      // modèle aligné sur l'Apps Script
       customer: {
-        first_name: String(customer.first_name).trim(),
-        last_name: String(customer.last_name).trim(),
+        name: `${String(customer.first_name).trim()} ${String(customer.last_name).trim()}`.trim(),
         email: String(customer.email).trim(),
         phone: String(customer.phone || "").trim(),
-        note: String(customer.note || "").trim(),
+        address: "", // pas collecté pour l'instant
       },
+      notes: String(customer.note || "").trim(),
       items: sanitized,
       total_eur,
       created_at: new Date().toISOString(),
     };
 
     // Appel Apps Script robuste: tente JSON puis text/plain
+    const sheetToken = process.env.SHEET_APP_TOKEN || process.env.APP_TOKEN || "";
+    const baseBody = { action: "create_order", data: orderPayload, token: sheetToken } as const;
     async function postToSheetJSON() {
       const r = await fetch(sheetUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "create_order", data: orderPayload }),
+        body: JSON.stringify(baseBody),
       });
       const bodyText = await r.text();
       let parsed: any = {};
@@ -162,7 +165,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const r = await fetch(sheetUrl, {
         method: "POST",
         headers: { "Content-Type": "text/plain" }, // souvent plus simple pour Apps Script
-        body: JSON.stringify({ action: "create_order", data: orderPayload }),
+        body: JSON.stringify(baseBody),
       });
       const bodyText = await r.text();
       let parsed: any = {};
