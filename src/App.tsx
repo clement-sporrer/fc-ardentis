@@ -20,11 +20,11 @@ import NotFound from "./pages/NotFound";
 // ✅ Page produit (dynamique)
 import ProductPage from "./pages/shop/[slug]";
 
-// ✅ Nouvelles pages Checkout (détails client + succès paiement)
+// ✅ Pages Checkout additionnelles
 import CheckoutDetails from "./pages/checkout/Details";
 import CheckoutSuccess from "./pages/checkout/Success";
-// (optionnel) Page annulation :
-// import CheckoutCancel from "./pages/checkout/Cancel";
+import CheckoutCancel from "./pages/checkout/Cancel";
+import CheckoutFailed from "./pages/checkout/Failed";
 
 const queryClient = new QueryClient();
 
@@ -47,8 +47,7 @@ const App = () => (
                 <Route path="/contacts" element={<Contacts />} />
                 <Route path="/rejoindre" element={<Rejoindre />} />
 
-                {/* SHOP */}
-                {/* ⚠️ la route dynamique doit être déclarée AVANT /shop si tu utilises des sous-routes plus spécifiques */}
+                {/* SHOP (la dynamique AVANT la liste si tu ajoutes des sous-routes plus tard) */}
                 <Route path="/shop/:slug" element={<ProductPage />} />
                 <Route path="/shop" element={<Shop />} />
 
@@ -56,8 +55,8 @@ const App = () => (
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/checkout/details" element={<CheckoutDetails />} />
                 <Route path="/checkout/success" element={<CheckoutSuccess />} />
-                {/* (optionnel) Annulation paiement */}
-                {/* <Route path="/checkout/cancel" element={<CheckoutCancel />} /> */}
+                <Route path="/checkout/cancel" element={<CheckoutCancel />} />
+                <Route path="/checkout/failed" element={<CheckoutFailed />} />
 
                 {/* 404 */}
                 <Route path="*" element={<NotFound />} />
