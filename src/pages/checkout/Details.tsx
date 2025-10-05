@@ -5,8 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
+import { PhoneField } from "@/components/PhoneField";
 
 /** Convertit en nombre sûr (accepte 55,99 ou 55.99) */
 function toNumberSafe(v: any, fallback = 0): number {
@@ -28,7 +27,7 @@ export default function CheckoutDetails() {
   const [firstName, setFirstName] = useState("");
   const [lastName,  setLastName]  = useState("");
   const [email,     setEmail]     = useState("");
-  const [phone,     setPhone]     = useState("");
+  const [phone,     setPhone]     = useState(""); // <— même API que Rejoindre
   const [note,      setNote]      = useState("");
 
   const [submitting, setSubmitting] = useState(false);
@@ -46,7 +45,7 @@ export default function CheckoutDetails() {
     firstName.trim() &&
     lastName.trim() &&
     email.trim() &&
-    phone.trim() &&
+    phone.trim() &&     // <— ici on rend le téléphone obligatoire (si tu veux optionnel, enlève-le)
     items.length > 0 &&
     !submitting;
 
@@ -61,7 +60,7 @@ export default function CheckoutDetails() {
           first_name: firstName.trim(),
           last_name: lastName.trim(),
           email: email.trim(),
-          phone: phone.trim(), // déjà en +33...
+          phone: phone.trim(), // comme Rejoindre : string en format international
           note: note.trim(),
         },
         items: items.map((it: any) => ({
@@ -88,7 +87,6 @@ export default function CheckoutDetails() {
         return;
       }
 
-      // Erreurs explicites (env manquantes, produit soldout, etc.)
       const errMsg = json?.error || "Impossible de créer la session de paiement.";
       alert(errMsg);
     } catch (err) {
@@ -161,33 +159,11 @@ export default function CheckoutDetails() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Téléphone</label>
-                  <PhoneInput
-                    country={"fr"}
-                    value={phone.startsWith("+") ? phone.replace("+", "") : phone}
-                    onChange={(val) => setPhone("+" + val)}
-                    inputProps={{ name: "phone", required: true }}
-                    inputStyle={{
-                      width: "100%",
-                      height: "42px",
-                      borderRadius: "0.5rem",
-                      border: "1px solid hsl(var(--input))",
-                      paddingLeft: "48px",
-                      background: "hsl(var(--background))",
-                      color: "hsl(var(--foreground))",
-                      fontSize: "14px",
-                    }}
-                    buttonStyle={{
-                      border: "1px solid hsl(var(--input))",
-                      borderRight: "none",
-                      background: "hsl(var(--background))",
-                    }}
-                    containerStyle={{ width: "100%" }}
-                  />
+                  {/* ✅ On réutilise le même composant que Rejoindre */}
+                  <PhoneField value={phone} onChange={setPhone} />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium mb-1">
-                    Commentaire (optionnel)
-                  </label>
+                  <label className="block text-sm font-medium mb-1">Commentaire (optionnel)</label>
                   <Input
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
@@ -259,7 +235,6 @@ export default function CheckoutDetails() {
                   <span className="text-muted-foreground">Sous-total</span>
                   <span className="font-medium">{formatEUR(total)}</span>
                 </div>
-                {/* Si tu ajoutes des frais plus tard, insère-les ici */}
                 <div className="flex items-center justify-between text-base mt-1">
                   <span className="font-semibold">Total</span>
                   <span className="font-extrabold bg-gradient-to-r from-[#7c3aed] via-[#8b5cf6] to-[#a78bfa] bg-clip-text text-transparent">
