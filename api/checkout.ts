@@ -145,18 +145,49 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       created_at: new Date().toISOString(),
     };
 
-    const sheetRes = await fetch(sheetUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "create_order", data: orderPayload }),
-    });
+    // Appel Apps Script robuste: tente JSON puis text/plain
+    async function postToSheetJSON() {
+      const r = await fetch(sheetUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "create_order", data: orderPayload }),
+      });
+      const bodyText = await r.text();
+      let parsed: any = {};
+      try { parsed = JSON.parse(bodyText); } catch {}
+      return { ok: r.ok, status: r.status, text: bodyText, json: parsed };
+    }
 
-    const sheetJson = await sheetRes.json().catch(() => ({} as any));
-    const orderId: string = sheetJson?.order_id || sheetJson?.id || "";
+    async function postToSheetText() {
+      const r = await fetch(sheetUrl, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" }, // souvent plus simple pour Apps Script
+        body: JSON.stringify({ action: "create_order", data: orderPayload }),
+      });
+      const bodyText = await r.text();
+      let parsed: any = {};
+      try { parsed = JSON.parse(bodyText); } catch {}
+      return { ok: r.ok, status: r.status, text: bodyText, json: parsed };
+    }
 
-    if (!sheetRes.ok || !orderId) {
-      console.error("Sheet create_order failed:", sheetJson);
-      return res.status(502).json({ error: "Sheet create_order failed" });
+    let sheetTry = await postToSheetJSON();
+    let orderId: string = sheetTry.json?.order_id || sheetTry.json?.id || "";
+    if (!sheetTry.ok || !orderId) {
+      // Retry en text/plain
+      const sheetTry2 = await postToSheetText();
+      orderId = sheetTry2.json?.order_id || sheetTry2.json?.id || orderId;
+      if (!sheetTry2.ok || !orderId) {
+        console.error("Sheet create_order failed", {
+          status1: sheetTry.status,
+          body1: sheetTry.text?.slice(0, 500),
+          status2: sheetTry2.status,
+          body2: sheetTry2.text?.slice(0, 500),
+        });
+        return res.status(502).json({ error: "Sheet create_order failed", detail: {
+          status1: sheetTry.status,
+          status2: sheetTry2.status,
+        }});
+      }
     }
 
     // 4) Créer la session Stripe Checkout
