@@ -2,13 +2,12 @@ import { useMemo } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
-/** Convertit n'importe quoi en nombre sûr (gère virgule et NaN) */
+/** Convertit en nombre sûr (gère virgules et NaN) */
 function toNumberSafe(v: any, fallback = 0): number {
   if (typeof v === "number" && Number.isFinite(v)) return v;
-  const s = String(v ?? "").replace(",", ".");
-  const n = parseFloat(s);
+  const n = parseFloat(String(v ?? "").replace(",", "."));
   return Number.isFinite(n) ? n : fallback;
 }
 
@@ -16,20 +15,25 @@ export default function Checkout() {
   const { state, dispatch } = useCart();
   const navigate = useNavigate();
 
-  // total robuste
+  const items = Array.isArray(state.items) ? state.items : [];
+
+  // Total robuste
   const total = useMemo(() => {
-    const items = Array.isArray(state.items) ? state.items : [];
     return items.reduce((sum, it: any) => {
       const price = toNumberSafe(it?.price_eur, 0);
       const qty = Math.max(1, toNumberSafe(it?.quantity, 1));
       return sum + price * qty;
     }, 0);
-  }, [state.items]);
-
-  const items = Array.isArray(state.items) ? state.items : [];
+  }, [items]);
 
   const removeLine = (lineItemId: string) => {
+    if (!lineItemId) return;
     dispatch({ type: "REMOVE_ITEM", payload: { lineItemId } });
+  };
+
+  const goToDetails = () => {
+    // ✅ C’est ça qui te manquait avant : on envoie vers la page d’infos client
+    navigate("/checkout/details");
   };
 
   if (!items.length) {
@@ -39,7 +43,9 @@ export default function Checkout() {
         <p className="text-muted-foreground mb-6">
           Parcourez la boutique et ajoutez des articles personnalisés.
         </p>
-        <Button onClick={() => navigate("/shop")}>Aller à la boutique</Button>
+        <Button asChild>
+          <Link to="/shop">Aller à la boutique</Link>
+        </Button>
       </div>
     );
   }
@@ -57,12 +63,15 @@ export default function Checkout() {
           return (
             <Card key={it?.lineItemId || `${it?.id}-${Math.random()}`} className="border-border/10">
               <CardContent className="p-4 flex items-start gap-4">
-                <img
-                  src={it?.image_url || ""}
-                  alt={it?.name || "Produit"}
-                  className="w-24 h-24 object-cover rounded-lg"
-                  onError={(e) => ((e.currentTarget as HTMLImageElement).style.visibility = "hidden")}
-                />
+                {it?.image_url ? (
+                  <img
+                    src={it.image_url}
+                    alt={it?.name || "Produit"}
+                    className="w-24 h-24 object-cover rounded-lg"
+                    onError={(e) => ((e.currentTarget as HTMLImageElement).style.visibility = "hidden")}
+                  />
+                ) : null}
+
                 <div className="flex-1">
                   <div className="flex items-start justify-between gap-4">
                     <div>
@@ -73,7 +82,7 @@ export default function Checkout() {
                         {it?.flocage ? <>Flocage : {it.flocage}</> : null}
                       </p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right whitespace-nowrap">
                       <div className="font-semibold">{price.toFixed(2)}€</div>
                       <div className="text-xs text-muted-foreground">Qté : {qty}</div>
                       <div className="text-xs text-muted-foreground">Sous-total : {lineTotal.toFixed(2)}€</div>
@@ -81,8 +90,8 @@ export default function Checkout() {
                   </div>
 
                   <div className="mt-3 flex gap-2">
-                    <Button variant="outline" onClick={() => navigate("/shop")}>
-                      Continuer mes achats
+                    <Button asChild variant="outline">
+                      <Link to="/shop">Continuer mes achats</Link>
                     </Button>
                     <Button
                       variant="ghost"
@@ -102,10 +111,12 @@ export default function Checkout() {
       <div className="mt-8 flex items-center justify-between">
         <div className="text-lg">
           Total : <b>{toNumberSafe(total, 0).toFixed(2)}€</b>
+          <div className="text-xs text-muted-foreground">
+            Livraison sous 2 mois • Retrait en main propre auprès du club
+          </div>
         </div>
-        <Button onClick={() => {/* TODO: brancher Stripe ici */}}>
-          Passer la commande
-        </Button>
+        {/* ✅ Redirection vers la page d’infos client */}
+        <Button onClick={goToDetails}>Passer la commande</Button>
       </div>
     </div>
   );
