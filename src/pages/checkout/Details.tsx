@@ -1,163 +1,279 @@
+// src/pages/checkout/Details.tsx
 import { useState, useMemo } from "react";
-import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
+/** Convertit en nombre sûr (accepte 55,99 ou 55.99) */
 function toNumberSafe(v: any, fallback = 0): number {
   if (typeof v === "number" && Number.isFinite(v)) return v;
   const n = parseFloat(String(v ?? "").replace(",", "."));
   return Number.isFinite(n) ? n : fallback;
 }
 
+/** Format EUR avec virgule (ex: 55,99 €) */
+function formatEUR(n: number): string {
+  return (Math.round(n * 100) / 100).toFixed(2).replace(".", ",") + " €";
+}
+
 export default function CheckoutDetails() {
   const { state } = useCart();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
 
+  // Form client
   const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName]   = useState("");
-  const [email, setEmail]         = useState("");
-  const [phone, setPhone]         = useState("");
-  const [note, setNote]           = useState("");
-  const [consent, setConsent]     = useState(false);
+  const [lastName,  setLastName]  = useState("");
+  const [email,     setEmail]     = useState("");
+  const [phone,     setPhone]     = useState("");
+  const [note,      setNote]      = useState("");
 
+  const [submitting, setSubmitting] = useState(false);
   const items = Array.isArray(state.items) ? state.items : [];
+
   const total = useMemo(() => {
-    return items.reduce((s, it) => {
+    return items.reduce((sum, it: any) => {
       const p = toNumberSafe(it?.price_eur, 0);
       const q = Math.max(1, toNumberSafe(it?.quantity, 1));
-      return s + p * q;
+      return sum + p * q;
     }, 0);
   }, [items]);
 
+  const canSubmit =
+    firstName.trim() &&
+    lastName.trim() &&
+    email.trim() &&
+    phone.trim() &&
+    items.length > 0 &&
+    !submitting;
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!canSubmit) return;
+
+    setSubmitting(true);
+    try {
+      const payload = {
+        customer: {
+          first_name: firstName.trim(),
+          last_name: lastName.trim(),
+          email: email.trim(),
+          phone: phone.trim(), // déjà en +33...
+          note: note.trim(),
+        },
+        items: items.map((it: any) => ({
+          id: String(it.id),
+          name: String(it.name),
+          quantity: Math.max(1, toNumberSafe(it.quantity, 1)),
+          price_eur: toNumberSafe(it.price_eur, 0),
+          size: String(it.size || ""),
+          number: String(it.number || ""),
+          flocage: String(it.flocage || ""),
+          image_url: String(it.image_url || ""),
+        })),
+      };
+
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (res.ok && json?.url) {
+        window.location.href = json.url; // redirection Stripe
+        return;
+      }
+
+      // Erreurs explicites (env manquantes, produit soldout, etc.)
+      const errMsg = json?.error || "Impossible de créer la session de paiement.";
+      alert(errMsg);
+    } catch (err) {
+      console.error(err);
+      alert("Erreur inattendue lors de la création du paiement.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   if (!items.length) {
     return (
-      <div className="container mx-auto max-w-3xl py-16 px-4 text-center">
-        <h1 className="text-3xl font-bold mb-2">Panier vide</h1>
-        <p className="text-muted-foreground mb-6">Ajoute des articles avant de continuer.</p>
-        <Button asChild><Link to="/shop">Retour à la boutique</Link></Button>
+      <div className="container max-w-4xl mx-auto py-16 px-4 text-center">
+        <h1 className="text-3xl font-bold mb-2">Aucun article</h1>
+        <p className="text-muted-foreground mb-6">Ajoute d’abord des produits à ton panier.</p>
+        <Button asChild>
+          <Link to="/shop">Retour à la boutique</Link>
+        </Button>
       </div>
     );
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErr(null);
-
-    if (!firstName || !lastName) return setErr("Renseigne ton prénom et ton nom.");
-    if (!email || !/^\S+@\S+\.\S+$/.test(email)) return setErr("Email invalide.");
-    if (!consent) return setErr("Tu dois accepter le traitement de tes données.");
-
-    setLoading(true);
-    try {
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customer: {
-            first_name: firstName.trim(),
-            last_name: lastName.trim(),
-            email: email.trim(),
-            phone: phone.trim(),
-            note: note.trim(),
-          },
-          items: items.map(it => ({
-            id: it.id,
-            name: it.name,
-            price_eur: it.price_eur,
-            quantity: it.quantity,
-            size: it.size,
-            number: it.number,
-            flocage: it.flocage,
-            image_url: it.image_url,
-          })),
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data?.url) {
-        console.error("Checkout error:", data);
-        setErr(data?.error || "Erreur de démarrage du paiement.");
-        setLoading(false);
-        return;
-      }
-      window.location.href = data.url; // Redirection Stripe
-    } catch (e: any) {
-      console.error(e);
-      setErr("Erreur réseau.");
-      setLoading(false);
-    }
-  };
-
   return (
-    <div className="container mx-auto max-w-5xl py-12 px-4">
-      <h1 className="text-3xl font-bold mb-6">Informations de commande</h1>
+    <div className="container max-w-6xl mx-auto py-10 px-4">
+      {/* Bandeau titre avec dégradé violet */}
+      <div className="text-center mb-8">
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+          <span className="bg-gradient-to-r from-[#7c3aed] via-[#8b5cf6] to-[#a78bfa] bg-clip-text text-transparent">
+            Informations & récapitulatif
+          </span>
+        </h1>
+        <p className="text-sm text-muted-foreground mt-2">
+          Livraison sous 2 mois • Retrait en main propre auprès du club
+        </p>
+      </div>
 
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Formulaire */}
-        <Card className="border-border/20">
-          <CardContent className="p-6 space-y-4">
-            {err && <p className="text-sm text-red-500">{err}</p>}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <Input placeholder="Prénom *" value={firstName} onChange={e=>setFirstName(e.target.value)} />
-                <Input placeholder="Nom *" value={lastName} onChange={e=>setLastName(e.target.value)} />
+      <form onSubmit={handleSubmit} className="grid md:grid-cols-3 gap-8">
+        {/* Colonne gauche : Formulaire client */}
+        <div className="md:col-span-2">
+          <Card className="border-border/20 shadow">
+            <CardContent className="p-6 space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Prénom</label>
+                  <Input
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                    placeholder="Ex. Kylian"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Nom</label>
+                  <Input
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    required
+                    placeholder="Ex. Mbappé"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Email</label>
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    placeholder="exemple@domaine.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Téléphone</label>
+                  <PhoneInput
+                    country={"fr"}
+                    value={phone.startsWith("+") ? phone.replace("+", "") : phone}
+                    onChange={(val) => setPhone("+" + val)}
+                    inputProps={{ name: "phone", required: true }}
+                    inputStyle={{
+                      width: "100%",
+                      height: "42px",
+                      borderRadius: "0.5rem",
+                      border: "1px solid hsl(var(--input))",
+                      paddingLeft: "48px",
+                      background: "hsl(var(--background))",
+                      color: "hsl(var(--foreground))",
+                      fontSize: "14px",
+                    }}
+                    buttonStyle={{
+                      border: "1px solid hsl(var(--input))",
+                      borderRight: "none",
+                      background: "hsl(var(--background))",
+                    }}
+                    containerStyle={{ width: "100%" }}
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium mb-1">
+                    Commentaire (optionnel)
+                  </label>
+                  <Input
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    placeholder="Infos utiles (disponibilités, remise, etc.)"
+                  />
+                </div>
               </div>
-              <Input type="email" placeholder="Email *" value={email} onChange={e=>setEmail(e.target.value)} />
-              <Input placeholder="Téléphone (optionnel)" value={phone} onChange={e=>setPhone(e.target.value)} />
-              <Textarea placeholder="Commentaire (optionnel)" value={note} onChange={e=>setNote(e.target.value)} />
-              <label className="flex items-start gap-2 text-sm">
-                <input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)} className="mt-1" />
-                <span>J’accepte que mes informations soient utilisées pour traiter cette commande.</span>
-              </label>
-              <div className="flex items-center gap-3">
-                <Button type="submit" disabled={loading}>
-                  {loading ? "Redirection vers Stripe..." : "Continuer vers le paiement"}
-                </Button>
-                <Button type="button" variant="outline" onClick={() => navigate("/checkout")}>
-                  Retour au panier
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Livraison sous 2 mois • Retrait en main propre auprès du club.
-              </p>
-            </form>
-          </CardContent>
-        </Card>
 
-        {/* Récapitulatif */}
-        <Card className="border-border/20">
-          <CardContent className="p-6 space-y-4">
-            <h2 className="font-semibold text-lg">Récapitulatif</h2>
-            <div className="space-y-3">
-              {items.map(it => {
-                const p = toNumberSafe(it?.price_eur, 0);
-                const q = Math.max(1, toNumberSafe(it?.quantity, 1));
-                return (
-                  <div key={it.lineItemId} className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="font-medium">{it.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {it.size ? <>Taille {it.size} • </> : null}
-                        {it.number ? <>N° {it.number} • </> : null}
-                        {it.flocage ? <>{it.flocage}</> : null}
+              <div className="pt-2 flex flex-wrap gap-3">
+                <Button
+                  type="submit"
+                  disabled={!canSubmit}
+                  className="px-6 py-5 font-semibold shadow-md bg-gradient-to-r from-[#7c3aed] via-[#8b5cf6] to-[#a78bfa] text-white hover:brightness-110"
+                >
+                  {submitting ? "Redirection…" : "Payer maintenant"}
+                </Button>
+                <Button asChild variant="outline">
+                  <Link to="/checkout">Retour au panier</Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link to="/shop">Continuer mes achats</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Colonne droite : Récap panier */}
+        <div className="md:col-span-1">
+          <Card className="border-border/20 shadow-lg">
+            <CardContent className="p-6 space-y-4">
+              <h2 className="text-xl font-bold mb-2">Récapitulatif</h2>
+
+              <div className="space-y-3">
+                {items.map((it: any) => {
+                  const price = toNumberSafe(it?.price_eur, 0);
+                  const qty = Math.max(1, toNumberSafe(it?.quantity, 1));
+                  const line = price * qty;
+                  return (
+                    <div key={it.lineItemId} className="flex items-center gap-3">
+                      {it.image_url ? (
+                        <img
+                          src={it.image_url}
+                          alt={it.name}
+                          className="w-14 h-14 rounded-lg object-cover border border-border/20"
+                        />
+                      ) : (
+                        <div className="w-14 h-14 rounded-lg bg-muted" />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium truncate">{it.name}</div>
+                        <div className="text-xs text-muted-foreground truncate">
+                          {it.size ? `Taille ${it.size}` : ""}
+                          {it.number ? ` • N° ${it.number}` : ""}
+                          {it.flocage ? ` • ${it.flocage}` : ""}
+                          {qty ? ` • Qté ${qty}` : ""}
+                        </div>
+                      </div>
+                      <div className="text-sm font-semibold whitespace-nowrap">
+                        {formatEUR(line)}
                       </div>
                     </div>
-                    <div className="text-sm">{(p*q).toFixed(2)}€</div>
-                  </div>
-                );
-              })}
-            </div>
-            <div className="pt-3 border-t border-border/20 flex items-center justify-between">
-              <div className="text-sm text-muted-foreground">Total</div>
-              <div className="text-lg font-semibold">{toNumberSafe(total,0).toFixed(2)}€</div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                  );
+                })}
+              </div>
+
+              <div className="border-t border-border/20 pt-4 space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Sous-total</span>
+                  <span className="font-medium">{formatEUR(total)}</span>
+                </div>
+                {/* Si tu ajoutes des frais plus tard, insère-les ici */}
+                <div className="flex items-center justify-between text-base mt-1">
+                  <span className="font-semibold">Total</span>
+                  <span className="font-extrabold bg-gradient-to-r from-[#7c3aed] via-[#8b5cf6] to-[#a78bfa] bg-clip-text text-transparent">
+                    {formatEUR(total)}
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-2">
+                  Le paiement est sécurisé via Stripe. Vous recevrez un reçu par email.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </form>
     </div>
   );
 }
