@@ -5,7 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { PhoneField } from "@/components/PhoneField";
+import { PhoneField, isValidIntlPhone } from "@/components/PhoneField";
 
 /** Convertit en nombre sûr (accepte 55,99 ou 55.99) */
 function toNumberSafe(v: any, fallback = 0): number {
@@ -31,6 +31,7 @@ export default function CheckoutDetails() {
   const [note,      setNote]      = useState("");
 
   const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const items = Array.isArray(state.items) ? state.items : [];
 
   const total = useMemo(() => {
@@ -41,16 +42,25 @@ export default function CheckoutDetails() {
     }, 0);
   }, [items]);
 
+  // Validations plus strictes
+  const isNonEmpty = (s: string) => s.trim().length > 0;
+  const isValidEmail = (s: string) => /^(?!.{255})([\w.!#$%&'*+\-/=?^`{|}~]+)@([\w-]+\.)+[A-Za-z]{2,}$/.test(s.trim());
+  const firstNameValid = isNonEmpty(firstName);
+  const lastNameValid = isNonEmpty(lastName);
+  const emailValid = isValidEmail(email);
+  const phoneValid = isValidIntlPhone(phone);
+
   const canSubmit =
-    firstName.trim() &&
-    lastName.trim() &&
-    email.trim() &&
-    phone.trim() &&     // <— ici on rend le téléphone obligatoire (si tu veux optionnel, enlève-le)
+    firstNameValid &&
+    lastNameValid &&
+    emailValid &&
+    phoneValid &&
     items.length > 0 &&
     !submitting;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setSubmitted(true);
     if (!canSubmit) return;
 
     setSubmitting(true);
@@ -137,6 +147,9 @@ export default function CheckoutDetails() {
                     required
                     placeholder="Ex. Kylian"
                   />
+                  {submitted && !firstNameValid && (
+                    <p className="mt-1 text-xs text-destructive font-sport">Le prénom est requis.</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Nom</label>
@@ -146,6 +159,9 @@ export default function CheckoutDetails() {
                     required
                     placeholder="Ex. Mbappé"
                   />
+                  {submitted && !lastNameValid && (
+                    <p className="mt-1 text-xs text-destructive font-sport">Le nom est requis.</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Email</label>
@@ -156,11 +172,17 @@ export default function CheckoutDetails() {
                     required
                     placeholder="exemple@domaine.com"
                   />
+                  {submitted && !emailValid && (
+                    <p className="mt-1 text-xs text-destructive font-sport">Adresse email invalide.</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Téléphone</label>
                   {/* ✅ On réutilise le même composant que Rejoindre */}
-                  <PhoneField value={phone} onChange={setPhone} />
+                  <PhoneField value={phone} onChange={setPhone} required />
+                  {submitted && !phoneValid && (
+                    <p className="mt-1 text-xs text-destructive font-sport">Numéro de téléphone invalide.</p>
+                  )}
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium mb-1">Commentaire (optionnel)</label>
