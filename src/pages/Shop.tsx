@@ -89,33 +89,32 @@ export default function Shop() {
 
   return (
     <div className="min-h-screen">
-      {/* Bandeau “comme Nous rejoindre” */}
-      <section className="relative bg-gradient-to-r from-[#0B0B0B] to-[#151515] py-20 text-center text-white">
-        <div className="container mx-auto">
-          <h1 className="text-5xl font-bold mb-3">
-            <span className="text-white">Notre</span>{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2b7fff] to-[#55bfff]">
-              Boutique
-            </span>
+      {/* Hero unifié */}
+      <section className="bg-gradient-hero py-20 md:py-28 px-4 text-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
+        <div className="container mx-auto max-w-6xl relative z-10">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-sport-condensed font-bold text-white mb-3">
+            <span className="text-white">Notre </span>
+            <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">Boutique</span>
           </h1>
-          <p className="text-gray-400 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-white/90 font-sport max-w-3xl mx-auto">
             Maillots et shorts officiels du FC Ardentis — personnalisez, ajoutez au panier, payez plus tard.
           </p>
         </div>
       </section>
 
-      <section className="py-12 px-4">
+      <section className="py-12 px-4 bg-gradient-section">
         <div className="container max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
           {products.map((product) => (
-            <Card key={product.id} className="bg-background shadow-card border-border/10 hover:shadow-xl transition-all">
+            <Card key={product.id} className="bg-card shadow-card border border-border/20 hover-lift">
               <CardContent className="p-4 space-y-4 flex flex-col justify-between">
                 <img
                   src={product.image1}
                   alt={product.name}
-                  className={`w-full aspect-square object-cover rounded-xl ${product.soldout ? "opacity-50" : ""}`}
+                  className={`w-full aspect-square object-cover rounded-2xl ${product.soldout ? "opacity-50" : ""}`}
                 />
                 <div>
-                  <h3 className="font-bold text-lg">{product.name}</h3>
+                  <h3 className="font-sport-condensed font-bold text-xl">{product.name}</h3>
                   <p className="text-muted-foreground font-sport text-sm">
                     {Number(toNumberSafe(product.price_eur, 0)).toFixed(2)}€
                   </p>

@@ -41,7 +41,7 @@ export default function Navigation() {
     location.pathname === path || (path !== "/" && location.pathname.startsWith(path));
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white shadow-md">
+    <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/50">
       <div className="container mx-auto flex justify-between items-center py-3 px-6">
         {/* LOGO + NOM */}
         <Link to="/" className="flex items-center gap-2">
@@ -56,7 +56,7 @@ export default function Navigation() {
         </Link>
 
         {/* NAVIGATION DESKTOP */}
-        <nav className="hidden md:flex items-center space-x-8 font-sport text-base font-medium text-black">
+        <nav className="hidden md:flex items-center space-x-8 font-sport text-base font-medium text-foreground">
           {links.map((l) => (
             <Link
               key={l.path}
@@ -82,7 +82,7 @@ export default function Navigation() {
           <Link to="/checkout">
             <Button
               variant="outline"
-              className="border border-gray-300 text-gray-800 font-sport rounded-full px-5 py-2 hover:bg-gray-100 transition"
+              className="font-sport rounded-full px-5 py-2 hover:bg-muted transition"
             >
               🛒 {itemCount} • {totalDisplay}€
             </Button>
@@ -94,14 +94,14 @@ export default function Navigation() {
           <Link to="/checkout" aria-label="Ouvrir le panier">
             <Button
               variant="outline"
-              className="border border-gray-300 text-gray-800 font-sport rounded-full px-4 py-2 hover:bg-gray-100 transition"
+              className="font-sport rounded-full px-4 py-2 hover:bg-muted transition"
             >
               🛒 {itemCount}
             </Button>
           </Link>
           <Button
             variant="outline"
-            className="border border-gray-300 text-gray-800 font-sport rounded-full px-3 py-2 hover:bg-gray-100 transition"
+            className="font-sport rounded-full px-3 py-2 hover:bg-muted transition"
             aria-label="Ouvrir le menu"
             onClick={() => setOpen((v) => !v)}
           >
@@ -115,7 +115,7 @@ export default function Navigation() {
 
       {/* MENU MOBILE */}
       {open && (
-        <div className="md:hidden border-t border-gray-200 bg-white">
+        <div className="md:hidden border-t border-border bg-background">
           <div className="container mx-auto px-6 py-4 flex flex-col gap-3">
             {links.map((l) => (
               <Link
@@ -123,7 +123,7 @@ export default function Navigation() {
                 to={l.path}
                 onClick={() => setOpen(false)}
                 className={`font-sport text-base py-2 ${
-                  isActive(l.path) ? "text-primary" : "text-gray-800"
+                  isActive(l.path) ? "text-primary" : "text-foreground"
                 }`}
               >
                 {l.label}
