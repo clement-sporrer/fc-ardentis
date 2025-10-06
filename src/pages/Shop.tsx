@@ -98,21 +98,14 @@ export default function Shop() {
             <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">Boutique</span>
           </h1>
           <p className="text-lg md:text-xl text-white/90 font-sport max-w-3xl mx-auto">
-            Maillots et shorts officiels du FC Ardentis — personnalisez, ajoutez au panier, payez plus tard.
+            Maillots et shorts officiels du FC Ardentis.
           </p>
         </div>
       </section>
 
       <section className="py-12 px-4 bg-gradient-section">
-        <div className="container max-w-3xl mx-auto">
-          <p className="text-center text-lg font-sport text-foreground/80 mb-10">
-            Retrouvez ici nos produits officiels. Seuls sont proposés: le <b>Maillot</b> et la <b>Charte officielle</b>.
-          </p>
-        </div>
         <div className="container max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
-          {products
-            .filter((p) => p.type === "maillot" || (p.type as string) === "charte")
-            .map((product) => (
+          {products.map((product) => (
             <Card key={product.id} className="bg-card shadow-card border border-border/20 hover-lift">
               <CardContent className="p-4 space-y-4 flex flex-col justify-between">
                 <img
