@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 
-type ProductType = "maillot" | "short";
+type ProductType = "maillot" | "short" | "charte";
 
 interface Product {
   id: string;
@@ -104,8 +104,15 @@ export default function Shop() {
       </section>
 
       <section className="py-12 px-4 bg-gradient-section">
+        <div className="container max-w-3xl mx-auto">
+          <p className="text-center text-lg font-sport text-foreground/80 mb-10">
+            Retrouvez ici nos produits officiels. Seuls sont proposés: le <b>Maillot</b> et la <b>Charte officielle</b>.
+          </p>
+        </div>
         <div className="container max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
-          {products.map((product) => (
+          {products
+            .filter((p) => p.type === "maillot" || (p.type as string) === "charte")
+            .map((product) => (
             <Card key={product.id} className="bg-card shadow-card border border-border/20 hover-lift">
               <CardContent className="p-4 space-y-4 flex flex-col justify-between">
                 <img

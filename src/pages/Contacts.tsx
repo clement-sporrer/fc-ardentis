@@ -113,32 +113,11 @@ const Contacts = () => {
                     Localisation
                   </h3>
                   <p className="text-foreground font-sport font-medium">
-                    Entraînement: dimanche 11h à Gennevilliers • Matchs: lundi ou mercredi en Île-de-France
+                    Entraînement dimanche 11h à Gennevilliers. Match lundi ou mercredi en région parisienne.
                   </p>
                 </div>
               </div>
-              
-              <div className="space-y-6">
-                {/* Enhanced Training Location */}
-                <div className="bg-gradient-to-r from-primary/5 to-accent/5 p-6 rounded-xl border border-border/20">
-                  <p className="font-sport font-medium text-foreground mb-4">
-                    <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-bold">Entraînements :</span><br />
-                    Gennevilliers — dimanche 11h
-                  </p>
-                  <div className="rounded-xl overflow-hidden shadow-elevated">
-                  <iframe
-                    title="Carte Entraînement — Gennevilliers"
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d84044.0441929625!2d2.221!3d48.935!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66f5c8c8c8c8b%3A0x0000000000000000!2sGennevilliers!5e0!3m2!1sfr!2sfr!4v1757100498113!5m2!1sfr!2sfr"
-                      width="100%"
-                      height="250"
-                      style={{ border: 0 }}
-                      allowFullScreen
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                    ></iframe>
-                  </div>
-                </div>
-              </div>
+
             </div>
 
             {/* Enhanced Schedule */}
@@ -149,7 +128,7 @@ const Contacts = () => {
                 </div>
                 <div>
                   <h3 className="font-sport-condensed font-bold text-xl text-foreground mb-2">
-                    ⏰ Infos pratiques
+                    Infos pratiques
                   </h3>
                   <p className="text-foreground font-sport">
                     Entraînements et matchs
@@ -170,7 +149,7 @@ const Contacts = () => {
               
               <Button asChild variant="cta" className="w-full">
                 <Link to="/rejoindre">
-                  🚀 Nous rejoindre
+                  Nous rejoindre
                 </Link>
               </Button>
             </div>

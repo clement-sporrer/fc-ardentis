@@ -387,8 +387,9 @@ const Calendrier = () => {
     return (
       <div className="min-h-screen">
         {/* Hero Section (identique à Notre équipe) */}
-        <section className="bg-gradient-hero py-20 md:py-28 px-4 text-center !mt-0">
-          <div className="container max-w-5xl mx-auto">
+        <section className="bg-gradient-hero py-20 md:py-28 px-4 text-center relative overflow-hidden !mt-0">
+          <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
+          <div className="container max-w-5xl mx-auto relative z-10">
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-sport-condensed font-bold text-white mb-3">
               <span className="text-white">Notre </span>
               <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">calendrier</span>

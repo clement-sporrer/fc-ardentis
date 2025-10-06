@@ -192,7 +192,8 @@ const Equipe = () => {
   return (
     <div className="min-h-screen">
       {/* Hero aligné */}
-      <section className="bg-gradient-hero py-28 md:py-36 px-4 text-center">
+      <section className="bg-gradient-hero py-20 md:py-28 px-4 text-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
         <div className="container max-w-5xl mx-auto">
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-sport-condensed font-bold text-white mb-3">
             <span className="text-white">Notre </span>
