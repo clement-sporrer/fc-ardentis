@@ -2,7 +2,15 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, { apiVersion: '2025-09-30.clover' });
+// Lazy Stripe init after env checks
+let stripeSingleton: Stripe | null = null;
+function getStripe(): Stripe {
+  if (stripeSingleton) return stripeSingleton;
+  const secret = process.env.STRIPE_SECRET_KEY;
+  if (!secret) throw new Error("Missing STRIPE_SECRET_KEY");
+  stripeSingleton = new Stripe(secret);
+  return stripeSingleton;
+}
 
 // --- Utils ---
 function toNumberSafe(v: any, fallback = 0) {
@@ -16,7 +24,7 @@ function pickBaseUrl(req: VercelRequest): string {
   const fromHeader = (req.headers.origin as string) || "";
   const fromEnv = process.env.PUBLIC_BASE_URL || "";
   const fromVercel = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "";
-  return fromHeader || fromEnv || fromVercel || "https://www.fcardentis.fr";
+  return fromHeader || fromEnv || fromVercel || "https://fc-ardentis.vercel.app";
 }
 
 type Product = {
@@ -215,7 +223,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
     const baseUrl = pickBaseUrl(req);
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       mode: "payment",
       line_items,
       metadata: { order_id: orderId },
