@@ -35,7 +35,6 @@ const CartContext = createContext<{
 }>({ state: { items: [] }, dispatch: () => {} });
 
 function reducer(state: State, action: Action): State {
-  console.log("🧩 Reducer action:", action.type, action.payload);
     switch (action.type) {
       case "HYDRATE": {
         const raw = Array.isArray(action.payload?.items) ? action.payload?.items! : [];

@@ -16,13 +16,16 @@ function buffer(req: any): Promise<Buffer> {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") return res.status(405).send("Method not allowed");
 
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, { apiVersion: '2025-09-30.clover' });
-  const sig = req.headers["stripe-signature"] as string;
+  const secret = process.env.STRIPE_SECRET_KEY as string | undefined;
+  if (!secret) return res.status(500).send("Missing STRIPE_SECRET_KEY");
+  const stripe = new Stripe(secret);
+  const sig = (req.headers["stripe-signature"] as string) || "";
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET as string;
   const sheetUrl = process.env.SHEET_ORDERS_WEBAPP_URL as string;
 
   if (!webhookSecret) return res.status(500).send("Missing STRIPE_WEBHOOK_SECRET");
   if (!sheetUrl) return res.status(500).send("Missing SHEET_ORDERS_WEBAPP_URL");
+  if (!sig) return res.status(400).send("Missing Stripe signature header");
 
   const buf = await buffer(req);
 
