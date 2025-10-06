@@ -160,7 +160,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     async function postToSheetJSON() {
       const r = await fetch(sheetUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json, text/plain;q=0.9, */*;q=0.1",
+          "User-Agent": "fc-ardentis/checkout (vercel)"
+        },
         body: JSON.stringify(baseBody),
       });
       const bodyText = await r.text();
@@ -172,7 +176,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     async function postToSheetText() {
       const r = await fetch(sheetUrl, {
         method: "POST",
-        headers: { "Content-Type": "text/plain" }, // souvent plus simple pour Apps Script
+        headers: {
+          "Content-Type": "text/plain",
+          "Accept": "application/json, text/plain;q=0.9, */*;q=0.1",
+          "User-Agent": "fc-ardentis/checkout (vercel)"
+        }, // souvent plus simple pour Apps Script
         body: JSON.stringify(baseBody),
       });
       const bodyText = await r.text();
@@ -181,12 +189,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return { ok: r.ok, status: r.status, text: bodyText, json: parsed };
     }
 
+    function extractOrderId(obj: any, text: string): string {
+      const direct = obj?.order_id || obj?.id || obj?.orderId || obj?.data?.order_id || obj?.data?.id;
+      if (direct && typeof direct === "string") return direct;
+      // Try to extract simple IDs from plain text like "order_id: 123" or first UUID/long number
+      const patterns = [
+        /order[_\s-]?id[\s:=]+([\w-]{6,})/i,
+        /\bid[\s:=]+([\w-]{6,})/i,
+        /\b([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})\b/i,
+        /\b(\d{6,})\b/,
+      ];
+      for (const re of patterns) {
+        const m = text.match(re);
+        if (m?.[1]) return m[1];
+      }
+      return "";
+    }
+
     let sheetTry = await postToSheetJSON();
-    let orderId: string = sheetTry.json?.order_id || sheetTry.json?.id || "";
+    let orderId: string = extractOrderId(sheetTry.json, sheetTry.text);
     if (!sheetTry.ok || !orderId) {
       // Retry en text/plain
       const sheetTry2 = await postToSheetText();
-      orderId = sheetTry2.json?.order_id || sheetTry2.json?.id || orderId;
+      orderId = extractOrderId(sheetTry2.json, sheetTry2.text) || orderId;
       if (!sheetTry2.ok || !orderId) {
         console.error("Sheet create_order failed", {
           status1: sheetTry.status,
@@ -196,7 +221,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
         return res.status(502).json({ error: "Sheet create_order failed", detail: {
           status1: sheetTry.status,
+          body1: sheetTry.text?.slice(0, 200),
           status2: sheetTry2.status,
+          body2: sheetTry2.text?.slice(0, 200),
+          hint: "Ensure SHEET_ORDERS_WEBAPP_URL is the deployed Web App /exec URL and returns JSON with order_id"
         }});
       }
     }
