@@ -140,16 +140,10 @@ const Index = () => {
               <MapboxMap 
                 locations={[
                   {
-                    name: "Entraînement",
-                    address: "1 Allée des Sports, 92800 Puteaux, France",
-                    coordinates: [2.238, 48.884],
+                    name: "Gennevilliers",
+                    address: "Gennevilliers, Île-de-France",
+                    coordinates: [2.298, 48.933],
                     color: "#3b82f6"
-                  },
-                  {
-                    name: "Matchs - Stade Suzanne Lenglen",
-                    address: "4 Allée de la Bertelotte, 75015 Paris, France", 
-                    coordinates: [2.279, 48.841],
-                    color: "#ff6b1a"
                   }
                 ]}
                 height="h-56"
