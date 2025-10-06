@@ -24,14 +24,14 @@ const Contacts = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Modern Hero Section */}
-      <section className="bg-gradient-hero py-20 px-4 text-center relative overflow-hidden">
+      {/* Modern Hero Section (unified) */}
+      <section className="bg-gradient-hero py-20 md:py-28 px-4 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
         <div className="container max-w-5xl mx-auto relative z-10">
-        <h1 className="text-4xl md:text-6xl font-sport-condensed font-bold text-white mb-6 text-center">
+        <h1 className="text-5xl md:text-6xl lg:text-7xl font-sport-condensed font-bold text-white mb-3 text-center">
           Nous <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">contacter</span>
         </h1>
-        <p className="text-lg text-white/90 font-sport max-w-3xl mx-auto text-center">
+        <p className="text-lg md:text-xl text-white/90 font-sport max-w-3xl mx-auto text-center">
           Rejoignez l'aventure FC Ardentis ou posez-nous vos questions
         </p>
         </div>

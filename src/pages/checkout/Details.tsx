@@ -198,14 +198,14 @@ export default function CheckoutDetails() {
                 <Button
                   type="submit"
                   disabled={!canSubmit}
-                  className="px-6 py-5 font-semibold shadow-md bg-gradient-to-r from-[#7c3aed] via-[#8b5cf6] to-[#a78bfa] text-white hover:brightness-110"
+                  className="px-6 py-5 font-semibold shadow-md text-white bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary-hover))] hover:opacity-90 rounded-full"
                 >
                   {submitting ? "Redirection…" : "Payer maintenant"}
                 </Button>
-                <Button asChild variant="outline">
+                <Button asChild variant="outline" className="rounded-full">
                   <Link to="/checkout">Retour au panier</Link>
                 </Button>
-                <Button asChild variant="outline">
+                <Button asChild variant="outline" className="rounded-full">
                   <Link to="/shop">Continuer mes achats</Link>
                 </Button>
               </div>
