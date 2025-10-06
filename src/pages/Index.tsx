@@ -37,10 +37,10 @@ const Index = () => {
 
   return (
     <>
-      {/* Modern Hero Section - Full Space */}
-      <section className="bg-gradient-hero px-4 text-center relative overflow-hidden h-screen flex items-center justify-center">
+      {/* Modern Hero Section - Full Space minus navbar (~64px) */}
+      <section className="bg-gradient-hero px-4 text-center relative overflow-hidden min-h-[calc(100vh-64px)] flex items-center justify-center">
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
-        <div className="container max-w-5xl mx-auto relative z-10">
+        <div className="container max-w-5xl mx-auto relative z-10 flex flex-col items-center justify-center">
           <div className="mb-12 animate-fade-in">
             <img 
               src="/assets/logo.png"
@@ -134,9 +134,10 @@ const Index = () => {
                   Localisation
                 </h3>
               </div>
-              <p className="text-secondary-foreground/90 font-sport mb-6 text-lg">
-                Entraînement: dimanche 11h à Gennevilliers • Matchs: lundi ou mercredi, région parisienne
-              </p>
+              <div className="text-left md:text-center text-secondary-foreground/90 font-sport mb-6 text-lg space-y-1">
+                <p>Entraînement à Gennevilliers.</p>
+                <p>Match lundi ou mercredi en région parisienne.</p>
+              </div>
               <MapboxMap 
                 locations={[
                   {
@@ -161,15 +162,13 @@ const Index = () => {
                   Créneaux
                 </h3>
               </div>
-              <p className="text-secondary-foreground/90 font-sport mb-6 text-lg">
-                Entraînement: dimanche 11h à Gennevilliers • Matchs: lundi ou mercredi (IDF)
-              </p>
-              <div className="space-y-4">
-                <div className="bg-white/5 p-4 rounded-xl border border-white/10">
+              {/* Removed duplicate description to avoid redundancy */}
+              <div className="space-y-6">
+                <div className="bg-white/5 p-6 rounded-xl border border-white/10">
                   <p className="text-accent font-sport-condensed font-bold mb-1">Entraînements</p>
                   <p className="text-secondary-foreground/80 font-sport">Dimanche 11h • Gennevilliers</p>
                 </div>
-                <div className="bg-white/5 p-4 rounded-xl border border-white/10">
+                <div className="bg-white/5 p-6 rounded-xl border border-white/10">
                   <p className="text-accent font-sport-condensed font-bold mb-1">Matchs</p>
                   <p className="text-secondary-foreground/80 font-sport">Lundi ou mercredi • Région parisienne</p>
                 </div>
