@@ -41,32 +41,28 @@ const Index = () => {
       <section className="bg-gradient-hero px-4 text-center relative overflow-hidden min-h-[calc(100vh-64px)] flex items-center justify-center">
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
         <div className="container max-w-5xl mx-auto relative z-10 flex flex-col items-center justify-center">
-          <div className="mb-12 animate-fade-in">
+          <div className="animate-fade-in flex flex-col items-center">
             <img 
               src="/assets/logo.png"
               alt="FC Ardentis Logo"
-              className="h-40 md:h-56 w-auto object-contain mx-auto mb-8 drop-shadow-2xl"
+              className="h-36 md:h-48 w-auto object-contain mx-auto mb-4 drop-shadow-2xl"
             />
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-sport-condensed font-bold text-white leading-tight mb-2">
+              FC Ardentis
+            </h1>
+            <p className="text-2xl md:text-3xl text-white/80 font-sport font-medium mb-10">
+              Since 2025
+            </p>
           </div>
-          
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-sport-condensed font-bold text-white mb-6 leading-tight">
-            FC Ardentis
-          </h1>
-          
-          <p className="text-2xl md:text-3xl text-white/90 mb-12 font-sport font-medium">
-            Since 2025
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
-            <Button asChild variant="ctaMainWhite" size="lg" className="text-xl px-12 py-6">
+          <div className="flex flex-col sm:flex-row gap-5 justify-center mb-12">
+            <Button asChild size="lg" className="font-sport rounded-full text-white px-10 py-5 bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary-hover))]">
               <Link to="/rejoindre">Nous rejoindre</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white hover:text-primary text-xl px-12 py-6">
+            <Button asChild variant="outline" size="lg" className="font-sport rounded-full border-2 border-white text-white hover:bg-white hover:text-primary px-10 py-5">
               <Link to="/equipe">Découvrir l'équipe</Link>
             </Button>
           </div>
-          
-          <p className="text-lg text-white/80 font-sport max-w-2xl mx-auto">
+          <p className="text-base md:text-lg text-white/70 font-sport max-w-2xl mx-auto mt-2">
             Membres de la Commission de Football Loisir (<a href="https://www.cflparis.fr/" target="_blank" rel="noopener noreferrer" className="text-accent hover:text-white underline font-bold">CFL</a> — compétition parisienne)
           </p>
         </div>
@@ -138,18 +134,18 @@ const Index = () => {
                 <p>Entraînement à Gennevilliers.</p>
                 <p>Match lundi ou mercredi en région parisienne.</p>
               </div>
-              <MapboxMap 
-                locations={[
-                  {
-                    name: "Gennevilliers",
-                    address: "Gennevilliers, Île-de-France",
-                    coordinates: [2.298, 48.933],
-                    color: "#3b82f6"
-                  }
-                ]}
-                height="h-56"
-                zoom={12}
-              />
+              <div className="rounded-xl overflow-hidden shadow-elevated">
+                <iframe
+                  title="Carte — Gennevilliers"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d84044.0441929625!2d2.221!3d48.935!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66f5c8c8c8c8b%3A0x0000000000000000!2sGennevilliers!5e0!3m2!1sfr!2sfr!4v1757100498113!5m2!1sfr!2sfr"
+                  width="100%"
+                  height="240"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                ></iframe>
+              </div>
             </div>
 
             {/* Enhanced Créneaux */}
