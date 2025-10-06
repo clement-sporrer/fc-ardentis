@@ -251,8 +251,15 @@ const Calendrier = () => {
           return;
         }
 
-        const header = parseCSVLine(lines[0]).map((h) => h.toLowerCase());
+        const header = parseCSVLine(lines[0]).map((h) => h.toLowerCase().trim());
         const id = (name: string) => header.indexOf(name);
+        const anyIdx = (...names: string[]) => {
+          for (const n of names) {
+            const i = header.indexOf(n);
+            if (i >= 0) return i;
+          }
+          return -1;
+        };
 
         const ir = id("rank");
         const it = id("team");
@@ -260,8 +267,9 @@ const Calendrier = () => {
         const iw = id("won");
         const idr = id("draw");
         const il = id("lost");
-        const igf = id("goals_for");
-        const iga = id("goals_against");
+        // Tolerate variants: goals_for|goal_for|bp, goals_against|goal_against|bc
+        const igf = anyIdx("goals_for","goal_for","bp","buts_pour","but_pour");
+        const iga = anyIdx("goals_against","goal_against","bc","buts_contre","but_contre");
         const ipts = id("points");
         const ilogo = id("team_logo_url");
 

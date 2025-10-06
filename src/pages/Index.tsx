@@ -135,7 +135,7 @@ const Index = () => {
                 </h3>
               </div>
               <p className="text-secondary-foreground/90 font-sport mb-6 text-lg">
-                Région parisienne - Île-de-France
+                Entraînement: dimanche 11h à Gennevilliers • Matchs: lundi ou mercredi, région parisienne
               </p>
               <MapboxMap 
                 locations={[
@@ -168,16 +168,16 @@ const Index = () => {
                 </h3>
               </div>
               <p className="text-secondary-foreground/90 font-sport mb-6 text-lg">
-                Entraînements et matchs le mercredi et le dimanche
+                Entraînement: dimanche 11h à Gennevilliers • Matchs: lundi ou mercredi (IDF)
               </p>
               <div className="space-y-4">
                 <div className="bg-white/5 p-4 rounded-xl border border-white/10">
                   <p className="text-accent font-sport-condensed font-bold mb-1">Entraînements</p>
-                  <p className="text-secondary-foreground/80 font-sport">Mercredi 19h-21h • Puteaux</p>
+                  <p className="text-secondary-foreground/80 font-sport">Dimanche 11h • Gennevilliers</p>
                 </div>
                 <div className="bg-white/5 p-4 rounded-xl border border-white/10">
                   <p className="text-accent font-sport-condensed font-bold mb-1">Matchs</p>
-                  <p className="text-secondary-foreground/80 font-sport">Dimanche 15h • Stade Suzanne Lenglen</p>
+                  <p className="text-secondary-foreground/80 font-sport">Lundi ou mercredi • Région parisienne</p>
                 </div>
               </div>
               <Link 
