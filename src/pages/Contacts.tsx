@@ -113,7 +113,7 @@ const Contacts = () => {
                     Localisation
                   </h3>
                   <p className="text-foreground font-sport font-medium">
-                    Région parisienne • Île-de-France
+                    Entraînement: dimanche 11h à Gennevilliers • Matchs: lundi ou mercredi en Île-de-France
                   </p>
                 </div>
               </div>
@@ -123,12 +123,12 @@ const Contacts = () => {
                 <div className="bg-gradient-to-r from-primary/5 to-accent/5 p-6 rounded-xl border border-border/20">
                   <p className="font-sport font-medium text-foreground mb-4">
                     <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-bold">Entraînements :</span><br />
-                    Île de Puteaux — 1 Allée des Sports, 92800 Puteaux
+                    Gennevilliers — dimanche 11h
                   </p>
                   <div className="rounded-xl overflow-hidden shadow-elevated">
-                    <iframe
-                      title="Carte Entraînement — Île de Puteaux"
-                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5248.106451911164!2d2.2413660762979415!3d48.876261871334535!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66522dca16547%3A0xe1707759fb1ca70e!2s1%20All.%20des%20Sports%2C%2092800%20Puteaux%2C%20France!5e0!3m2!1sfr!2sde!4v1757100498113!5m2!1sfr!2sde"
+                  <iframe
+                    title="Carte Entraînement — Gennevilliers"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d84044.0441929625!2d2.221!3d48.935!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66f5c8c8c8c8b%3A0x0000000000000000!2sGennevilliers!5e0!3m2!1sfr!2sfr!4v1757100498113!5m2!1sfr!2sfr"
                       width="100%"
                       height="250"
                       style={{ border: 0 }}
@@ -159,12 +159,12 @@ const Contacts = () => {
               
               <div className="space-y-4 mb-6">
                 <div className="bg-primary/10 p-4 rounded-xl border border-primary/20">
-                  <p className="text-primary font-sport-condensed font-bold mb-1">Mercredi 19h-21h</p>
-                  <p className="text-muted-foreground font-sport text-sm">Entraînements • Puteaux</p>
+                  <p className="text-primary font-sport-condensed font-bold mb-1">Dimanche 11h</p>
+                  <p className="text-muted-foreground font-sport text-sm">Entraînements • Gennevilliers</p>
                 </div>
                 <div className="bg-accent/10 p-4 rounded-xl border border-accent/20">
-                  <p className="text-accent font-sport-condensed font-bold mb-1">Dimanche 15h</p>
-                  <p className="text-muted-foreground font-sport text-sm">Matchs • Stade Suzanne Lenglen</p>
+                  <p className="text-accent font-sport-condensed font-bold mb-1">Lundi ou mercredi</p>
+                  <p className="text-muted-foreground font-sport text-sm">Matchs • Région parisienne</p>
                 </div>
               </div>
               

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 
@@ -15,6 +15,10 @@ export default function Navigation() {
   const location = useLocation();
   const { state } = useCart();
   const [open, setOpen] = useState(false);
+  // Close mobile menu on route change
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
 
   // Total panier robuste
   const total = useMemo(() => {
@@ -103,6 +107,8 @@ export default function Navigation() {
             variant="outline"
             className="font-sport rounded-full px-3 py-2 hover:bg-muted transition"
             aria-label="Ouvrir le menu"
+            aria-expanded={open}
+            aria-controls="mobile-menu"
             onClick={() => setOpen((v) => !v)}
           >
             {/* Icône burger simple */}
@@ -115,7 +121,7 @@ export default function Navigation() {
 
       {/* MENU MOBILE */}
       {open && (
-        <div className="md:hidden border-t border-border bg-background">
+        <div id="mobile-menu" className="md:hidden border-t border-border bg-background">
           <div className="container mx-auto px-6 py-4 flex flex-col gap-3">
             {links.map((l) => (
               <Link
