@@ -17,18 +17,21 @@ const CartDrawer = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   
-  const updateQuantity = (sku: string, quantity: number) => {
-    dispatch({ type: 'UPDATE_QUANTITY', payload: { sku, quantity } });
-  };
-  
-  const removeItem = (sku: string) => {
-    dispatch({ type: 'REMOVE_ITEM', payload: sku });
+  const removeItem = (lineItemId: string) => {
+    dispatch({ type: 'REMOVE_ITEM', payload: { lineItemId } });
   };
   
   const handleCheckout = () => {
     setIsOpen(false);
     navigate('/checkout');
   };
+  
+  // Calculate total
+  const total = state.items.reduce((sum, item) => {
+    const price = typeof item.price_eur === 'number' ? item.price_eur : 0;
+    const qty = typeof item.quantity === 'number' ? item.quantity : 1;
+    return sum + (price * qty);
+  }, 0);
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -62,48 +65,42 @@ const CartDrawer = () => {
             <>
               <div className="space-y-4 max-h-[60vh] overflow-y-auto">
                 {state.items.map((item) => (
-                  <div key={item.sku} className="flex items-center gap-4 p-4 bg-muted/50 rounded-xl">
-                    <img 
-                      src={item.image_url} 
-                      alt={item.name}
-                      className="h-16 w-16 object-contain rounded-lg"
-                    />
+                  <div key={item.lineItemId} className="flex items-center gap-4 p-4 bg-muted/50 rounded-xl animate-fade-in">
+                    {item.image_url && (
+                      <img 
+                        src={item.image_url} 
+                        alt={item.name}
+                        className="h-16 w-16 object-contain rounded-lg"
+                      />
+                    )}
                     <div className="flex-1">
                       <h4 className="font-sport-condensed font-bold text-foreground">{item.name}</h4>
-                      <p className="text-sm text-muted-foreground font-sport">{item.price_eur}€</p>
-                      <div className="flex items-center gap-2 mt-2">
+                      <p className="text-sm text-muted-foreground font-sport">
+                        {typeof item.price_eur === 'number' ? item.price_eur.toFixed(2) : '0.00'}€
+                      </p>
+                      {item.size && (
+                        <p className="text-xs text-muted-foreground font-sport">Taille: {item.size}</p>
+                      )}
+                      {item.number && (
+                        <p className="text-xs text-muted-foreground font-sport">Numéro: {item.number}</p>
+                      )}
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <p className="font-sport-condensed font-bold text-primary">
+                        {((item.price_eur || 0) * (item.quantity || 1)).toFixed(2)}€
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">Qté: {item.quantity}</span>
                         <Button
-                          variant="outline"
+                          variant="ghost"
                           size="icon"
-                          className="h-8 w-8"
-                          onClick={() => updateQuantity(item.sku, item.quantity - 1)}
+                          className="h-6 w-6"
+                          onClick={() => removeItem(item.lineItemId)}
                         >
-                          <Minus className="h-4 w-4" />
-                        </Button>
-                        <span className="font-sport-condensed font-bold w-8 text-center">
-                          {item.quantity}
-                        </span>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => updateQuantity(item.sku, item.quantity + 1)}
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          className="h-8 w-8 ml-2"
-                          onClick={() => removeItem(item.sku)}
-                        >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-3 w-3" />
                         </Button>
                       </div>
                     </div>
-                    <p className="font-sport-condensed font-bold text-primary">
-                      {(item.price_eur * item.quantity).toFixed(2)}€
-                    </p>
                   </div>
                 ))}
               </div>
@@ -112,10 +109,10 @@ const CartDrawer = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-sport-condensed font-bold">Total</span>
                   <span className="text-xl font-sport-condensed font-bold text-primary">
-                    {state.total.toFixed(2)}€
+                    {total.toFixed(2)}€
                   </span>
                 </div>
-                <Button onClick={handleCheckout} variant="default" size="lg" className="w-full">
+                <Button onClick={handleCheckout} size="lg" className="w-full font-sport rounded-full text-white border-0 hover:opacity-90 transition bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary-hover))]">
                   Finaliser ma commande
                 </Button>
               </div>

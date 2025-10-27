@@ -153,13 +153,47 @@
     transition: var(--transition-bounce);
   }
 
-  /* Modern animations */
+  /* Modern animations & effects */
   .hover-lift {
     @apply hover:scale-105 hover:shadow-elevated transition-bounce;
   }
 
   .hover-glow {
     @apply hover:shadow-glow transition-sport;
+  }
+
+  /* Parallax effect */
+  .parallax {
+    transform: translateY(var(--parallax-y, 0));
+    transition: transform 0.3s ease-out;
+  }
+
+  /* Reveal on scroll */
+  .reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  }
+
+  .reveal-on-scroll.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Smooth scroll behavior */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Optimized mobile margins */
+  @media (max-width: 768px) {
+    .container {
+      @apply px-4;
+    }
+    
+    section {
+      @apply px-4;
+    }
   }
 }
 

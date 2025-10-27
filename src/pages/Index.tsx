@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { MapPin, Calendar, Users, Heart, Trophy, Handshake } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import MapboxMap from "../components/MapboxMap";
 
 // Configuration parameters for easy editing
@@ -9,12 +9,30 @@ const GOOGLE_PHOTOS_ALBUM_SHARE_URL = import.meta.env.VITE_GOOGLE_PHOTOS_ALBUM_S
 
 const Index = () => {
   const [photosLoaded, setPhotosLoaded] = useState(false);
+  const valuesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Simple check to see if Google Photos album is configured
     if (GOOGLE_PHOTOS_ALBUM_SHARE_URL) {
       setPhotosLoaded(true);
     }
+
+    // Reveal on scroll effect for values
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed');
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const valueCards = valuesRef.current?.querySelectorAll('.value-card');
+    valueCards?.forEach((card) => observer.observe(card));
+
+    return () => observer.disconnect();
   }, []);
 
   const values = [
@@ -38,53 +56,53 @@ const Index = () => {
   return (
     <>
       {/* Modern Hero Section - Full Space minus navbar (~64px) */}
-      <section className="bg-gradient-hero px-4 text-center relative overflow-hidden min-h-[calc(100vh-64px)] flex items-center justify-center">
+      <section className="bg-gradient-hero px-4 md:px-6 text-center relative overflow-hidden min-h-[calc(100vh-64px)] flex items-center justify-center">
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
-        <div className="container max-w-5xl mx-auto relative z-10 flex flex-col items-center justify-center">
+        <div className="container max-w-5xl mx-auto relative z-10 flex flex-col items-center justify-center py-12 md:py-0">
           <div className="animate-fade-in flex flex-col items-center">
             <img 
               src="/assets/logo.png"
               alt="FC Ardentis Logo"
-              className="h-36 md:h-48 w-auto object-contain mx-auto mb-4 drop-shadow-2xl"
+              className="h-32 md:h-48 w-auto object-contain mx-auto mb-4 drop-shadow-2xl animate-float"
             />
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-sport-condensed font-bold text-white leading-tight mb-2">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-sport-condensed font-bold text-white leading-tight mb-2">
               FC Ardentis
             </h1>
-            <p className="text-2xl md:text-3xl text-white/80 font-sport font-medium mb-10">
+            <p className="text-xl md:text-2xl lg:text-3xl text-white/80 font-sport font-medium mb-8 md:mb-10">
               Since 2025
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-5 justify-center mb-12">
-            <Button asChild size="lg" className="font-sport rounded-full text-white px-10 py-5 bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary-hover))]">
+          <div className="flex flex-col sm:flex-row gap-4 md:gap-5 justify-center mb-8 md:mb-12 w-full max-w-md sm:max-w-none">
+            <Button asChild size="lg" className="font-sport rounded-full text-white px-8 md:px-10 py-4 md:py-5 bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary-hover))] hover-lift">
               <Link to="/rejoindre">Nous rejoindre</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="font-sport rounded-full border-2 border-white text-white hover:bg-white hover:text-primary px-10 py-5">
+            <Button asChild variant="outline" size="lg" className="font-sport rounded-full border-2 border-white text-white hover:bg-white hover:text-primary px-8 md:px-10 py-4 md:py-5 hover-lift transition-sport">
               <Link to="/equipe">Découvrir l'équipe</Link>
             </Button>
           </div>
-          <p className="text-base md:text-lg text-white/70 font-sport max-w-2xl mx-auto mt-2">
-            Membres de la Commission de Football Loisir (<a href="https://www.cflparis.fr/" target="_blank" rel="noopener noreferrer" className="text-accent hover:text-white underline font-bold">CFL</a> — compétition parisienne)
+          <p className="text-sm md:text-base lg:text-lg text-white/70 font-sport max-w-2xl mx-auto mt-2 px-4">
+            Membres de la Commission de Football Loisir (<a href="https://www.cflparis.fr/" target="_blank" rel="noopener noreferrer" className="text-accent hover:text-white underline font-bold transition-sport">CFL</a> — compétition parisienne)
           </p>
         </div>
       </section>
 
       {/* Modern Presentation */}
-      <section className="py-20 px-4 bg-gradient-section">
+      <section className="py-16 md:py-20 px-4 md:px-6 bg-gradient-section">
         <div className="container max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-sport-condensed font-bold text-foreground mb-12 leading-tight">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-sport-condensed font-bold text-foreground mb-10 md:mb-12 leading-tight animate-fade-in">
             Bienvenue au<br />
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">FC Ardentis</span>
           </h2>
           
-          <div className="grid md:grid-cols-2 gap-12 mb-16 text-xl font-sport text-foreground/80 leading-relaxed max-w-5xl mx-auto">
-            <div className="bg-gradient-card p-8 rounded-2xl shadow-card hover-lift">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 mb-12 md:mb-16 text-base md:text-lg lg:text-xl font-sport text-foreground/80 leading-relaxed max-w-5xl mx-auto">
+            <div className="bg-gradient-card p-6 md:p-8 rounded-2xl shadow-card hover-lift animate-slide-in-right">
               <p>
                 Né de la passion commune pour le football, le FC Ardentis rassemble 
                 des joueurs de tous niveaux autour des valeurs de respect et d'excellence. 
                 Notre club offre un environnement bienveillant pour progresser ensemble.
               </p>
             </div>
-            <div className="bg-gradient-card p-8 rounded-2xl shadow-card hover-lift">
+            <div className="bg-gradient-card p-6 md:p-8 rounded-2xl shadow-card hover-lift animate-slide-in-right" style={{ animationDelay: '0.2s' }}>
               <p>
                 Que vous soyez débutant ou expérimenté, notre équipe vous accueille 
                 avec enthousiasme. Rejoignez notre famille sportive et vivez 
@@ -93,11 +111,15 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Modern Values Cards */}
-          <div className="grid md:grid-cols-3 gap-8">
+          {/* Modern Values Cards with Reveal Effect */}
+          <div ref={valuesRef} className="grid md:grid-cols-3 gap-8">
             {values.map((value, index) => (
-              <div key={value.title} className="bg-gradient-card p-8 rounded-2xl shadow-card border border-border/10 hover-lift group">
-                <div className="bg-gradient-to-br from-primary to-accent p-4 rounded-full w-20 h-20 mx-auto mb-6 group-hover:shadow-glow transition-sport">
+              <div 
+                key={value.title} 
+                className="value-card reveal-on-scroll bg-gradient-card p-8 rounded-2xl shadow-card border border-border/10 hover-lift group"
+                style={{ transitionDelay: `${index * 150}ms` }}
+              >
+                <div className="bg-gradient-to-br from-primary to-accent p-4 rounded-full w-20 h-20 mx-auto mb-6 group-hover:shadow-glow group-hover:animate-float transition-sport">
                   <value.icon className="h-12 w-12 text-white mx-auto" />
                 </div>
                 <h3 className="text-2xl font-sport-condensed font-bold text-foreground mb-3">
@@ -113,13 +135,13 @@ const Index = () => {
       </section>
 
       {/* Modern Info Section */}
-      <section className="py-20 px-4 bg-gradient-hero-alt">
+      <section className="py-16 md:py-20 px-4 md:px-6 bg-gradient-hero-alt">
         <div className="container max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-sport-condensed font-bold text-secondary-foreground text-center mb-16">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-sport-condensed font-bold text-secondary-foreground text-center mb-12 md:mb-16 animate-fade-in">
             Infos <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">pratiques</span>
           </h2>
           
-          <div className="grid md:grid-cols-2 gap-10">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-10">
             {/* Enhanced Localisation */}
             <div className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover-lift">
               <div className="flex items-center gap-4 mb-6">
@@ -211,24 +233,24 @@ const Index = () => {
       </section>
 
       {/* Modern CTA Section */}
-      <section className="py-20 px-4 bg-gradient-hero relative overflow-hidden">
+      <section className="py-16 md:py-20 px-4 md:px-6 bg-gradient-hero relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
         <div className="container max-w-6xl mx-auto text-center relative z-10">
-          <h2 className="text-3xl md:text-4xl font-sport-condensed font-bold text-primary-foreground mb-8 leading-tight">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-sport-condensed font-bold text-primary-foreground mb-6 md:mb-8 leading-tight animate-fade-in">
             Prêt à rejoindre<br />
             <span className="bg-gradient-to-r from-accent to-white bg-clip-text text-transparent">l'aventure ?</span>
           </h2>
           
-          <p className="text-lg text-white/90 mb-12 font-sport max-w-3xl mx-auto">
+          <p className="text-base md:text-lg text-white/90 mb-10 md:mb-12 font-sport max-w-3xl mx-auto px-4 animate-fade-in">
             Que vous souhaitiez jouer, soutenir ou simplement découvrir notre club,
             nous vous accueillons avec passion !
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Button asChild variant="ctaMainWhite" size="lg" className="text-xl px-10 py-5 hover-lift">
+          <div className="flex flex-col sm:flex-row gap-5 md:gap-6 justify-center w-full max-w-md sm:max-w-none mx-auto px-4">
+            <Button asChild variant="ctaMainWhite" size="lg" className="text-lg md:text-xl px-8 md:px-10 py-4 md:py-5 hover-lift">
               <Link to="/rejoindre">Nous rejoindre</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white hover:text-primary text-xl px-10 py-5 hover-lift">
+            <Button asChild variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white hover:text-primary text-lg md:text-xl px-8 md:px-10 py-4 md:py-5 hover-lift transition-sport">
               <Link to="/equipe">Rencontrer l'équipe</Link>
             </Button>
           </div>

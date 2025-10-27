@@ -86,9 +86,14 @@ export default function Navigation() {
           <Link to="/checkout">
             <Button
               variant="outline"
-              className="font-sport rounded-full px-5 py-2 hover:bg-muted transition"
+              className="font-sport rounded-full px-5 py-2.5 hover:bg-primary hover:text-white transition-sport border-2 border-primary/20 hover:border-primary relative group"
             >
-              🛒 {itemCount} • {totalDisplay}€
+              <span className="relative z-10 flex items-center gap-2">
+                🛒
+                <span className="font-bold">{itemCount}</span>
+                <span className="text-muted-foreground group-hover:text-white transition-sport">•</span>
+                <span className="font-bold">{totalDisplay}€</span>
+              </span>
             </Button>
           </Link>
         </div>
@@ -98,9 +103,12 @@ export default function Navigation() {
           <Link to="/checkout" aria-label="Ouvrir le panier">
             <Button
               variant="outline"
-              className="font-sport rounded-full px-4 py-2 hover:bg-muted transition"
+              className="font-sport rounded-full px-4 py-2 hover:bg-primary hover:text-white transition-sport border-2 border-primary/20 hover:border-primary relative group"
             >
-              🛒 {itemCount}
+              <span className="flex items-center gap-1.5">
+                🛒
+                <span className="font-bold">{itemCount}</span>
+              </span>
             </Button>
           </Link>
           <Button
