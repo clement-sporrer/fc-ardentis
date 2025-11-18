@@ -87,7 +87,7 @@ const Index = () => {
           </p>
           
           {/* Navigation Arrow */}
-          <button onClick={scrollToPresentation} className="absolute bottom-2 left-1/2 -translate-x-1/2 text-white/80 hover:text-white transition-colors animate-bounce cursor-pointer group" aria-label="Scroll to next section">
+          <button onClick={scrollToPresentation} className="absolute bottom-0 left-1/2 -translate-x-1/2 text-white/80 hover:text-white transition-colors animate-bounce cursor-pointer group" aria-label="Scroll to next section">
             <ChevronDown className="h-10 w-10 md:h-12 md:w-12 group-hover:scale-110 transition-transform" />
           </button>
         </div>
