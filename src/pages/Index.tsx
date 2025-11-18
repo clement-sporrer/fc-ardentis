@@ -118,7 +118,7 @@ const Index = () => {
           </div>
 
           {/* Modern Values Cards with Reveal Effect */}
-          <div ref={valuesRef} className="grid md:grid-cols-3 gap-8 px-0 mx-0 py-[25px] my-[10px]">
+          <div ref={valuesRef} className="grid md:grid-cols-3 gap-8 px-0 mx-0 py-[25px] my-0">
             {values.map((value, index) => <div key={value.title} style={{
             transitionDelay: `${index * 150}ms`
           }} className="value-card reveal-on-scroll bg-gradient-card p-8 rounded-2xl shadow-card border border-border/10 hover-lift group px-0 my-0 mx-0 py-[10px]">
@@ -143,12 +143,12 @@ const Index = () => {
 
       {/* Modern Info Section */}
       <section ref={infoRef} className="min-h-[calc(100vh-64px)] py-16 md:py-20 px-4 md:px-6 bg-gradient-hero-alt relative flex items-center">
-        <div className="container max-w-6xl mx-0">
+        <div className="container max-w-6xl mx-0 my-0">
           <h2 className="text-3xl md:text-5xl font-sport-condensed font-bold text-secondary-foreground text-center mb-12 md:mb-16 animate-fade-in my-[30px] lg:text-5xl">
             Infos <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">pratiques</span>
           </h2>
           
-          <div className="grid md:grid-cols-2 gap-8 md:gap-10 py-px my-[20px]">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-10 py-px my-[15px]">
             {/* Enhanced Localisation */}
             <div className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover-lift py-[20px]">
               <div className="flex items-center gap-4 mb-6 my-[13px]">
@@ -238,7 +238,7 @@ const Index = () => {
             
           </h2>
           
-          <p className="text-base text-white/90 mb-10 md:mb-12 font-sport max-w-3xl mx-auto px-4 animate-fade-in my-[20px] md:text-xl">
+          <p className="text-base text-white/90 mb-10 md:mb-12 font-sport max-w-3xl mx-auto px-4 animate-fade-in my-[15px] md:text-xl">
             Que vous souhaitiez jouer, soutenir ou simplement découvrir notre club,
             nous vous accueillons avec passion !
           </p>
