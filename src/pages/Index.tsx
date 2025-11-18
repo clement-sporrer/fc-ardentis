@@ -118,7 +118,7 @@ const Index = () => {
           </div>
 
           {/* Modern Values Cards with Reveal Effect */}
-          <div ref={valuesRef} className="grid md:grid-cols-3 gap-8 px-0 mx-0 py-[25px] my-[15px]">
+          <div ref={valuesRef} className="grid md:grid-cols-3 gap-8 px-0 mx-0 py-[25px] my-[10px]">
             {values.map((value, index) => <div key={value.title} style={{
             transitionDelay: `${index * 150}ms`
           }} className="value-card reveal-on-scroll bg-gradient-card p-8 rounded-2xl shadow-card border border-border/10 hover-lift group px-0 my-0 mx-0 py-[10px]">
@@ -218,7 +218,7 @@ const Index = () => {
               <p className="text-sm text-muted-foreground font-sport">
                 Album URL configuré : {GOOGLE_PHOTOS_ALBUM_SHARE_URL.substring(0, 50)}...
               </p>
-            </div> : <div className="bg-card p-8 rounded-lg shadow-card border border-border/20 my-0 py-[12px]">
+            </div> : <div className="bg-card p-8 rounded-lg shadow-card border border-border/20 my-0 py-[10px]">
               <Heart className="h-16 w-16 text-primary mx-auto mb-4" />
               <p className="text-muted-foreground font-sport mb-2">
                 Galerie photos à venir
