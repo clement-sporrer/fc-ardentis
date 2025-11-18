@@ -118,7 +118,7 @@ const Index = () => {
           </div>
 
           {/* Modern Values Cards with Reveal Effect */}
-          <div ref={valuesRef} className="grid md:grid-cols-3 gap-8 px-0 mx-0 my-[10px] py-[20px]">
+          <div ref={valuesRef} className="grid md:grid-cols-3 gap-8 px-0 mx-0 my-[10px] py-[30px]">
             {values.map((value, index) => <div key={value.title} style={{
             transitionDelay: `${index * 150}ms`
           }} className="value-card reveal-on-scroll bg-gradient-card p-8 rounded-2xl shadow-card border border-border/10 hover-lift group mx-[10px] px-0 py-0 my-[10px]">
