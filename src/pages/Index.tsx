@@ -100,16 +100,16 @@ const Index = () => {
             Bienvenue au <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">FC Ardentis</span>
           </h2>
           
-          <div className="grid md:grid-cols-2 gap-8 md:gap-12 mb-12 md:mb-16 text-base md:text-lg lg:text-xl font-sport text-foreground/80 leading-relaxed max-w-5xl mx-auto my-[20px] px-0">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 mb-12 md:mb-16 text-base md:text-lg lg:text-xl font-sport text-foreground/80 leading-relaxed max-w-5xl mx-auto px-0 my-[10px]">
             <div className="bg-gradient-card p-6 md:p-8 rounded-2xl shadow-card hover-lift animate-slide-in-right px-[10px] py-[30px]">
-              <p>
+              <p className="text-lg">
                 Né de la passion commune pour le football, le FC Ardentis rassemble des joueurs de tous niveaux autour des valeurs de respect et d'excellence. Notre club offre un environnement bienveillant pour progresser.
               </p>
             </div>
             <div style={{
             animationDelay: '0.2s'
           }} className="bg-gradient-card p-6 md:p-8 rounded-2xl shadow-card hover-lift animate-slide-in-right py-0 px-[10px]">
-              <p className="my-[40px]">
+              <p className="my-0 text-lg">
                 Que vous soyez débutant ou expérimenté, notre équipe vous accueille 
                 avec enthousiasme. Rejoignez notre famille sportive et vivez 
                 l'aventure collective du football en région parisienne.
@@ -143,15 +143,15 @@ const Index = () => {
 
       {/* Modern Info Section */}
       <section ref={infoRef} className="min-h-[calc(100vh-64px)] py-16 md:py-20 px-4 md:px-6 bg-gradient-hero-alt relative flex items-center">
-        <div className="container max-w-6xl mx-auto">
+        <div className="container max-w-6xl mx-0">
           <h2 className="text-3xl md:text-5xl font-sport-condensed font-bold text-secondary-foreground text-center mb-12 md:mb-16 animate-fade-in my-[30px] lg:text-5xl">
             Infos <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">pratiques</span>
           </h2>
           
-          <div className="grid md:grid-cols-2 gap-8 md:gap-10 py-[5px] my-[15px]">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-10 my-0 py-px">
             {/* Enhanced Localisation */}
-            <div className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover-lift py-0">
-              <div className="flex items-center gap-4 mb-6">
+            <div className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover-lift py-[20px]">
+              <div className="flex items-center gap-4 mb-6 my-[30px]">
                 <div className="bg-accent p-3 rounded-full">
                   <MapPin className="h-8 w-8 text-white" />
                 </div>
@@ -160,8 +160,8 @@ const Index = () => {
                 </h3>
               </div>
               <div className="text-left md:text-center text-secondary-foreground/90 font-sport mb-6 text-lg space-y-1">
-                <p>Entraînement à Gennevilliers.</p>
-                <p>Match lundi ou mercredi en région parisienne.</p>
+                <p className="text-base">Entraînement à Gennevilliers.</p>
+                <p className="text-base">Match lundi ou mercredi en région parisienne.</p>
               </div>
               <div className="rounded-xl overflow-hidden shadow-elevated">
                 <iframe title="Carte — Gennevilliers" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d84044.0441929625!2d2.221!3d48.935!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66f5c8c8c8c8b%3A0x0000000000000000!2sGennevilliers!5e0!3m2!1sfr!2sfr!4v1757100498113!5m2!1sfr!2sfr" width="100%" height="240" style={{
@@ -172,7 +172,7 @@ const Index = () => {
 
             {/* Enhanced Créneaux */}
             <div className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover-lift mx-0 my-0">
-              <div className="flex items-center gap-4 mb-6">
+              <div className="flex items-center gap-4 mb-6 my-0">
                 <div className="bg-primary p-3 rounded-full">
                   <Calendar className="h-8 w-8 text-white" />
                 </div>
@@ -182,7 +182,7 @@ const Index = () => {
               </div>
               {/* Removed duplicate description to avoid redundancy */}
               <div className="space-y-6">
-                <div className="bg-white/5 p-6 rounded-xl border border-white/10">
+                <div className="bg-white/5 p-6 rounded-xl border border-white/10 my-[30px]">
                   <p className="text-accent font-sport-condensed font-bold mb-1">Entraînements</p>
                   <p className="text-secondary-foreground/80 font-sport">Dimanche 11h • Gennevilliers</p>
                 </div>
