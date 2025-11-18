@@ -143,7 +143,7 @@ const Index = () => {
 
       {/* Modern Info Section */}
       <section ref={infoRef} className="min-h-[calc(100vh-64px)] py-16 md:py-20 px-4 md:px-6 bg-gradient-hero-alt relative flex items-center">
-        <div className="container max-w-6xl mx-0 my-0">
+        <div className="container max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-5xl font-sport-condensed font-bold text-secondary-foreground text-center mb-12 md:mb-16 animate-fade-in my-[30px] lg:text-5xl">
             Infos <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">pratiques</span>
           </h2>
