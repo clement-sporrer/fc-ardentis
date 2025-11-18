@@ -100,15 +100,15 @@ const Index = () => {
             Bienvenue au <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">FC Ardentis</span>
           </h2>
           
-          <div className="grid md:grid-cols-2 gap-8 md:gap-12 mb-12 md:mb-16 text-base md:text-lg lg:text-xl font-sport text-foreground/80 leading-relaxed max-w-5xl mx-auto my-[20px]">
-            <div className="bg-gradient-card p-6 md:p-8 rounded-2xl shadow-card hover-lift animate-slide-in-right">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 mb-12 md:mb-16 text-base md:text-lg lg:text-xl font-sport text-foreground/80 leading-relaxed max-w-5xl mx-auto my-[20px] px-0">
+            <div className="bg-gradient-card p-6 md:p-8 rounded-2xl shadow-card hover-lift animate-slide-in-right px-[10px] py-[30px]">
               <p>
                 Né de la passion commune pour le football, le FC Ardentis rassemble des joueurs de tous niveaux autour des valeurs de respect et d'excellence. Notre club offre un environnement bienveillant pour progresser.
               </p>
             </div>
             <div style={{
             animationDelay: '0.2s'
-          }} className="bg-gradient-card p-6 md:p-8 rounded-2xl shadow-card hover-lift animate-slide-in-right py-0">
+          }} className="bg-gradient-card p-6 md:p-8 rounded-2xl shadow-card hover-lift animate-slide-in-right py-0 px-[10px]">
               <p className="my-[40px]">
                 Que vous soyez débutant ou expérimenté, notre équipe vous accueille 
                 avec enthousiasme. Rejoignez notre famille sportive et vivez 
