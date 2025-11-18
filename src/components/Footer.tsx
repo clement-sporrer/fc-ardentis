@@ -62,6 +62,18 @@ const Footer = () => {
           <p className="text-xs text-muted-foreground font-sport">
             Club de football fondé en 2025 - Région parisienne
           </p>
+          <p className="text-xs text-muted-foreground font-sport mt-2">
+            Tous droits réservés. | Créé par{' '}
+            <a
+              href="https://linkedin.com/in/clementsporrer"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:text-primary/80 transition-sport underline font-medium"
+            >
+              Clément Sporrer
+            </a>
+            {' '}avec passion.
+          </p>
         </div>
       </div>
     </footer>

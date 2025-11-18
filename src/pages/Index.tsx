@@ -11,9 +11,19 @@ const Index = () => {
   const [photosLoaded, setPhotosLoaded] = useState(false);
   const valuesRef = useRef<HTMLDivElement>(null);
   const presentationRef = useRef<HTMLDivElement>(null);
+  const infoRef = useRef<HTMLDivElement>(null);
+  const photoRef = useRef<HTMLDivElement>(null);
 
-  const scrollToNextSection = () => {
+  const scrollToPresentation = () => {
     presentationRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const scrollToInfo = () => {
+    infoRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const scrollToPhotos = () => {
+    photoRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
@@ -91,7 +101,7 @@ const Index = () => {
           
           {/* Navigation Arrow */}
           <button
-            onClick={scrollToNextSection}
+            onClick={scrollToPresentation}
             className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/80 hover:text-white transition-colors animate-bounce cursor-pointer group"
             aria-label="Scroll to next section"
           >
@@ -101,11 +111,10 @@ const Index = () => {
       </section>
 
       {/* Modern Presentation */}
-      <section ref={presentationRef} className="py-16 md:py-20 px-4 md:px-6 bg-gradient-section">
+      <section ref={presentationRef} className="min-h-[calc(100vh-64px)] py-16 md:py-20 px-4 md:px-6 bg-gradient-section relative flex items-center">
         <div className="container max-w-6xl mx-auto text-center">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-sport-condensed font-bold text-foreground mb-10 md:mb-12 leading-tight animate-fade-in">
-            Bienvenue au<br />
-            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">FC Ardentis</span>
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-sport-condensed font-bold text-foreground mb-10 md:mb-12 leading-tight animate-fade-in">
+            Bienvenue au <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">FC Ardentis</span>
           </h2>
           
           <div className="grid md:grid-cols-2 gap-8 md:gap-12 mb-12 md:mb-16 text-base md:text-lg lg:text-xl font-sport text-foreground/80 leading-relaxed max-w-5xl mx-auto">
@@ -146,12 +155,21 @@ const Index = () => {
             ))}
           </div>
         </div>
+        
+        {/* Navigation Arrow */}
+        <button
+          onClick={scrollToInfo}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-foreground/60 hover:text-foreground transition-colors animate-bounce cursor-pointer group"
+          aria-label="Scroll to next section"
+        >
+          <ChevronDown className="h-10 w-10 md:h-12 md:w-12 group-hover:scale-110 transition-transform" />
+        </button>
       </section>
 
       {/* Modern Info Section */}
-      <section className="py-16 md:py-20 px-4 md:px-6 bg-gradient-hero-alt">
+      <section ref={infoRef} className="min-h-[calc(100vh-64px)] py-16 md:py-20 px-4 md:px-6 bg-gradient-hero-alt relative flex items-center">
         <div className="container max-w-6xl mx-auto">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-sport-condensed font-bold text-secondary-foreground text-center mb-12 md:mb-16 animate-fade-in">
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-sport-condensed font-bold text-secondary-foreground text-center mb-12 md:mb-16 animate-fade-in">
             Infos <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">pratiques</span>
           </h2>
           
@@ -214,10 +232,19 @@ const Index = () => {
             </div>
           </div>
         </div>
+        
+        {/* Navigation Arrow */}
+        <button
+          onClick={scrollToPhotos}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-secondary-foreground/60 hover:text-secondary-foreground transition-colors animate-bounce cursor-pointer group"
+          aria-label="Scroll to next section"
+        >
+          <ChevronDown className="h-10 w-10 md:h-12 md:w-12 group-hover:scale-110 transition-transform" />
+        </button>
       </section>
 
       {/* Galerie photos */}
-      <section className="py-16 px-4 bg-background">
+      <section ref={photoRef} className="py-16 px-4 bg-background">
         <div className="container max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-sport-condensed font-bold text-foreground mb-8">
             Galerie photos
