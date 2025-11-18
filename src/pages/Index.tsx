@@ -118,7 +118,7 @@ const Index = () => {
           </div>
 
           {/* Modern Values Cards with Reveal Effect */}
-          <div ref={valuesRef} className="grid md:grid-cols-3 gap-8 px-0 mx-0 py-[30px] my-[20px]">
+          <div ref={valuesRef} className="grid md:grid-cols-3 gap-8 px-0 mx-0 py-[30px] my-[10px]">
             {values.map((value, index) => <div key={value.title} style={{
             transitionDelay: `${index * 150}ms`
           }} className="value-card reveal-on-scroll bg-gradient-card p-8 rounded-2xl shadow-card border border-border/10 hover-lift group px-0 my-0 mx-0 py-[10px]">
@@ -151,7 +151,7 @@ const Index = () => {
           <div className="grid md:grid-cols-2 gap-8 md:gap-10 my-0 py-px">
             {/* Enhanced Localisation */}
             <div className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover-lift py-[20px]">
-              <div className="flex items-center gap-4 mb-6 my-[30px]">
+              <div className="flex items-center gap-4 mb-6 my-[13px]">
                 <div className="bg-accent p-3 rounded-full">
                   <MapPin className="h-8 w-8 text-white" />
                 </div>
