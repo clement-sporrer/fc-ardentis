@@ -73,10 +73,10 @@ const Index = () => {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 md:gap-5 justify-center mb-8 md:mb-12 w-full max-w-md sm:max-w-none">
-            <Button asChild size="lg" className="font-sport rounded-full text-white px-8 md:px-10 py-4 md:py-5 bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary-hover))] hover-lift">
+            <Button asChild size="lg" className="font-sport rounded-full text-white text-lg md:text-xl px-10 md:px-14 py-5 md:py-6 bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary-hover))] hover-lift">
               <Link to="/rejoindre">Nous rejoindre</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="font-sport rounded-full border-2 border-white text-white hover:bg-white hover:text-primary px-8 md:px-10 py-4 md:py-5 hover-lift transition-sport">
+            <Button asChild variant="outline" size="lg" className="font-sport rounded-full border-2 border-white text-white hover:bg-white hover:text-primary text-lg md:text-xl px-10 md:px-14 py-5 md:py-6 hover-lift transition-sport">
               <Link to="/equipe">Découvrir l'équipe</Link>
             </Button>
           </div>
