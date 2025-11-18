@@ -218,7 +218,7 @@ const Index = () => {
               <p className="text-sm text-muted-foreground font-sport">
                 Album URL configuré : {GOOGLE_PHOTOS_ALBUM_SHARE_URL.substring(0, 50)}...
               </p>
-            </div> : <div className="bg-card p-8 rounded-lg shadow-card border border-border/20 my-[10px] py-[10px]">
+            </div> : <div className="bg-card p-8 rounded-lg shadow-card border border-border/20 py-[10px] my-0">
               <Heart className="h-16 w-16 text-primary mx-auto mb-4" />
               <p className="text-muted-foreground font-sport mb-2">
                 Galerie photos à venir
