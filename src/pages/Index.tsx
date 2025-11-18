@@ -106,10 +106,10 @@ const Index = () => {
                 Né de la passion commune pour le football, le FC Ardentis rassemble des joueurs de tous niveaux autour des valeurs de respect et d'excellence. Notre club offre un environnement bienveillant pour progresser.
               </p>
             </div>
-            <div className="bg-gradient-card p-6 md:p-8 rounded-2xl shadow-card hover-lift animate-slide-in-right" style={{
+            <div style={{
             animationDelay: '0.2s'
-          }}>
-              <p className="my-0">
+          }} className="bg-gradient-card p-6 md:p-8 rounded-2xl shadow-card hover-lift animate-slide-in-right py-0">
+              <p className="my-[40px]">
                 Que vous soyez débutant ou expérimenté, notre équipe vous accueille 
                 avec enthousiasme. Rejoignez notre famille sportive et vivez 
                 l'aventure collective du football en région parisienne.
@@ -118,7 +118,7 @@ const Index = () => {
           </div>
 
           {/* Modern Values Cards with Reveal Effect */}
-          <div ref={valuesRef} className="grid md:grid-cols-3 gap-8 px-0 mx-0 my-[10px] py-[30px]">
+          <div ref={valuesRef} className="grid md:grid-cols-3 gap-8 px-0 mx-0 py-[30px] my-[20px]">
             {values.map((value, index) => <div key={value.title} style={{
             transitionDelay: `${index * 150}ms`
           }} className="value-card reveal-on-scroll bg-gradient-card p-8 rounded-2xl shadow-card border border-border/10 hover-lift group px-0 my-0 mx-0 py-[10px]">
