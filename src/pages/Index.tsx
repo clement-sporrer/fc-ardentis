@@ -121,7 +121,7 @@ const Index = () => {
           <div ref={valuesRef} className="grid md:grid-cols-3 gap-8 px-0 mx-0 my-[10px] py-[30px]">
             {values.map((value, index) => <div key={value.title} style={{
             transitionDelay: `${index * 150}ms`
-          }} className="value-card reveal-on-scroll bg-gradient-card p-8 rounded-2xl shadow-card border border-border/10 hover-lift group mx-[10px] px-0 py-0 my-[10px]">
+          }} className="value-card reveal-on-scroll bg-gradient-card p-8 rounded-2xl shadow-card border border-border/10 hover-lift group px-0 my-0 mx-0 py-[10px]">
                 <div className="bg-gradient-to-br from-primary to-accent p-4 rounded-full w-20 h-20 mx-auto mb-6 group-hover:shadow-glow group-hover:animate-float transition-sport">
                   <value.icon className="h-12 w-12 text-white mx-auto" />
                 </div>
