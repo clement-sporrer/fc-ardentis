@@ -64,7 +64,7 @@ const Index = () => {
       {/* Modern Hero Section - Full Space minus navbar (~64px) */}
       <section className="bg-gradient-hero px-4 md:px-6 text-center relative overflow-hidden min-h-[calc(100vh-64px)] flex items-center justify-center">
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
-        <div className="container max-w-5xl mx-auto relative z-10 flex flex-col items-center justify-center py-12 md:py-0 pb-16">
+        <div className="container max-w-5xl mx-auto relative z-10 flex flex-col items-center justify-center py-12 md:py-0">
           <div className="animate-fade-in flex flex-col items-center">
             <img src="/assets/logo.png" alt="FC Ardentis Logo" className="h-32 md:h-48 w-auto object-contain mx-auto mb-4 drop-shadow-2xl animate-float" />
             <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-sport-condensed font-bold text-white leading-tight mb-2">
@@ -85,12 +85,12 @@ const Index = () => {
           <p className="text-sm md:text-base lg:text-lg text-white/70 font-sport max-w-2xl mx-auto mt-2 px-4">
             Membres de la Commission de Football Loisir (<a href="https://www.cflparis.fr/" target="_blank" rel="noopener noreferrer" className="text-accent hover:text-white underline font-bold transition-sport">CFL</a> — compétition parisienne)
           </p>
-          
-          {/* Navigation Arrow */}
-          <button onClick={scrollToPresentation} className="absolute bottom-2 left-1/2 -translate-x-1/2 text-white/80 hover:text-white transition-colors animate-bounce cursor-pointer group" aria-label="Scroll to next section">
-            <ChevronDown className="h-10 w-10 md:h-12 md:w-12 group-hover:scale-110 transition-transform" />
-          </button>
         </div>
+        
+        {/* Navigation Arrow */}
+        <button onClick={scrollToPresentation} className="absolute bottom-2 left-1/2 -translate-x-1/2 text-white/80 hover:text-white transition-colors animate-bounce cursor-pointer group" aria-label="Scroll to next section">
+          <ChevronDown className="h-10 w-10 md:h-12 md:w-12 group-hover:scale-110 transition-transform" />
+        </button>
       </section>
 
       {/* Modern Presentation */}
