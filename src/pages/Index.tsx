@@ -102,7 +102,7 @@ const Index = () => {
           {/* Navigation Arrow */}
           <button
             onClick={scrollToPresentation}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/80 hover:text-white transition-colors animate-bounce cursor-pointer group"
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/80 hover:text-white transition-colors animate-bounce cursor-pointer group"
             aria-label="Scroll to next section"
           >
             <ChevronDown className="h-10 w-10 md:h-12 md:w-12 group-hover:scale-110 transition-transform" />
@@ -159,7 +159,7 @@ const Index = () => {
         {/* Navigation Arrow */}
         <button
           onClick={scrollToInfo}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-foreground/60 hover:text-foreground transition-colors animate-bounce cursor-pointer group"
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 text-foreground/60 hover:text-foreground transition-colors animate-bounce cursor-pointer group"
           aria-label="Scroll to next section"
         >
           <ChevronDown className="h-10 w-10 md:h-12 md:w-12 group-hover:scale-110 transition-transform" />
@@ -236,7 +236,7 @@ const Index = () => {
         {/* Navigation Arrow */}
         <button
           onClick={scrollToPhotos}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-secondary-foreground/60 hover:text-secondary-foreground transition-colors animate-bounce cursor-pointer group"
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 text-secondary-foreground/60 hover:text-secondary-foreground transition-colors animate-bounce cursor-pointer group"
           aria-label="Scroll to next section"
         >
           <ChevronDown className="h-10 w-10 md:h-12 md:w-12 group-hover:scale-110 transition-transform" />
