@@ -118,7 +118,7 @@ const Index = () => {
           </div>
 
           {/* Modern Values Cards with Reveal Effect */}
-          <div ref={valuesRef} className="grid md:grid-cols-3 gap-8 my-0 py-0">
+          <div ref={valuesRef} className="grid md:grid-cols-3 gap-8 py-0 my-[15px]">
             {values.map((value, index) => <div key={value.title} style={{
             transitionDelay: `${index * 150}ms`
           }} className="value-card reveal-on-scroll bg-gradient-card p-8 rounded-2xl shadow-card border border-border/10 hover-lift group mx-[10px] px-0 py-0 my-[10px]">
@@ -148,7 +148,7 @@ const Index = () => {
             Infos <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">pratiques</span>
           </h2>
           
-          <div className="grid md:grid-cols-2 gap-8 md:gap-10">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-10 py-[20px] my-[35px]">
             {/* Enhanced Localisation */}
             <div className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover-lift">
               <div className="flex items-center gap-4 mb-6">
@@ -200,7 +200,7 @@ const Index = () => {
         
         {/* Navigation Arrow */}
         <button onClick={scrollToPhotos} className="absolute bottom-2 left-1/2 -translate-x-1/2 text-secondary-foreground/60 hover:text-secondary-foreground transition-colors animate-bounce cursor-pointer group" aria-label="Scroll to next section">
-          <ChevronDown className="h-10 w-10 md:h-12 md:w-12 group-hover:scale-110 transition-transform" />
+          <ChevronDown className="h-10 w-10 md:h-12 md:w-12 group-hover:scale-110 transition-transform mx-0 px-0 py-0 my-0" />
         </button>
       </section>
 
@@ -235,7 +235,7 @@ const Index = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
         <div className="container max-w-6xl mx-auto text-center relative z-10">
           <h2 className="text-2xl md:text-3xl font-sport-condensed font-bold text-primary-foreground mb-6 md:mb-8 leading-tight animate-fade-in my-[30px] lg:text-5xl">Prêt à rejoindre l'aventure ?   <br />
-            <span className="bg-gradient-to-r from-accent to-white bg-clip-text text-transparent">l'aventure ?</span>
+            
           </h2>
           
           <p className="text-base text-white/90 mb-10 md:mb-12 font-sport max-w-3xl mx-auto px-4 animate-fade-in my-[20px] md:text-xl">
