@@ -148,9 +148,9 @@ const Index = () => {
             Infos <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">pratiques</span>
           </h2>
           
-          <div className="grid md:grid-cols-2 gap-8 md:gap-10 py-[20px] my-[35px]">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-10 py-[5px] my-[15px]">
             {/* Enhanced Localisation */}
-            <div className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover-lift">
+            <div className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover-lift py-0">
               <div className="flex items-center gap-4 mb-6">
                 <div className="bg-accent p-3 rounded-full">
                   <MapPin className="h-8 w-8 text-white" />
@@ -218,7 +218,7 @@ const Index = () => {
               <p className="text-sm text-muted-foreground font-sport">
                 Album URL configuré : {GOOGLE_PHOTOS_ALBUM_SHARE_URL.substring(0, 50)}...
               </p>
-            </div> : <div className="bg-card p-8 rounded-lg shadow-card border border-border/20 py-[60px] my-[10px]">
+            </div> : <div className="bg-card p-8 rounded-lg shadow-card border border-border/20 my-[10px] py-[20px]">
               <Heart className="h-16 w-16 text-primary mx-auto mb-4" />
               <p className="text-muted-foreground font-sport mb-2">
                 Galerie photos à venir
@@ -234,7 +234,7 @@ const Index = () => {
       <section className="py-16 md:py-20 px-4 md:px-6 bg-gradient-hero relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
         <div className="container max-w-6xl mx-auto text-center relative z-10">
-          <h2 className="text-2xl md:text-3xl font-sport-condensed font-bold text-primary-foreground mb-6 md:mb-8 leading-tight animate-fade-in my-[30px] lg:text-5xl">Prêt à rejoindre l'aventure ?   <br />
+          <h2 className="text-2xl md:text-3xl font-sport-condensed font-bold text-primary-foreground mb-6 md:mb-8 leading-tight animate-fade-in my-0 lg:text-5xl">Prêt à rejoindre l'aventure ?   <br />
             
           </h2>
           
