@@ -162,20 +162,6 @@
     @apply hover:shadow-glow transition-sport;
   }
 
-  /* Smooth arrow animation */
-  @keyframes float-arrow {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(8px);
-    }
-  }
-
-  .animate-float-arrow {
-    animation: float-arrow 2s ease-in-out infinite;
-  }
-
   /* Parallax effect */
   .parallax {
     transform: translateY(var(--parallax-y, 0));
