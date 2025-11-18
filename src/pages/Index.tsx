@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { MapPin, Calendar, Users, Heart, Trophy, Handshake } from "lucide-react";
+import { MapPin, Calendar, Users, Heart, Trophy, Handshake, ChevronDown } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import MapboxMap from "../components/MapboxMap";
 
@@ -10,6 +10,11 @@ const GOOGLE_PHOTOS_ALBUM_SHARE_URL = import.meta.env.VITE_GOOGLE_PHOTOS_ALBUM_S
 const Index = () => {
   const [photosLoaded, setPhotosLoaded] = useState(false);
   const valuesRef = useRef<HTMLDivElement>(null);
+  const presentationRef = useRef<HTMLDivElement>(null);
+
+  const scrollToNextSection = () => {
+    presentationRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   useEffect(() => {
     // Simple check to see if Google Photos album is configured
@@ -83,11 +88,20 @@ const Index = () => {
           <p className="text-sm md:text-base lg:text-lg text-white/70 font-sport max-w-2xl mx-auto mt-2 px-4">
             Membres de la Commission de Football Loisir (<a href="https://www.cflparis.fr/" target="_blank" rel="noopener noreferrer" className="text-accent hover:text-white underline font-bold transition-sport">CFL</a> — compétition parisienne)
           </p>
+          
+          {/* Navigation Arrow */}
+          <button
+            onClick={scrollToNextSection}
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/80 hover:text-white transition-colors animate-bounce cursor-pointer group"
+            aria-label="Scroll to next section"
+          >
+            <ChevronDown className="h-10 w-10 md:h-12 md:w-12 group-hover:scale-110 transition-transform" />
+          </button>
         </div>
       </section>
 
       {/* Modern Presentation */}
-      <section className="py-16 md:py-20 px-4 md:px-6 bg-gradient-section">
+      <section ref={presentationRef} className="py-16 md:py-20 px-4 md:px-6 bg-gradient-section">
         <div className="container max-w-6xl mx-auto text-center">
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-sport-condensed font-bold text-foreground mb-10 md:mb-12 leading-tight animate-fade-in">
             Bienvenue au<br />
