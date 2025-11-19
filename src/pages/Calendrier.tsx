@@ -109,6 +109,16 @@ const todayMidnight = () => {
   return new Date(t.getFullYear(), t.getMonth(), t.getDate());
 };
 
+// Convertit les valeurs du Google Sheet (win/draw/loose) vers les codes internes (V/N/D)
+const normalizeResult = (val: string): "V" | "N" | "D" | null => {
+  const v = (val || "").toLowerCase().trim();
+  if (v === "win" || v === "v" || v === "victoire") return "V";
+  if (v === "draw" || v === "n" || v === "nul" || v === "match nul") return "N";
+  if (v === "loose" || v === "lose" || v === "d" || v === "défaite" || v === "defaite") return "D";
+  if (v === "V" || v === "N" || v === "D") return v as "V" | "N" | "D";
+  return null;
+};
+
 const computeResult = (e: Event) => {
   if (e.resultat === "V" || e.resultat === "N" || e.resultat === "D") return e.resultat;
   const h = typeof e.score_home === "number" ? e.score_home : NaN;
@@ -196,7 +206,20 @@ const Calendrier = () => {
             score_away: i_sa >= 0 && cells[i_sa] !== "" ? Number(cells[i_sa]) : undefined,
             resultat:
               i_res >= 0 && cells[i_res]
-                ? (cells[i_res] as "V" | "N" | "D")
+                ? (normalizeResult(cells[i_res]) || computeResult({
+                    date,
+                    title: i_title >= 0 ? cells[i_title] || "" : "",
+                    start_time: i_start >= 0 ? cells[i_start] || "" : "",
+                    end_time: i_end >= 0 ? cells[i_end] || "" : "",
+                    location: i_location >= 0 ? cells[i_location] || "" : "",
+                    type,
+                    team_home: i_th >= 0 ? cells[i_th] || "" : "",
+                    team_away: i_ta >= 0 ? cells[i_ta] || "" : "",
+                    score_home: i_sh >= 0 && cells[i_sh] !== "" ? Number(cells[i_sh]) : undefined,
+                    score_away: i_sa >= 0 && cells[i_sa] !== "" ? Number(cells[i_sa]) : undefined,
+                    home_logo: i_hl >= 0 ? cells[i_hl] || "" : "",
+                    away_logo: i_al >= 0 ? cells[i_al] || "" : "",
+                  }) as any)
                 : (computeResult({
                     date,
                     title: i_title >= 0 ? cells[i_title] || "" : "",
