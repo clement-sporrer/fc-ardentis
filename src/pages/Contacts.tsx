@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Instagram, ExternalLink, Mail, MapPin, Calendar, Music, Youtube, MessageCircle, ArrowRight } from "lucide-react";
+import { Instagram, ExternalLink, Mail, MapPin, Calendar, Music, Youtube, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Contacts = () => {
@@ -117,7 +117,6 @@ const Contacts = () => {
                       className="text-primary hover:text-accent font-sport font-semibold text-lg transition-colors inline-flex items-center gap-2 group"
                     >
                       fcardentis@gmail.com
-                      <ArrowRight className="h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 flex-shrink-0 ml-1" aria-hidden="true" />
                     </a>
                   </div>
                 </div>

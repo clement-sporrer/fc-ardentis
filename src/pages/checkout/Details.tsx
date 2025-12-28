@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { PhoneField, isValidIntlPhone } from "@/components/PhoneField";
-import { CreditCard, ArrowLeft, Loader2, ShieldCheck } from "lucide-react";
+import { CreditCard, Loader2, ShieldCheck } from "lucide-react";
 import { toNumberSafe } from "@/lib/utils";
 
 function formatEUR(n: number): string {
@@ -229,7 +229,6 @@ export default function CheckoutDetails() {
                     </Button>
                     <Button asChild variant="outline" className="rounded-full">
                       <Link to="/checkout">
-                        <ArrowLeft className="h-4 w-4 mr-2 flex-shrink-0" aria-hidden="true" />
                         Retour au panier
                       </Link>
                     </Button>

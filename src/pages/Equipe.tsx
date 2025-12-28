@@ -243,7 +243,7 @@ const Equipe = () => {
             break;
         }
         
-        return aVal - bVal; // Ascending order (croissant)
+        return bVal - aVal; // Descending order (décroissant)
       });
     }
     

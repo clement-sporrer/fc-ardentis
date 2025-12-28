@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { toNumberSafe } from "@/lib/utils";
-import { Menu, X, ShoppingCart, ChevronRight } from "lucide-react";
+import { Menu, X, ShoppingCart } from "lucide-react";
 
 /**
  * Navigation with dynamic transparent/solid behavior
@@ -254,7 +254,7 @@ export default function Navigation() {
       {/* Mobile Menu */}
       <div
         id="mobile-menu"
-        className={`lg:hidden fixed inset-0 top-16 bg-gradient-to-b from-secondary to-secondary/95 backdrop-blur-xl transition-all duration-500 ease-out ${
+        className={`lg:hidden fixed inset-0 top-16 bg-secondary transition-all duration-500 ease-out ${
           open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       >
@@ -278,14 +278,6 @@ export default function Navigation() {
                 }}
               >
                 <span className="flex-1 min-w-0">{l.label}</span>
-                <ChevronRight
-                  className={`h-5 w-5 transition-all duration-300 flex-shrink-0 ml-4 ${
-                    isActive(l.path) 
-                      ? "text-primary translate-x-0.5" 
-                      : "text-white/70 group-hover:text-primary group-hover:translate-x-0.5"
-                  }`}
-                  aria-hidden="true"
-                />
               </Link>
             ))}
           </div>

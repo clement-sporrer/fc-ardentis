@@ -3,7 +3,7 @@ import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate, Link } from "react-router-dom";
-import { ShoppingCart, Trash2, ArrowRight, Package } from "lucide-react";
+import { ShoppingCart, Trash2, Package } from "lucide-react";
 import { toNumberSafe } from "@/lib/utils";
 
 export default function Checkout() {
@@ -170,7 +170,6 @@ export default function Checkout() {
                   className="w-full sm:w-auto rounded-full font-display"
                 >
                   Passer la commande
-                  <ArrowRight className="h-5 w-5 ml-2 flex-shrink-0" aria-hidden="true" />
                 </Button>
               </div>
             </CardContent>

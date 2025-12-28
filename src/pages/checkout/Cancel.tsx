@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { XCircle, ArrowLeft, ShoppingBag } from "lucide-react";
+import { XCircle, ShoppingBag } from "lucide-react";
 
 export default function CheckoutCancel() {
   return (
@@ -43,7 +43,6 @@ export default function CheckoutCancel() {
           >
             <Button asChild variant="magenta" size="xl" className="rounded-full font-display">
               <Link to="/checkout">
-                <ArrowLeft className="h-5 w-5 mr-2 flex-shrink-0" aria-hidden="true" />
                 Retour au panier
               </Link>
             </Button>

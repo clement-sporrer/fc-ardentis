@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, AlertTriangle, ArrowLeft } from "lucide-react";
+import { Home, AlertTriangle } from "lucide-react";
 
 const NotFound = () => {
   return (
@@ -66,7 +66,6 @@ const NotFound = () => {
           >
             <Button asChild variant="glass" size="lg" className="rounded-full">
               <Link to="/equipe">
-                <ArrowLeft className="h-4 w-4 mr-2 flex-shrink-0" aria-hidden="true" />
                 Notre équipe
               </Link>
             </Button>

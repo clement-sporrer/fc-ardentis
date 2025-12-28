@@ -1,6 +1,6 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, ArrowLeft, ShoppingBag, RefreshCw } from "lucide-react";
+import { AlertCircle, ShoppingBag, RefreshCw } from "lucide-react";
 
 export default function CheckoutFailed() {
   const [params] = useSearchParams();

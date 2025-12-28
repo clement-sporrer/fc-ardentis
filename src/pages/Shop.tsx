@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
 import { toNumberSafe, buildCSVUrl, parseCSVLine, stripBOM } from "@/lib/utils";
-import { AlertCircle, ShoppingBag, Sparkles, ArrowRight } from "lucide-react";
+import { AlertCircle, ShoppingBag, Sparkles } from "lucide-react";
 
 type ProductType = "maillot" | "short" | "charte";
 
@@ -215,7 +215,7 @@ export default function Shop() {
                       {/* Hover overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-6">
                         <span className="text-white font-sport text-sm flex items-center gap-2">
-                          Voir le produit <ArrowRight className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                          Voir le produit
                         </span>
                       </div>
                     </div>

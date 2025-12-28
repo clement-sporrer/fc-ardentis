@@ -111,10 +111,9 @@ const ResultBadge = ({ r }: { r?: string | null }) => {
     N: "bg-gray-500 text-white",
     D: "bg-red-500 text-white",
   };
-  const labels: Record<string, string> = { V: "Victoire", N: "Nul", D: "Défaite" };
   return (
-    <span className={`px-3 py-1 rounded-full text-xs font-display font-bold ${styles[r] || "bg-gray-500"}`}>
-      {labels[r] || r}
+    <span className={`px-2.5 py-1 rounded-full text-xs font-display font-bold ${styles[r] || "bg-gray-500"}`}>
+      {r}
     </span>
   );
 };
