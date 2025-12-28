@@ -260,8 +260,10 @@ export default function Navigation() {
                 key={l.path}
                 to={l.path}
                 onClick={() => setOpen(false)}
-                className={`flex items-center justify-between font-display text-2xl font-semibold py-4 px-5 rounded-2xl transition-all duration-500 ${
-                  isActive(l.path) ? "text-primary bg-white/10" : "text-white hover:bg-white/5"
+                className={`group flex items-center justify-between font-display text-2xl font-semibold py-4 px-5 rounded-2xl transition-all duration-300 ${
+                  isActive(l.path) 
+                    ? "text-primary bg-white/10" 
+                    : "text-white hover:bg-white/10 hover:text-primary"
                 }`}
                 style={{
                   transitionDelay: open ? `${index * 75}ms` : "0ms",
@@ -269,10 +271,12 @@ export default function Navigation() {
                   transform: open ? "translateX(0)" : "translateX(-30px)",
                 }}
               >
-                {l.label}
+                <span className="flex-1">{l.label}</span>
                 <ChevronRight
-                  className={`h-6 w-6 transition-transform ${
-                    isActive(l.path) ? "text-primary" : "text-white/40"
+                  className={`h-5 w-5 transition-all duration-300 flex-shrink-0 ml-3 ${
+                    isActive(l.path) 
+                      ? "text-primary translate-x-1" 
+                      : "text-white/60 group-hover:text-primary group-hover:translate-x-1"
                   }`}
                 />
               </Link>
