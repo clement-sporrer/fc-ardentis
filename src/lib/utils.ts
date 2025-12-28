@@ -60,6 +60,7 @@ export function parseCSVLine(line: string, delimiter: string = ","): string[] {
  * @returns String without BOM
  */
 export function stripBOM(str: string): string {
+  if (!str || str.length === 0) return str;
   return str.charCodeAt(0) === 0xfeff ? str.slice(1) : str;
 }
 

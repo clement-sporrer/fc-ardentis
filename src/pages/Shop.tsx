@@ -49,6 +49,7 @@ export default function Shop() {
   useEffect(() => {
     async function fetchProducts() {
       setErrorMsg(null);
+      setLoading(true);
       try {
         const url = buildCSVUrl(PRODUCTS_CSV_URL);
         if (!url) {
@@ -69,6 +70,7 @@ export default function Shop() {
 
         if (lines.length < 2) {
           setProducts([]);
+          setLoading(false);
           return;
         }
 
