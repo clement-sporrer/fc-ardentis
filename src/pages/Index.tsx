@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { MapPin, Calendar, Users, Heart, Trophy, Handshake, ChevronDown, Star, Zap } from "lucide-react";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { useTeamPlayers } from "@/hooks/useTeamPlayers";
 
 const GOOGLE_PHOTOS_ALBUM_SHARE_URL = import.meta.env.VITE_GOOGLE_PHOTOS_ALBUM_SHARE_URL || "";
 
@@ -11,6 +12,7 @@ const Index = () => {
   const presentationRef = useRef<HTMLDivElement>(null);
   const infoRef = useRef<HTMLDivElement>(null);
   const photoRef = useRef<HTMLDivElement>(null);
+  const { count: playerCount, loading: playersLoading } = useTeamPlayers();
 
   const scrollToSection = useCallback((ref: React.RefObject<HTMLDivElement | null>) => {
     ref.current?.scrollIntoView({ behavior: "smooth" });
@@ -59,11 +61,11 @@ const Index = () => {
     },
   ];
 
-  const stats = [
+  const stats = useMemo(() => [
     { value: "2025", label: "Année de fondation", icon: Star },
-    { value: "11", label: "Joueurs actifs", icon: Users },
+    { value: playersLoading ? "..." : String(playerCount), label: "Joueurs actifs", icon: Users },
     { value: "CFL", label: "Compétition", icon: Trophy },
-  ];
+  ], [playerCount, playersLoading]);
 
   return (
     <>
