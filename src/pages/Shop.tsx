@@ -58,7 +58,13 @@ export default function Shop() {
         }
 
         const res = await fetch(url);
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
         const raw = stripBOM(await res.text());
+        if (!raw || raw.trim().length === 0) {
+          throw new Error("Réponse vide du serveur");
+        }
         const lines = raw.replace(/\r/g, "").split("\n").filter(Boolean);
 
         if (lines.length < 2) {
@@ -90,8 +96,9 @@ export default function Shop() {
 
         setProducts(items);
       } catch (err) {
-        console.error(err);
-        setErrorMsg("Impossible de charger les produits.");
+        console.error("Erreur chargement produits:", err);
+        const errMsg = err instanceof Error ? err.message : String(err);
+        setErrorMsg(`Impossible de charger les produits. ${errMsg.includes("HTTP") ? errMsg : "Vérifiez la configuration."}`);
       } finally {
         setLoading(false);
       }

@@ -63,7 +63,13 @@ export default function ProductPage() {
       setLoading(true);
       try {
         const res = await fetch(buildCsvUrl());
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
         const raw = await res.text();
+        if (!raw || raw.trim().length === 0) {
+          throw new Error("Réponse vide du serveur");
+        }
         const lines = raw.replace(/\r/g, "").split("\n").filter(Boolean);
 
         const list: Product[] = lines.slice(1).map((line) => {
@@ -89,7 +95,8 @@ export default function ProductPage() {
         setProduct(found || null);
       } catch (e: any) {
         console.error("Erreur chargement produit:", e);
-        setErrorMsg("Impossible de charger ce produit.");
+        const errMsg = e instanceof Error ? e.message : String(e);
+        setErrorMsg(`Impossible de charger ce produit. ${errMsg.includes("HTTP") ? errMsg : "Vérifiez la configuration."}`);
         setProduct(null);
       } finally {
         setLoading(false);

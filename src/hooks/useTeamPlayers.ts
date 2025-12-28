@@ -26,7 +26,19 @@ export function useTeamPlayers() {
       try {
         const url = `${TEAM_CSV_URL}${TEAM_CSV_URL.includes("?") ? "&" : "?"}_ts=${Date.now()}`;
         const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) {
+          console.warn(`Team players fetch failed: HTTP ${res.status}`);
+          setCount(0);
+          setLoading(false);
+          return;
+        }
         const raw0 = await res.text();
+        if (!raw0 || raw0.trim().length === 0) {
+          console.warn("Team players response is empty");
+          setCount(0);
+          setLoading(false);
+          return;
+        }
         const raw = stripBOM(raw0).replace(/\r/g, "");
         const lines = raw.split("\n").filter((l) => l.trim().length > 0);
 

@@ -142,7 +142,13 @@ const Calendrier = () => {
       try {
         const url = `${GOOGLE_SHEET_EVENTS_CSV_URL}${GOOGLE_SHEET_EVENTS_CSV_URL.includes("?") ? "&" : "?"}_ts=${Date.now()}`;
         const response = await fetch(url, { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
         const raw = stripBOM(await response.text());
+        if (!raw || raw.trim().length === 0) {
+          throw new Error("Réponse vide du serveur");
+        }
 
         const lines = raw.replace(/\r/g, "").split("\n").filter((l) => l.trim().length > 0);
         if (lines.length < 2) {
@@ -185,8 +191,9 @@ const Calendrier = () => {
         setEvents(parsed);
         setError(null);
       } catch (err) {
-        setError("Erreur lors du chargement des événements");
-        console.error(err);
+        console.error("Erreur chargement événements:", err);
+        const errMsg = err instanceof Error ? err.message : String(err);
+        setError(`Erreur lors du chargement des événements. ${errMsg.includes("HTTP") ? errMsg : "Vérifiez la configuration."}`);
       } finally {
         setLoading(false);
       }
@@ -209,7 +216,17 @@ const Calendrier = () => {
       try {
         const url = `${GOOGLE_SHEET_STANDINGS_CSV_URL}${GOOGLE_SHEET_STANDINGS_CSV_URL.includes("?") ? "&" : "?"}_ts=${Date.now()}`;
         const response = await fetch(url, { cache: "no-store" });
+        if (!response.ok) {
+          console.warn(`Standings fetch failed: HTTP ${response.status}`);
+          setStandings([]);
+          return;
+        }
         const raw = stripBOM(await response.text());
+        if (!raw || raw.trim().length === 0) {
+          console.warn("Standings response is empty");
+          setStandings([]);
+          return;
+        }
 
         const lines = raw.replace(/\r/g, "").split("\n").filter((l) => l.trim().length > 0);
         if (lines.length < 2) {

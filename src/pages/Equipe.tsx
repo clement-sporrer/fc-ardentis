@@ -126,7 +126,13 @@ const Equipe = () => {
       try {
         const url = `${TEAM_CSV_URL}${TEAM_CSV_URL.includes("?") ? "&" : "?"}_ts=${Date.now()}`;
         const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
         const raw0 = await res.text();
+        if (!raw0 || raw0.trim().length === 0) {
+          throw new Error("Réponse vide du serveur");
+        }
         const raw = stripBOM(raw0).replace(/\r/g, "");
         const lines = raw.split("\n").filter((l) => l.trim().length > 0);
         if (lines.length < 2) {
@@ -188,8 +194,9 @@ const Equipe = () => {
         setPlayers(parsed);
         setError(null);
       } catch (e) {
-        console.error(e);
-        setError("Erreur lors du chargement de l'équipe");
+        console.error("Erreur chargement équipe:", e);
+        const errMsg = e instanceof Error ? e.message : String(e);
+        setError(`Erreur lors du chargement de l'équipe. ${errMsg.includes("HTTP") ? errMsg : "Vérifiez la configuration."}`);
       } finally {
         setLoading(false);
       }
