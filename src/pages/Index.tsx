@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { MapPin, Calendar, Users, Heart, Trophy, Handshake, ChevronDown, Star, Zap } from "lucide-react";
-import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { MapPin, Calendar, Users, Heart, Trophy, Handshake, Star, Zap } from "lucide-react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useTeamPlayers } from "@/hooks/useTeamPlayers";
 
 const GOOGLE_PHOTOS_ALBUM_SHARE_URL = import.meta.env.VITE_GOOGLE_PHOTOS_ALBUM_SHARE_URL || "";
@@ -14,9 +14,6 @@ const Index = () => {
   const photoRef = useRef<HTMLDivElement>(null);
   const { count: playerCount, loading: playersLoading } = useTeamPlayers();
 
-  const scrollToSection = useCallback((ref: React.RefObject<HTMLDivElement | null>) => {
-    ref.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
 
   useEffect(() => {
     if (GOOGLE_PHOTOS_ALBUM_SHARE_URL) {
@@ -155,17 +152,6 @@ const Index = () => {
           </p>
         </div>
 
-        {/* Scroll indicator */}
-        <button
-          onClick={() => scrollToSection(presentationRef)}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/50 hover:text-white transition-all duration-300 group cursor-pointer p-4"
-          aria-label="Scroll to next section"
-        >
-          <div className="flex flex-col items-center gap-2">
-            <span className="text-xs font-sport uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Explorer</span>
-            <ChevronDown className="h-8 w-8 animate-bounce" />
-          </div>
-        </button>
       </section>
 
       {/* Stats Section */}
@@ -268,14 +254,6 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Scroll indicator */}
-        <button
-          onClick={() => scrollToSection(infoRef)}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-foreground/40 hover:text-foreground transition-all duration-300 group cursor-pointer p-4"
-          aria-label="Scroll to next section"
-        >
-          <ChevronDown className="h-8 w-8 animate-bounce" />
-        </button>
       </section>
 
       {/* Info Section */}
@@ -371,14 +349,6 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Scroll indicator */}
-        <button
-          onClick={() => scrollToSection(photoRef)}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/40 hover:text-white transition-all duration-300 group cursor-pointer p-4"
-          aria-label="Scroll to next section"
-        >
-          <ChevronDown className="h-8 w-8 animate-bounce" />
-        </button>
       </section>
 
       {/* Photo Gallery Section */}
