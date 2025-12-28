@@ -57,7 +57,7 @@ const Index = () => {
       icon: Trophy,
       title: "Excellence",
       description: "Viser l'excellence sur et en dehors du terrain.",
-      gradient: "from-gold to-gold-dark",
+      gradient: "from-magenta to-magenta-dark",
     },
   ];
 
@@ -84,7 +84,7 @@ const Index = () => {
         <div className="container max-w-6xl mx-auto px-4 sm:px-6 relative z-10 text-center pt-20 pb-10">
           {/* Logo with glow effect */}
           <div className="relative inline-block mb-6 sm:mb-8 animate-rise-up">
-            <div className="absolute inset-0 bg-gold/30 blur-3xl rounded-full scale-150 animate-pulse-glow" />
+            <div className="absolute inset-0 bg-magenta/30 blur-3xl rounded-full scale-150 animate-pulse-glow" />
             <img
               src="/assets/logo.png"
               alt="FC Ardentis Logo"
@@ -102,16 +102,16 @@ const Index = () => {
             </span>
           </h1>
           
-          {/* Subtitle with gold accent */}
+          {/* Subtitle with magenta accent */}
           <div 
             className="flex items-center justify-center gap-4 mb-8 sm:mb-10 animate-rise-up"
             style={{ animationDelay: "200ms" }}
           >
-            <span className="h-px w-12 bg-gradient-to-r from-transparent to-gold" />
-            <p className="text-lg sm:text-xl md:text-2xl text-gold font-sport font-medium tracking-wider uppercase">
+            <span className="h-px w-12 bg-gradient-to-r from-transparent to-magenta" />
+            <p className="text-lg sm:text-xl md:text-2xl text-magenta font-sport font-medium tracking-wider uppercase">
               Since 2025
             </p>
-            <span className="h-px w-12 bg-gradient-to-l from-transparent to-gold" />
+            <span className="h-px w-12 bg-gradient-to-l from-transparent to-magenta" />
           </div>
 
           {/* CTA Buttons */}
@@ -121,7 +121,7 @@ const Index = () => {
           >
             <Button
               asChild
-              variant="gold"
+              variant="magenta"
               size="xl"
               className="font-display text-lg sm:text-xl px-8 sm:px-12 rounded-full"
             >
@@ -147,7 +147,7 @@ const Index = () => {
               href="https://www.cflparis.fr/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gold hover:text-white font-semibold underline underline-offset-2 transition-colors"
+              className="text-magenta hover:text-white font-semibold underline underline-offset-2 transition-colors"
             >
               Commission de Football Loisir
             </a>
@@ -180,7 +180,7 @@ const Index = () => {
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
                 <div className="flex items-center justify-center mb-2">
-                  <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-gold mr-2" />
+                  <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-magenta mr-2" />
                   <span className="font-sport-condensed font-bold text-2xl sm:text-4xl md:text-5xl text-white">
                     {stat.value}
                   </span>
@@ -296,9 +296,9 @@ const Index = () => {
               </span>
             </h2>
             <div className="flex items-center justify-center gap-4 reveal-on-scroll" style={{ transitionDelay: "100ms" }}>
-              <span className="h-px w-16 bg-gradient-to-r from-transparent to-gold" />
-              <Star className="h-4 w-4 text-gold" />
-              <span className="h-px w-16 bg-gradient-to-l from-transparent to-gold" />
+              <span className="h-px w-16 bg-gradient-to-r from-transparent to-magenta" />
+              <Star className="h-4 w-4 text-magenta" />
+              <span className="h-px w-16 bg-gradient-to-l from-transparent to-magenta" />
             </div>
           </div>
 
@@ -314,8 +314,8 @@ const Index = () => {
                 </h3>
               </div>
               <div className="text-white/80 font-sport mb-6 text-base sm:text-lg space-y-2">
-                <p>Entraînement à <span className="text-gold font-semibold">Gennevilliers</span></p>
-                <p>Matchs en <span className="text-gold font-semibold">région parisienne</span></p>
+                <p>Entraînement à <span className="text-magenta font-semibold">Gennevilliers</span></p>
+                <p>Matchs en <span className="text-magenta font-semibold">région parisienne</span></p>
               </div>
               <div className="rounded-2xl overflow-hidden shadow-elevated border border-white/10">
                 <iframe
@@ -344,7 +344,7 @@ const Index = () => {
               </div>
               <div className="space-y-4 sm:space-y-5">
                 <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
-                  <p className="text-gold font-display font-bold mb-2 text-lg">
+                  <p className="text-magenta font-display font-bold mb-2 text-lg">
                     Entraînements
                   </p>
                   <p className="text-white/70 font-sport">
@@ -362,7 +362,7 @@ const Index = () => {
               </div>
               <Link
                 to="/contacts"
-                className="inline-flex items-center gap-2 mt-6 text-gold hover:text-white font-sport font-medium transition-colors group"
+                className="inline-flex items-center gap-2 mt-6 text-magenta hover:text-white font-sport font-medium transition-colors group"
               >
                 Plus d'infos sur la page Contacts
                 <span className="group-hover:translate-x-1 transition-transform">→</span>
@@ -420,7 +420,7 @@ const Index = () => {
       <section className="py-16 sm:py-24 px-4 sm:px-6 bg-gradient-hero relative overflow-hidden">
         {/* Background effects */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gold/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-magenta/5 rounded-full blur-3xl" />
         
         <div className="container max-w-4xl mx-auto text-center relative z-10">
           <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white mb-6 reveal-on-scroll leading-tight">
@@ -435,7 +435,7 @@ const Index = () => {
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 justify-center reveal-on-scroll" style={{ transitionDelay: "200ms" }}>
             <Button
               asChild
-              variant="gold"
+              variant="magenta"
               size="xl"
               className="font-display text-lg sm:text-xl px-10 sm:px-14 rounded-full"
             >

@@ -30,10 +30,10 @@
     --accent: 323 56% 70%;
     --accent-foreground: 224 47% 11%;
 
-    /* Gold - Premium Touch */
-    --gold: 45 93% 58%;
-    --gold-dark: 38 93% 50%;
-    --gold-foreground: 224 47% 11%;
+    /* Magenta - Premium Touch (cohérent avec la palette violette) */
+    --magenta: 330 80% 55%;
+    --magenta-dark: 330 85% 45%;
+    --magenta-foreground: 0 0% 100%;
 
     /* UI Colors */
     --card: 0 0% 100%;
@@ -76,10 +76,10 @@
       hsl(0 0% 100%) 0%, 
       hsl(230 30% 98%) 100%);
 
-    /* Gold gradient for CTAs */
-    --gradient-gold: linear-gradient(135deg, 
-      hsl(45 93% 58%) 0%, 
-      hsl(38 93% 50%) 100%);
+    /* Magenta gradient for CTAs */
+    --gradient-magenta: linear-gradient(135deg, 
+      hsl(330 80% 55%) 0%, 
+      hsl(330 85% 45%) 100%);
 
     /* Glass effect */
     --gradient-glass: linear-gradient(145deg, 
@@ -92,7 +92,7 @@
     --shadow-card: 0 10px 40px -10px hsl(224 47% 11% / 0.12);
     --shadow-elevated: 0 25px 60px -15px hsl(224 47% 11% / 0.2);
     --shadow-glow: 0 0 40px hsl(237 63% 72% / 0.25);
-    --shadow-gold: 0 0 40px hsl(45 93% 58% / 0.35);
+    --shadow-magenta: 0 0 40px hsl(330 80% 55% / 0.35);
 
     /* ========== TRANSITIONS ========== */
     
@@ -150,8 +150,8 @@
     background: var(--gradient-card);
   }
 
-  .bg-gradient-gold {
-    background: var(--gradient-gold);
+  .bg-gradient-magenta {
+    background: var(--gradient-magenta);
   }
 
   .bg-gradient-glass {
@@ -171,8 +171,8 @@
     box-shadow: var(--shadow-glow);
   }
 
-  .shadow-gold {
-    box-shadow: var(--shadow-gold);
+  .shadow-magenta {
+    box-shadow: var(--shadow-magenta);
   }
 
   /* Glass Morphism */
@@ -230,13 +230,13 @@
     background-image: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
   }
 
-  .text-gradient-gold {
+  .text-gradient-magenta {
     @apply bg-clip-text text-transparent;
-    background-image: var(--gradient-gold);
+    background-image: var(--gradient-magenta);
   }
 
-  /* Gold Accent Line */
-  .gold-line::after {
+  /* Magenta Accent Line */
+  .magenta-line::after {
     content: '';
     position: absolute;
     bottom: -8px;
@@ -244,7 +244,7 @@
     transform: translateX(-50%);
     width: 60px;
     height: 3px;
-    background: var(--gradient-gold);
+    background: var(--gradient-magenta);
     border-radius: 2px;
   }
 
@@ -288,12 +288,12 @@
 
   @keyframes pulse-glow {
     0%, 100% { 
-      box-shadow: 0 0 20px hsl(45 93% 58% / 0.3),
-                  0 0 40px hsl(45 93% 58% / 0.1);
+      box-shadow: 0 0 20px hsl(330 80% 55% / 0.3),
+                  0 0 40px hsl(330 80% 55% / 0.1);
     }
     50% { 
-      box-shadow: 0 0 30px hsl(45 93% 58% / 0.5),
-                  0 0 60px hsl(45 93% 58% / 0.2);
+      box-shadow: 0 0 30px hsl(330 80% 55% / 0.5),
+                  0 0 60px hsl(330 80% 55% / 0.2);
     }
   }
 

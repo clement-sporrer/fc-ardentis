@@ -71,10 +71,10 @@ export default {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
         },
-        gold: {
-          DEFAULT: "hsl(var(--gold))",
-          dark: "hsl(var(--gold-dark))",
-          foreground: "hsl(var(--gold-foreground))",
+        magenta: {
+          DEFAULT: "hsl(var(--magenta))",
+          dark: "hsl(var(--magenta-dark))",
+          foreground: "hsl(var(--magenta-foreground))",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",

@@ -29,8 +29,8 @@ const buttonVariants = cva(
         
         // ===== PREMIUM VARIANTS =====
         
-        // Gold - Championship CTA with shimmer
-        gold: "relative overflow-hidden bg-gradient-to-r from-gold to-gold-dark text-gold-foreground font-bold shadow-lg hover:shadow-gold/40 hover:shadow-2xl before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-200%] hover:before:translate-x-[200%] before:transition-transform before:duration-700",
+        // Magenta - Championship CTA with shimmer
+        magenta: "relative overflow-hidden bg-gradient-to-r from-magenta to-magenta-dark text-magenta-foreground font-bold shadow-lg hover:shadow-magenta/40 hover:shadow-2xl before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-200%] hover:before:translate-x-[200%] before:transition-transform before:duration-700",
         
         // Glass - Glassmorphism effect
         glass: "bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:border-white/30 shadow-lg",
@@ -38,8 +38,8 @@ const buttonVariants = cva(
         // Glow - Purple with pulsing glow
         glow: "bg-primary text-primary-foreground shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 animate-pulse-purple",
         
-        // Premium - Dark with gold accent line
-        premium: "relative bg-secondary text-secondary-foreground overflow-hidden after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-full after:bg-gradient-to-r after:from-gold after:to-gold-dark hover:after:h-[4px] hover:shadow-xl",
+        // Premium - Dark with magenta accent line
+        premium: "relative bg-secondary text-secondary-foreground overflow-hidden after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-full after:bg-gradient-to-r after:from-magenta after:to-magenta-dark hover:after:h-[4px] hover:shadow-xl",
         
         // Hero - Gradient background
         hero: "bg-gradient-to-r from-primary to-accent text-white font-bold shadow-xl hover:shadow-2xl hover:scale-[1.02]",

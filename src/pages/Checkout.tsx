@@ -52,7 +52,7 @@ export default function Checkout() {
               Parcourez la boutique et ajoutez des articles personnalisés.
             </p>
             
-            <Button asChild variant="gold" size="xl" className="rounded-full font-display animate-rise-up" style={{ animationDelay: "300ms" }}>
+            <Button asChild variant="magenta" size="xl" className="rounded-full font-display animate-rise-up" style={{ animationDelay: "300ms" }}>
               <Link to="/shop">
                 <Package className="h-5 w-5 mr-2" />
                 Aller à la boutique
@@ -75,9 +75,9 @@ export default function Checkout() {
         
         <div className="container max-w-6xl mx-auto px-4 sm:px-6 relative z-10 text-center">
           <div className="flex items-center justify-center gap-4 mb-4 animate-rise-up">
-            <span className="h-px w-12 bg-gradient-to-r from-transparent to-gold" />
-            <ShoppingCart className="h-6 w-6 text-gold" />
-            <span className="h-px w-12 bg-gradient-to-l from-transparent to-gold" />
+            <span className="h-px w-12 bg-gradient-to-r from-transparent to-magenta" />
+            <ShoppingCart className="h-6 w-6 text-magenta" />
+            <span className="h-px w-12 bg-gradient-to-l from-transparent to-magenta" />
           </div>
           
           <h1 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl text-white mb-2 animate-rise-up" style={{ animationDelay: "100ms" }}>
@@ -165,7 +165,7 @@ export default function Checkout() {
                 </div>
                 <Button 
                   onClick={goToDetails} 
-                  variant="gold"
+                  variant="magenta"
                   size="xl"
                   className="w-full sm:w-auto rounded-full font-display"
                 >

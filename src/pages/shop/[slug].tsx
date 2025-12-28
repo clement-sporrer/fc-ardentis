@@ -153,7 +153,7 @@ export default function ProductPage() {
           <div className="container max-w-2xl mx-auto px-4 text-center relative z-10 pt-16">
             <AlertCircle className="h-16 w-16 text-destructive mx-auto mb-4" />
             <h1 className="font-display font-bold text-2xl text-white mb-4">{errorMsg}</h1>
-            <Button asChild variant="gold" className="rounded-full">
+            <Button asChild variant="magenta" className="rounded-full">
               <Link to="/shop">Retour à la boutique</Link>
             </Button>
           </div>
@@ -169,7 +169,7 @@ export default function ProductPage() {
           <div className="container max-w-2xl mx-auto px-4 text-center relative z-10 pt-16">
             <Package className="h-16 w-16 text-white/50 mx-auto mb-4" />
             <h1 className="font-display font-bold text-2xl text-white mb-4">Produit introuvable</h1>
-            <Button asChild variant="gold" className="rounded-full">
+            <Button asChild variant="magenta" className="rounded-full">
               <Link to="/shop">Retour à la boutique</Link>
             </Button>
           </div>
@@ -329,7 +329,7 @@ export default function ProductPage() {
                 <Button
                   onClick={handleAddToCart}
                   disabled={product.soldout || !size}
-                  variant="gold"
+                  variant="magenta"
                   size="xl"
                   className="w-full rounded-xl font-display"
                 >
@@ -398,7 +398,7 @@ export default function ProductPage() {
               Continuer mes achats
             </Button>
             <Button 
-              variant="gold"
+              variant="magenta"
               className="rounded-full"
               onClick={() => { setOpenAdded(false); navigate("/checkout"); }}
             >

@@ -142,19 +142,19 @@ export default function Rejoindre() {
       {/* Hero Section */}
       <section data-hero="true" className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gold/15 via-transparent to-transparent" />
-        <div className="absolute top-1/3 left-1/4 w-72 h-72 bg-gold/10 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-magenta/15 via-transparent to-transparent" />
+        <div className="absolute top-1/3 left-1/4 w-72 h-72 bg-magenta/10 rounded-full blur-3xl" />
         
         <div className="container max-w-5xl mx-auto px-4 sm:px-6 relative z-10 text-center pt-24 sm:pt-28 pb-16 sm:pb-20">
           <div className="flex items-center justify-center gap-4 mb-6 animate-rise-up">
-            <span className="h-px w-12 bg-gradient-to-r from-transparent to-gold" />
-            <Sparkles className="h-8 w-8 text-gold" />
-            <span className="h-px w-12 bg-gradient-to-l from-transparent to-gold" />
+            <span className="h-px w-12 bg-gradient-to-r from-transparent to-magenta" />
+            <Sparkles className="h-8 w-8 text-magenta" />
+            <span className="h-px w-12 bg-gradient-to-l from-transparent to-magenta" />
           </div>
           
           <h1 className="font-display font-bold text-white leading-tight mb-4 animate-rise-up" style={{ animationDelay: "100ms" }}>
             <span className="block text-display-sm sm:text-display-md md:text-display-lg">Nous</span>
-            <span className="block text-display-sm sm:text-display-md md:text-display-lg text-gradient-gold">rejoindre</span>
+            <span className="block text-display-sm sm:text-display-md md:text-display-lg text-gradient-magenta">rejoindre</span>
           </h1>
           
           <p className="text-lg sm:text-xl text-white/70 font-sport max-w-2xl mx-auto animate-rise-up" style={{ animationDelay: "200ms" }}>
@@ -199,15 +199,15 @@ export default function Rejoindre() {
                 onClick={() => setType("partenaire")}
                 className={`p-5 sm:p-6 rounded-2xl border-2 transition-all text-left ${
                   type === "partenaire"
-                    ? "border-gold bg-gold/10 shadow-lg"
-                    : "border-border hover:border-gold/50 hover:bg-muted/50"
+                    ? "border-magenta bg-magenta/10 shadow-lg"
+                    : "border-border hover:border-magenta/50 hover:bg-muted/50"
                 }`}
               >
                 <div className="flex items-center gap-3 mb-2">
-                  <div className={`p-2 rounded-xl ${type === "partenaire" ? "bg-gold/20" : "bg-muted"}`}>
-                    <Handshake className={`h-5 w-5 ${type === "partenaire" ? "text-gold" : "text-muted-foreground"}`} />
+                  <div className={`p-2 rounded-xl ${type === "partenaire" ? "bg-magenta/20" : "bg-muted"}`}>
+                    <Handshake className={`h-5 w-5 ${type === "partenaire" ? "text-magenta" : "text-muted-foreground"}`} />
                   </div>
-                  <span className={`font-display font-bold text-lg ${type === "partenaire" ? "text-gold" : "text-foreground"}`}>
+                  <span className={`font-display font-bold text-lg ${type === "partenaire" ? "text-magenta" : "text-foreground"}`}>
                     Partenaire
                   </span>
                 </div>
@@ -327,7 +327,7 @@ export default function Rejoindre() {
             {type === "partenaire" && (
               <div className="premium-card p-6 sm:p-8">
                 <h3 className="font-display font-bold text-lg mb-5 flex items-center gap-2">
-                  <span className="h-8 w-8 rounded-lg bg-gold/10 flex items-center justify-center text-gold text-sm font-bold">2</span>
+                  <span className="h-8 w-8 rounded-lg bg-magenta/10 flex items-center justify-center text-magenta text-sm font-bold">2</span>
                   Informations partenaire
                 </h3>
 
@@ -420,7 +420,7 @@ export default function Rejoindre() {
               <Button
                 type="submit"
                 disabled={submitting || !requiredOK}
-                variant="gold"
+                variant="magenta"
                 size="xl"
                 className="min-w-[280px] rounded-xl"
               >

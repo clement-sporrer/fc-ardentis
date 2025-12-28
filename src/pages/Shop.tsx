@@ -109,19 +109,19 @@ export default function Shop() {
       {/* Hero Section */}
       <section data-hero="true" className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-gold/15 via-transparent to-transparent" />
-        <div className="absolute top-1/4 right-1/4 w-80 h-80 bg-gold/10 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-magenta/15 via-transparent to-transparent" />
+        <div className="absolute top-1/4 right-1/4 w-80 h-80 bg-magenta/10 rounded-full blur-3xl" />
         
         <div className="container max-w-5xl mx-auto px-4 sm:px-6 relative z-10 text-center pt-24 sm:pt-28 pb-16 sm:pb-20">
           <div className="flex items-center justify-center gap-4 mb-6 animate-rise-up">
-            <span className="h-px w-12 bg-gradient-to-r from-transparent to-gold" />
-            <ShoppingBag className="h-8 w-8 text-gold" />
-            <span className="h-px w-12 bg-gradient-to-l from-transparent to-gold" />
+            <span className="h-px w-12 bg-gradient-to-r from-transparent to-magenta" />
+            <ShoppingBag className="h-8 w-8 text-magenta" />
+            <span className="h-px w-12 bg-gradient-to-l from-transparent to-magenta" />
           </div>
           
           <h1 className="font-display font-bold text-white leading-tight mb-4 animate-rise-up" style={{ animationDelay: "100ms" }}>
             <span className="block text-display-sm sm:text-display-md md:text-display-lg">Notre</span>
-            <span className="block text-display-sm sm:text-display-md md:text-display-lg text-gradient-gold">Boutique</span>
+            <span className="block text-display-sm sm:text-display-md md:text-display-lg text-gradient-magenta">Boutique</span>
           </h1>
           
           <p className="text-lg sm:text-xl text-white/70 font-sport max-w-2xl mx-auto animate-rise-up" style={{ animationDelay: "200ms" }}>
@@ -205,7 +205,7 @@ export default function Shop() {
                             Rupture
                           </span>
                         ) : (
-                          <span className="bg-gold text-gold-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1">
+                          <span className="bg-magenta text-magenta-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1">
                             <Sparkles className="h-3 w-3" />
                             Officiel
                           </span>
@@ -233,7 +233,7 @@ export default function Shop() {
                     {/* CTA Button */}
                     <Button
                       asChild={!product.soldout}
-                      variant={product.soldout ? "outline" : "gold"}
+                      variant={product.soldout ? "outline" : "magenta"}
                       disabled={product.soldout}
                       className={`w-full rounded-xl text-base py-3 ${
                         product.soldout ? "opacity-50 cursor-not-allowed" : ""

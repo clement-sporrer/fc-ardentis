@@ -171,7 +171,7 @@ export default function Navigation() {
         <div className="hidden lg:flex items-center gap-3">
           <Link to="/rejoindre">
             <Button
-              variant={showTransparent ? "glass" : "gold"}
+              variant={showTransparent ? "glass" : "magenta"}
               className="font-sport font-bold px-6 py-2.5 rounded-full"
             >
               Nous rejoindre
@@ -290,7 +290,7 @@ export default function Navigation() {
             }}
           >
             <Link to="/rejoindre" onClick={() => setOpen(false)}>
-              <Button variant="gold" size="xl" className="w-full font-display text-xl">
+              <Button variant="magenta" size="xl" className="w-full font-display text-xl">
                 Nous rejoindre
               </Button>
             </Link>

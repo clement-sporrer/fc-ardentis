@@ -34,7 +34,7 @@ const Footer = () => {
                 alt="FC Ardentis Logo"
                 className="h-12 w-auto object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
               />
-              <span className="font-display font-bold text-2xl text-white group-hover:text-gold transition-colors duration-300">
+              <span className="font-display font-bold text-2xl text-white group-hover:text-magenta transition-colors duration-300">
                 FC ARDENTIS
               </span>
             </Link>
@@ -51,14 +51,14 @@ const Footer = () => {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/15 border border-white/10 transition-all duration-300 group"
             >
               <span className="text-xs font-sport font-medium text-white/80">Membre CFL Paris</span>
-              <ArrowRight className="h-3 w-3 text-gold group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="h-3 w-3 text-magenta group-hover:translate-x-1 transition-transform" />
             </a>
           </div>
 
           {/* Quick Links */}
           <div>
             <h3 className="font-display font-bold text-lg text-white mb-5 flex items-center gap-2">
-              <Users className="h-4 w-4 text-gold" />
+              <Users className="h-4 w-4 text-magenta" />
               Navigation
             </h3>
             <ul className="space-y-3">
@@ -66,9 +66,9 @@ const Footer = () => {
                 <li key={link.path}>
                   <Link 
                     to={link.path} 
-                    className="font-sport text-white/70 hover:text-gold transition-colors duration-300 flex items-center gap-2 group"
+                    className="font-sport text-white/70 hover:text-magenta transition-colors duration-300 flex items-center gap-2 group"
                   >
-                    <span className="w-0 h-px bg-gold group-hover:w-3 transition-all duration-300" />
+                    <span className="w-0 h-px bg-magenta group-hover:w-3 transition-all duration-300" />
                     {link.label}
                   </Link>
                 </li>
@@ -143,7 +143,7 @@ const Footer = () => {
                 href="https://linkedin.com/in/clementsporrer"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white/60 hover:text-gold transition-colors underline-offset-2 hover:underline font-medium"
+                className="text-white/60 hover:text-magenta transition-colors underline-offset-2 hover:underline font-medium"
               >
                 Clément Sporrer
               </a>

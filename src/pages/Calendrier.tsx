@@ -323,14 +323,14 @@ const Calendrier = () => {
         
         <div className="container max-w-5xl mx-auto px-4 sm:px-6 relative z-10 text-center pt-24 sm:pt-28 pb-16 sm:pb-20">
           <div className="flex items-center justify-center gap-4 mb-6 animate-rise-up">
-            <span className="h-px w-12 bg-gradient-to-r from-transparent to-gold" />
-            <CalendarIcon className="h-8 w-8 text-gold" />
-            <span className="h-px w-12 bg-gradient-to-l from-transparent to-gold" />
+            <span className="h-px w-12 bg-gradient-to-r from-transparent to-magenta" />
+            <CalendarIcon className="h-8 w-8 text-magenta" />
+            <span className="h-px w-12 bg-gradient-to-l from-transparent to-magenta" />
           </div>
           
           <h1 className="font-display font-bold text-white leading-tight mb-4 animate-rise-up" style={{ animationDelay: "100ms" }}>
             <span className="block text-display-sm sm:text-display-md md:text-display-lg">Notre</span>
-            <span className="block text-display-sm sm:text-display-md md:text-display-lg text-gradient-gold">calendrier</span>
+            <span className="block text-display-sm sm:text-display-md md:text-display-lg text-gradient-magenta">calendrier</span>
           </h1>
           
           <p className="text-lg sm:text-xl text-white/70 font-sport max-w-2xl mx-auto animate-rise-up" style={{ animationDelay: "200ms" }}>
@@ -498,7 +498,7 @@ const Calendrier = () => {
                 <CardContent className="p-5 sm:p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-display font-bold text-lg sm:text-xl text-foreground flex items-center gap-2">
-                      <Star className="h-5 w-5 text-gold" />
+                      <Star className="h-5 w-5 text-magenta" />
                       Résultats
                     </h3>
                     {pastMatches.length > 3 && (
@@ -547,7 +547,7 @@ const Calendrier = () => {
               <Card className="premium-card overflow-hidden">
                 <CardContent className="p-6 sm:p-8">
                   <h3 className="font-display font-bold text-xl sm:text-2xl text-foreground mb-6 flex items-center gap-3">
-                    <Trophy className="h-6 w-6 text-gold" />
+                    <Trophy className="h-6 w-6 text-magenta" />
                     Classement
                   </h3>
                   

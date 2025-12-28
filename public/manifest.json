@@ -1,0 +1,27 @@
+{
+  "name": "FC Ardentis",
+  "short_name": "FC Ardentis",
+  "description": "Club de football fondé en 2025 en région parisienne",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#505287",
+  "theme_color": "#505287",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["sports", "football"],
+  "lang": "fr"
+}
+

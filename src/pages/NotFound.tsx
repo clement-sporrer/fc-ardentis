@@ -19,7 +19,7 @@ const NotFound = () => {
           {/* Icon */}
           <div className="mb-8 animate-rise-up">
             <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
-              <AlertTriangle className="h-12 w-12 text-gold" />
+              <AlertTriangle className="h-12 w-12 text-magenta" />
             </div>
           </div>
 
@@ -51,7 +51,7 @@ const NotFound = () => {
             className="flex flex-col sm:flex-row gap-4 justify-center animate-rise-up"
             style={{ animationDelay: "300ms" }}
           >
-            <Button asChild variant="gold" size="xl" className="rounded-full font-display">
+            <Button asChild variant="magenta" size="xl" className="rounded-full font-display">
               <Link to="/">
                 <Home className="h-5 w-5 mr-2" />
                 Retour à l'accueil

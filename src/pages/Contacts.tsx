@@ -37,14 +37,14 @@ const Contacts = () => {
         
         <div className="container max-w-5xl mx-auto px-4 sm:px-6 relative z-10 text-center pt-24 sm:pt-28 pb-16 sm:pb-20">
           <div className="flex items-center justify-center gap-4 mb-6 animate-rise-up">
-            <span className="h-px w-12 bg-gradient-to-r from-transparent to-gold" />
-            <MessageCircle className="h-8 w-8 text-gold" />
-            <span className="h-px w-12 bg-gradient-to-l from-transparent to-gold" />
+            <span className="h-px w-12 bg-gradient-to-r from-transparent to-magenta" />
+            <MessageCircle className="h-8 w-8 text-magenta" />
+            <span className="h-px w-12 bg-gradient-to-l from-transparent to-magenta" />
           </div>
           
           <h1 className="font-display font-bold text-white leading-tight mb-4 animate-rise-up" style={{ animationDelay: "100ms" }}>
             <span className="block text-display-sm sm:text-display-md md:text-display-lg">Nous</span>
-            <span className="block text-display-sm sm:text-display-md md:text-display-lg text-gradient-gold">contacter</span>
+            <span className="block text-display-sm sm:text-display-md md:text-display-lg text-gradient-magenta">contacter</span>
           </h1>
           
           <p className="text-lg sm:text-xl text-white/70 font-sport max-w-2xl mx-auto animate-rise-up" style={{ animationDelay: "200ms" }}>
@@ -96,8 +96,8 @@ const Contacts = () => {
             {/* Contact Info */}
             <div className="space-y-6">
               <h2 className="font-display font-bold text-2xl sm:text-3xl text-foreground mb-8 flex items-center gap-3">
-                <span className="h-10 w-10 rounded-xl bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center">
-                  <Mail className="h-5 w-5 text-gold-foreground" />
+                <span className="h-10 w-10 rounded-xl bg-gradient-to-br from-magenta to-magenta-dark flex items-center justify-center">
+                  <Mail className="h-5 w-5 text-magenta-foreground" />
                 </span>
                 Contact direct
               </h2>
@@ -161,8 +161,8 @@ const Contacts = () => {
               {/* Schedule Card */}
               <div className="premium-card p-6 sm:p-8">
                 <div className="flex items-start gap-5 mb-6">
-                  <div className="p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold-dark/20">
-                    <Calendar className="h-7 w-7 text-gold" />
+                  <div className="p-3 rounded-2xl bg-gradient-to-br from-magenta/20 to-magenta-dark/20">
+                    <Calendar className="h-7 w-7 text-magenta" />
                   </div>
                   <div>
                     <h3 className="font-display font-bold text-lg text-foreground mb-2">
@@ -185,7 +185,7 @@ const Contacts = () => {
                   </div>
                 </div>
                 
-                <Button asChild variant="gold" size="lg" className="w-full rounded-xl">
+                <Button asChild variant="magenta" size="lg" className="w-full rounded-xl">
                   <Link to="/rejoindre">
                     Nous rejoindre
                   </Link>

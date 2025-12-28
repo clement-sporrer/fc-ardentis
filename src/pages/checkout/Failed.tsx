@@ -44,7 +44,7 @@ export default function CheckoutFailed() {
             className="flex flex-col sm:flex-row gap-4 justify-center animate-rise-up"
             style={{ animationDelay: "300ms" }}
           >
-            <Button asChild variant="gold" size="xl" className="rounded-full font-display">
+            <Button asChild variant="magenta" size="xl" className="rounded-full font-display">
               <Link to="/checkout">
                 <RefreshCw className="h-5 w-5 mr-2" />
                 Réessayer

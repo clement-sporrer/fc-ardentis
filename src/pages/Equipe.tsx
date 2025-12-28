@@ -220,14 +220,14 @@ const Equipe = () => {
         
         <div className="container max-w-5xl mx-auto px-4 sm:px-6 relative z-10 text-center pt-24 sm:pt-28 pb-16 sm:pb-20">
           <div className="flex items-center justify-center gap-4 mb-6 animate-rise-up">
-            <span className="h-px w-12 bg-gradient-to-r from-transparent to-gold" />
-            <Users className="h-8 w-8 text-gold" />
-            <span className="h-px w-12 bg-gradient-to-l from-transparent to-gold" />
+            <span className="h-px w-12 bg-gradient-to-r from-transparent to-magenta" />
+            <Users className="h-8 w-8 text-magenta" />
+            <span className="h-px w-12 bg-gradient-to-l from-transparent to-magenta" />
           </div>
           
           <h1 className="font-display font-bold text-white leading-tight mb-4 animate-rise-up" style={{ animationDelay: "100ms" }}>
             <span className="block text-display-sm sm:text-display-md md:text-display-lg">Notre</span>
-            <span className="block text-display-sm sm:text-display-md md:text-display-lg text-gradient-gold">équipe</span>
+            <span className="block text-display-sm sm:text-display-md md:text-display-lg text-gradient-magenta">équipe</span>
           </h1>
           
           <p className="text-lg sm:text-xl text-white/70 font-sport max-w-2xl mx-auto animate-rise-up" style={{ animationDelay: "200ms" }}>
@@ -328,7 +328,7 @@ const Equipe = () => {
               <Card className="premium-card overflow-hidden">
                 <CardContent className="p-6 sm:p-8">
                   <div className="flex items-center gap-3 mb-6">
-                    <Trophy className="h-6 w-6 text-gold" />
+                    <Trophy className="h-6 w-6 text-magenta" />
                     <h3 className="font-display font-bold text-xl sm:text-2xl text-foreground">
                       Statistiques individuelles
                     </h3>
@@ -427,7 +427,7 @@ const Equipe = () => {
                   <div className="p-4 rounded-xl bg-muted/50">
                     <p className="text-xs text-muted-foreground font-sport uppercase tracking-wide mb-1">Joueur préféré</p>
                     <p className="font-sport text-foreground flex items-center gap-2">
-                      <Star className="h-4 w-4 text-gold" />
+                      <Star className="h-4 w-4 text-magenta" />
                       {selected.joueur_prefere}
                     </p>
                   </div>

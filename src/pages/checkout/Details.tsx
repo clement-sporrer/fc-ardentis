@@ -101,7 +101,7 @@ export default function CheckoutDetails() {
           <div className="container max-w-4xl mx-auto px-4 text-center relative z-10 pt-24 sm:pt-28 pb-16">
             <h1 className="font-display font-bold text-3xl text-white mb-4">Aucun article</h1>
             <p className="text-white/70 font-sport mb-6">Ajoutez d'abord des produits à votre panier.</p>
-            <Button asChild variant="gold" size="xl" className="rounded-full">
+            <Button asChild variant="magenta" size="xl" className="rounded-full">
               <Link to="/shop">Retour à la boutique</Link>
             </Button>
           </div>
@@ -120,13 +120,13 @@ export default function CheckoutDetails() {
         
         <div className="container max-w-6xl mx-auto px-4 sm:px-6 relative z-10 text-center">
           <div className="flex items-center justify-center gap-4 mb-4 animate-rise-up">
-            <span className="h-px w-12 bg-gradient-to-r from-transparent to-gold" />
-            <CreditCard className="h-6 w-6 text-gold" />
-            <span className="h-px w-12 bg-gradient-to-l from-transparent to-gold" />
+            <span className="h-px w-12 bg-gradient-to-r from-transparent to-magenta" />
+            <CreditCard className="h-6 w-6 text-magenta" />
+            <span className="h-px w-12 bg-gradient-to-l from-transparent to-magenta" />
           </div>
           
           <h1 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl text-white mb-2 animate-rise-up" style={{ animationDelay: "100ms" }}>
-            <span className="text-gradient-gold">Finaliser</span> la commande
+            <span className="text-gradient-magenta">Finaliser</span> la commande
           </h1>
           
           <p className="text-white/70 font-sport animate-rise-up" style={{ animationDelay: "200ms" }}>
@@ -211,7 +211,7 @@ export default function CheckoutDetails() {
                     <Button
                       type="submit"
                       disabled={!canSubmit}
-                      variant="gold"
+                      variant="magenta"
                       size="xl"
                       className="rounded-full font-display"
                     >
