@@ -58,10 +58,21 @@ export default function Shop() {
           return;
         }
 
-        const res = await fetch(url);
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-        }
+      // Fetch avec gestion explicite des redirections et cache
+      const res = await fetch(url, { 
+        redirect: 'follow',
+        cache: 'no-store',
+        credentials: 'omit'
+      });
+      
+      // Vérifier si la requête a été redirigée
+      if (res.redirected) {
+        console.log('✅ Request redirected to:', res.url);
+      }
+      
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      }
         const raw = stripBOM(await res.text());
         if (!raw || raw.trim().length === 0) {
           throw new Error("Réponse vide du serveur");

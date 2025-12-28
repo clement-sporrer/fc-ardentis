@@ -16,18 +16,27 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
-// Lazy load - secondary pages
-const Equipe = lazy(() => import("./pages/Equipe"));
-const Calendrier = lazy(() => import("./pages/Calendrier"));
-const Contacts = lazy(() => import("./pages/Contacts"));
-const Rejoindre = lazy(() => import("./pages/Rejoindre"));
-const Shop = lazy(() => import("./pages/Shop"));
-const ProductPage = lazy(() => import("./pages/shop/[slug]"));
-const Checkout = lazy(() => import("./pages/Checkout"));
-const CheckoutDetails = lazy(() => import("./pages/checkout/Details"));
-const CheckoutSuccess = lazy(() => import("./pages/checkout/Success"));
-const CheckoutCancel = lazy(() => import("./pages/checkout/Cancel"));
-const CheckoutFailed = lazy(() => import("./pages/checkout/Failed"));
+// Lazy load - secondary pages with error handling
+const lazyWithErrorHandling = (importFn: () => Promise<any>) => {
+  return lazy(() => 
+    importFn().catch((error) => {
+      console.error("Failed to load module:", error);
+      throw error;
+    })
+  );
+};
+
+const Equipe = lazyWithErrorHandling(() => import("./pages/Equipe"));
+const Calendrier = lazyWithErrorHandling(() => import("./pages/Calendrier"));
+const Contacts = lazyWithErrorHandling(() => import("./pages/Contacts"));
+const Rejoindre = lazyWithErrorHandling(() => import("./pages/Rejoindre"));
+const Shop = lazyWithErrorHandling(() => import("./pages/Shop"));
+const ProductPage = lazyWithErrorHandling(() => import("./pages/shop/[slug]"));
+const Checkout = lazyWithErrorHandling(() => import("./pages/Checkout"));
+const CheckoutDetails = lazyWithErrorHandling(() => import("./pages/checkout/Details"));
+const CheckoutSuccess = lazyWithErrorHandling(() => import("./pages/checkout/Success"));
+const CheckoutCancel = lazyWithErrorHandling(() => import("./pages/checkout/Cancel"));
+const CheckoutFailed = lazyWithErrorHandling(() => import("./pages/checkout/Failed"));
 
 const queryClient = new QueryClient({
   defaultOptions: {

@@ -8,7 +8,7 @@ import { useCart } from "@/contexts/CartContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ShoppingBag, Check, Ruler, Package, AlertCircle } from "lucide-react";
-import { toNumberSafe } from "@/lib/utils";
+import { toNumberSafe, stripBOM } from "@/lib/utils";
 
 type ProductType = "maillot" | "short";
 
@@ -62,11 +62,21 @@ export default function ProductPage() {
       setErrorMsg(null);
       setLoading(true);
       try {
-        const res = await fetch(buildCsvUrl());
+        const res = await fetch(buildCsvUrl(), { 
+          redirect: 'follow',
+          cache: 'no-store',
+          credentials: 'omit'
+        });
+        
+        if (res.redirected) {
+          console.log('✅ Request redirected to:', res.url);
+        }
+        
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}: ${res.statusText}`);
         }
-        const raw = await res.text();
+        
+        const raw = stripBOM(await res.text());
         if (!raw || raw.trim().length === 0) {
           throw new Error("Réponse vide du serveur");
         }

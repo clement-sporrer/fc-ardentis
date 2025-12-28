@@ -252,15 +252,26 @@ export default function Navigation() {
       {/* Mobile Menu */}
       <div
         id="mobile-menu"
-        className={`lg:hidden fixed inset-0 top-16 transition-all duration-500 ease-out ${
-          open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        className={`lg:hidden fixed inset-0 top-16 ${
+          open 
+            ? "pointer-events-auto" 
+            : "pointer-events-none"
         }`}
-        style={{
-          backgroundColor: open ? 'hsl(224, 47%, 11%)' : 'transparent',
-          backdropFilter: open ? 'blur(20px)' : 'none',
-        }}
       >
-        <nav className="container mx-auto px-6 py-8 flex flex-col h-full">
+        {/* Background - solid opaque background, only visibility changes */}
+        <div
+          className={`absolute inset-0 bg-secondary transition-opacity duration-500 ease-out ${
+            open ? "opacity-100" : "opacity-0"
+          }`}
+        />
+        
+        {/* Content */}
+        <nav 
+          className="relative container mx-auto px-6 py-8 flex flex-col h-full transition-opacity duration-500 ease-out"
+          style={{
+            opacity: open ? 1 : 0,
+          }}
+        >
           {/* Navigation Links */}
           <div className="flex-1 flex flex-col gap-2">
             {links.map((l, index) => (
