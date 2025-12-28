@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle, Users, Star, Trophy, Target } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AlertCircle, Users, Star, Trophy, Target, Filter, ArrowUpDown } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 /** ====== URL CSV publié ====== */
@@ -112,6 +113,8 @@ const Equipe = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<Player | null>(null);
+  const [filterPoste, setFilterPoste] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"matchs" | "buts" | "passes" | "none">("none");
 
   useEffect(() => {
     const load = async () => {
@@ -209,6 +212,43 @@ const Equipe = () => {
     }
     return g;
   }, [players]);
+
+  // Filter and sort players for stats table
+  const filteredAndSortedPlayers = useMemo(() => {
+    let filtered = [...players];
+    
+    // Filter by poste
+    if (filterPoste !== "all") {
+      filtered = filtered.filter((p) => posteToFr(p.poste) === filterPoste);
+    }
+    
+    // Sort
+    if (sortBy !== "none") {
+      filtered.sort((a, b) => {
+        let aVal = 0;
+        let bVal = 0;
+        
+        switch (sortBy) {
+          case "matchs":
+            aVal = a.matchs_joues ?? 0;
+            bVal = b.matchs_joues ?? 0;
+            break;
+          case "buts":
+            aVal = a.buts ?? 0;
+            bVal = b.buts ?? 0;
+            break;
+          case "passes":
+            aVal = a.passes_decisives ?? 0;
+            bVal = b.passes_decisives ?? 0;
+            break;
+        }
+        
+        return aVal - bVal; // Ascending order (croissant)
+      });
+    }
+    
+    return filtered;
+  }, [players, filterPoste, sortBy]);
 
   return (
     <div className="min-h-screen">
@@ -327,11 +367,46 @@ const Equipe = () => {
               {/* Stats Table */}
               <Card className="premium-card overflow-hidden">
                 <CardContent className="p-6 sm:p-8">
-                  <div className="flex items-center gap-3 mb-6">
-                    <Trophy className="h-6 w-6 text-magenta" />
-                    <h3 className="font-display font-bold text-xl sm:text-2xl text-foreground">
-                      Statistiques individuelles
-                    </h3>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                    <div className="flex items-center gap-3">
+                      <Trophy className="h-6 w-6 text-magenta" />
+                      <h3 className="font-display font-bold text-xl sm:text-2xl text-foreground">
+                        Statistiques individuelles
+                      </h3>
+                    </div>
+                    
+                    {/* Filters and Sort */}
+                    <div className="flex flex-wrap items-center gap-3">
+                      {/* Poste Filter */}
+                      <div className="flex items-center gap-2">
+                        <Filter className="h-4 w-4 text-muted-foreground" />
+                        <select
+                          value={filterPoste}
+                          onChange={(e) => setFilterPoste(e.target.value)}
+                          className="px-3 py-1.5 rounded-lg border border-border bg-background text-foreground font-sport text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                        >
+                          <option value="all">Tous les postes</option>
+                          {ORDER_SECTIONS.map((poste) => (
+                            <option key={poste} value={poste}>{poste}</option>
+                          ))}
+                        </select>
+                      </div>
+                      
+                      {/* Sort */}
+                      <div className="flex items-center gap-2">
+                        <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+                        <select
+                          value={sortBy}
+                          onChange={(e) => setSortBy(e.target.value as "matchs" | "buts" | "passes" | "none")}
+                          className="px-3 py-1.5 rounded-lg border border-border bg-background text-foreground font-sport text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                        >
+                          <option value="none">Trier par...</option>
+                          <option value="matchs">Matchs joués</option>
+                          <option value="buts">Buts</option>
+                          <option value="passes">Passes décisives</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
                   
                   <div className="overflow-x-auto -mx-6 px-6">
@@ -349,21 +424,29 @@ const Equipe = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {players.map((p, idx) => (
-                          <tr 
-                            key={`row-${idx}`} 
-                            className="border-b border-border/10 hover:bg-muted/50 transition-colors"
-                          >
-                            <td className="py-3 px-3 font-sport font-medium">{p.numero ?? "—"}</td>
-                            <td className="py-3 px-3 font-sport font-medium">
-                              {(p.prenom || "").trim()} {(p.nom || "").trim()}
+                        {filteredAndSortedPlayers.length === 0 ? (
+                          <tr>
+                            <td colSpan={6} className="py-8 text-center text-muted-foreground font-sport">
+                              Aucun joueur trouvé avec ces critères
                             </td>
-                            <td className="py-3 px-3 font-sport text-muted-foreground">{posteToFr(p.poste)}</td>
-                            <td className="text-center py-3 px-3 font-sport-condensed font-bold">{p.matchs_joues ?? 0}</td>
-                            <td className="text-center py-3 px-3 font-sport-condensed font-bold text-primary">{p.buts ?? 0}</td>
-                            <td className="text-center py-3 px-3 font-sport-condensed font-bold text-accent">{p.passes_decisives ?? 0}</td>
                           </tr>
-                        ))}
+                        ) : (
+                          filteredAndSortedPlayers.map((p, idx) => (
+                            <tr 
+                              key={`row-${idx}`} 
+                              className="border-b border-border/10 hover:bg-muted/50 transition-colors"
+                            >
+                              <td className="py-3 px-3 font-sport font-medium">{p.numero ?? "—"}</td>
+                              <td className="py-3 px-3 font-sport font-medium">
+                                {(p.prenom || "").trim()} {(p.nom || "").trim()}
+                              </td>
+                              <td className="py-3 px-3 font-sport text-muted-foreground">{posteToFr(p.poste)}</td>
+                              <td className="text-center py-3 px-3 font-sport-condensed font-bold">{p.matchs_joues ?? 0}</td>
+                              <td className="text-center py-3 px-3 font-sport-condensed font-bold text-primary">{p.buts ?? 0}</td>
+                              <td className="text-center py-3 px-3 font-sport-condensed font-bold text-accent">{p.passes_decisives ?? 0}</td>
+                            </tr>
+                          ))
+                        )}
                       </tbody>
                     </table>
                   </div>

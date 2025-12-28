@@ -333,7 +333,7 @@ const Index = () => {
             </div>
 
             {/* Schedule Card */}
-            <div className="glass rounded-3xl p-6 sm:p-8 reveal-on-scroll hover-lift" style={{ transitionDelay: "300ms" }}>
+            <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 sm:p-8 border border-white/20 reveal-on-scroll hover-lift" style={{ transitionDelay: "300ms" }}>
               <div className="flex items-center gap-4 mb-6">
                 <div className="p-3 rounded-2xl bg-primary/20">
                   <Calendar className="h-7 w-7 text-primary" />
@@ -343,19 +343,19 @@ const Index = () => {
                 </h3>
               </div>
               <div className="space-y-4 sm:space-y-5">
-                <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
+                <div className="p-5 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-sm">
                   <p className="text-magenta font-display font-bold mb-2 text-lg">
                     Entraînements
                   </p>
-                  <p className="text-white/70 font-sport">
+                  <p className="text-white/90 font-sport text-base">
                     Dimanche à 11h • Gennevilliers
                   </p>
                 </div>
-                <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
+                <div className="p-5 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-sm">
                   <p className="text-accent font-display font-bold mb-2 text-lg">
                     Matchs officiels
                   </p>
-                  <p className="text-white/70 font-sport">
+                  <p className="text-white/90 font-sport text-base">
                     Lundi ou mercredi • Région parisienne
                   </p>
                 </div>
@@ -365,7 +365,7 @@ const Index = () => {
                 className="inline-flex items-center gap-2 mt-6 text-magenta hover:text-white font-sport font-medium transition-colors group"
               >
                 Plus d'infos sur la page Contacts
-                <span className="group-hover:translate-x-1 transition-transform">→</span>
+                <span className="group-hover:translate-x-1 transition-transform duration-300">→</span>
               </Link>
             </div>
           </div>
