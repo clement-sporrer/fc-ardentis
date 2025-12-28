@@ -193,7 +193,9 @@ const Calendrier = () => {
     };
 
     fetchEvents();
-    const interval = setInterval(fetchEvents, 60_000);
+    // Refresh events every 5 minutes instead of 60s to reduce unnecessary requests
+    // Data changes rarely - manual refresh available via "Aujourd'hui" button
+    const interval = setInterval(fetchEvents, 5 * 60_000);
     return () => clearInterval(interval);
   }, []);
 

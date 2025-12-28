@@ -99,14 +99,16 @@ The `/api` directory is automatically detected. Ensure:
 
 ### Frontend Variables (VITE_*)
 
-| Variable | Description |
-|----------|-------------|
-| `VITE_SHEET_PRODUCTS_CSV_URL` | Products CSV for frontend |
-| `VITE_GOOGLE_SHEET_TEAM_CSV_URL` | Team CSV URL |
-| `VITE_GOOGLE_SHEET_EVENTS_CSV_URL` | Events CSV URL |
-| `VITE_SHEET_STANDINGS_CSV_URL` | Standings CSV URL |
-| `VITE_GOOGLE_PHOTOS_ALBUM_SHARE_URL` | Photo album URL |
-| `VITE_MAPBOX_ACCESS_TOKEN` | Mapbox API token |
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `VITE_SHEET_PRODUCTS_CSV_URL` | Products CSV for frontend shop | Yes |
+| `VITE_GOOGLE_SHEET_TEAM_CSV_URL` | Team CSV URL | Yes |
+| `VITE_GOOGLE_SHEET_EVENTS_CSV_URL` | Events/calendar CSV URL | Yes |
+| `VITE_SHEET_STANDINGS_CSV_URL` | League standings CSV URL | Optional |
+| `VITE_JOIN_WEBHOOK_URL` | Webhook URL for join form submissions | Yes |
+| `VITE_GOOGLE_PHOTOS_ALBUM_SHARE_URL` | Photo album URL (placeholder) | No |
+
+> **Note**: Legacy fallback variables (`VITE_TEAM_CSV_URL`, `VITE_SHEET_TEAM_CSV_URL`) are supported but deprecated. Use the primary names above.
 
 ### Setting Variables in Vercel
 

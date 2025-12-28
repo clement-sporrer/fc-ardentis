@@ -45,15 +45,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       if (orderId) {
         const token = process.env.SHEET_APP_TOKEN || process.env.APP_TOKEN || "";
-        await fetch(sheetUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "update_status",
-            data: { order_id: orderId, payment_status: "paid", stripe_session_id: paymentIntent || "" },
-            token,
-          }),
-        });
+        // Add timeout to prevent hanging on slow Apps Script responses
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 10000);
+        try {
+          await fetch(sheetUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "update_status",
+              data: { order_id: orderId, payment_status: "paid", stripe_session_id: paymentIntent || "" },
+              token,
+            }),
+            signal: controller.signal,
+          });
+        } finally {
+          clearTimeout(timeout);
+        }
       }
     }
 
