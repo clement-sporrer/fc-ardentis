@@ -223,7 +223,13 @@ export default function Navigation() {
           <Button
             variant={showTransparent ? "glass" : "outline"}
             size="icon"
-            className="h-12 w-12 rounded-full"
+            className={`h-12 w-12 rounded-full transition-all duration-300 ${
+              open 
+                ? showTransparent 
+                  ? "bg-white/20 backdrop-blur-md border-white/30" 
+                  : "bg-primary text-primary-foreground border-primary"
+                : ""
+            }`}
             aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
             aria-expanded={open}
             aria-controls="mobile-menu"
