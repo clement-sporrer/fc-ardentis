@@ -74,38 +74,43 @@ export default function Shop() {
         throw new Error(`HTTP ${res.status}: ${res.statusText}`);
       }
         const raw = stripBOM(await res.text());
+        console.log('📄 CSV length:', raw.length, '| First 200 chars:', raw.substring(0, 200));
+        
         if (!raw || raw.trim().length === 0) {
           throw new Error("Réponse vide du serveur");
         }
         const lines = raw.replace(/\r/g, "").split("\n").filter(Boolean);
+        console.log('📊 Lines count:', lines.length, '| Header:', lines[0]?.substring(0, 100));
 
         if (lines.length < 2) {
+          console.warn('⚠️ No data rows in CSV');
           setProducts([]);
           setLoading(false);
           return;
         }
 
-        const items: Product[] = lines
-          .slice(1)
-          .map((line) => {
-            const v = parseCSVLine(line, ",");
-            if (v.length < 11) return null;
+        const allItems = lines.slice(1).map((line, idx) => {
+          const v = parseCSVLine(line, ",");
+          console.log(`📝 Row ${idx + 1}: ${v.length} cols | ID="${v[0]}" | Active="${v[9]}" | Name="${v[1]?.substring(0, 20)}"`);
+          if (v.length < 11) return null;
 
-            return {
-              id: (v[0] || "").trim().toLowerCase(),
-              name: (v[1] || "").trim(),
-              type: ((v[2] || "").trim().toLowerCase() as ProductType) || "maillot",
-              price_eur: toNumberSafe(v[3], 0),
-              image1: v[4] || "",
-              image2: v[5] || "",
-              image3: v[6] || "",
-              image4: v[7] || "",
-              size_guide_url: v[8] || "",
-              active: (v[9] || "").toLowerCase() === "true",
-              soldout: (v[10] || "").toLowerCase() === "true",
-            } as Product;
-          })
-          .filter((p): p is Product => p !== null && p.active && !!p.id);
+          return {
+            id: (v[0] || "").trim().toLowerCase(),
+            name: (v[1] || "").trim(),
+            type: ((v[2] || "").trim().toLowerCase() as ProductType) || "maillot",
+            price_eur: toNumberSafe(v[3], 0),
+            image1: v[4] || "",
+            image2: v[5] || "",
+            image3: v[6] || "",
+            image4: v[7] || "",
+            size_guide_url: v[8] || "",
+            active: (v[9] || "").toLowerCase() === "true",
+            soldout: (v[10] || "").toLowerCase() === "true",
+          } as Product;
+        });
+
+        const items = allItems.filter((p): p is Product => p !== null && p.active && !!p.id);
+        console.log('✅ Products parsed:', allItems.length, '| Active:', items.length);
 
         setProducts(items);
       } catch (err) {
