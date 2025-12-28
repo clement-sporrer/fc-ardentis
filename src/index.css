@@ -33,7 +33,7 @@
     /* Magenta - Premium Touch (#e7c1d6 = hsl(327 44% 83%)) */
     --magenta: 327 44% 83%;
     --magenta-dark: 327 50% 70%;
-    --magenta-foreground: 224 47% 11%;
+    --magenta-foreground: 0 0% 100%;
 
     /* UI Colors */
     --card: 0 0% 100%;
