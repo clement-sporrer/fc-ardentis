@@ -51,7 +51,7 @@ const Footer = () => {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/15 border border-white/10 transition-all duration-300 group"
             >
               <span className="text-xs font-sport font-medium text-white/80">Membre CFL Paris</span>
-              <ArrowRight className="h-3 w-3 text-magenta group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="h-3 w-3 text-magenta group-hover:translate-x-0.5 transition-transform duration-300 flex-shrink-0" aria-hidden="true" />
             </a>
           </div>
 

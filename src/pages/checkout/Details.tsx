@@ -229,7 +229,7 @@ export default function CheckoutDetails() {
                     </Button>
                     <Button asChild variant="outline" className="rounded-full">
                       <Link to="/checkout">
-                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        <ArrowLeft className="h-4 w-4 mr-2 flex-shrink-0" aria-hidden="true" />
                         Retour au panier
                       </Link>
                     </Button>

@@ -66,7 +66,7 @@ const NotFound = () => {
           >
             <Button asChild variant="glass" size="lg" className="rounded-full">
               <Link to="/equipe">
-                <ArrowLeft className="h-4 w-4 mr-2" />
+                <ArrowLeft className="h-4 w-4 mr-2 flex-shrink-0" aria-hidden="true" />
                 Notre équipe
               </Link>
             </Button>

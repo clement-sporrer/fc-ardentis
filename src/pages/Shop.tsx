@@ -215,7 +215,7 @@ export default function Shop() {
                       {/* Hover overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-6">
                         <span className="text-white font-sport text-sm flex items-center gap-2">
-                          Voir le produit <ArrowRight className="h-4 w-4" />
+                          Voir le produit <ArrowRight className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                         </span>
                       </div>
                     </div>

@@ -271,13 +271,14 @@ export default function Navigation() {
                   transform: open ? "translateX(0)" : "translateX(-30px)",
                 }}
               >
-                <span className="flex-1">{l.label}</span>
+                <span className="flex-1 min-w-0">{l.label}</span>
                 <ChevronRight
-                  className={`h-5 w-5 transition-all duration-300 flex-shrink-0 ml-3 ${
+                  className={`h-5 w-5 transition-all duration-300 flex-shrink-0 ml-4 ${
                     isActive(l.path) 
-                      ? "text-primary translate-x-1" 
-                      : "text-white/60 group-hover:text-primary group-hover:translate-x-1"
+                      ? "text-primary translate-x-0.5" 
+                      : "text-white/70 group-hover:text-primary group-hover:translate-x-0.5"
                   }`}
+                  aria-hidden="true"
                 />
               </Link>
             ))}

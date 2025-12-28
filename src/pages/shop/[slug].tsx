@@ -189,7 +189,7 @@ export default function ProductPage() {
             to="/shop" 
             className="inline-flex items-center gap-2 text-white/70 hover:text-white font-sport text-sm transition-colors mb-4"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
             Retour à la boutique
           </Link>
           <h1 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl text-white">
@@ -394,7 +394,7 @@ export default function ProductPage() {
               className="rounded-full"
               onClick={() => { setOpenAdded(false); navigate("/shop"); }}
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <ArrowLeft className="h-4 w-4 mr-2 flex-shrink-0" aria-hidden="true" />
               Continuer mes achats
             </Button>
             <Button 

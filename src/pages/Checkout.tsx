@@ -170,7 +170,7 @@ export default function Checkout() {
                   className="w-full sm:w-auto rounded-full font-display"
                 >
                   Passer la commande
-                  <ArrowRight className="h-5 w-5 ml-2" />
+                  <ArrowRight className="h-5 w-5 ml-2 flex-shrink-0" aria-hidden="true" />
                 </Button>
               </div>
             </CardContent>

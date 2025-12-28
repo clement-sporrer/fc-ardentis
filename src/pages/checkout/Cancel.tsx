@@ -43,7 +43,7 @@ export default function CheckoutCancel() {
           >
             <Button asChild variant="magenta" size="xl" className="rounded-full font-display">
               <Link to="/checkout">
-                <ArrowLeft className="h-5 w-5 mr-2" />
+                <ArrowLeft className="h-5 w-5 mr-2 flex-shrink-0" aria-hidden="true" />
                 Retour au panier
               </Link>
             </Button>

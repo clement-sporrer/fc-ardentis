@@ -378,7 +378,7 @@ const Calendrier = () => {
                         onClick={() => navigateMonth("prev")}
                         className="rounded-xl hover:bg-primary hover:text-white hover:border-primary"
                       >
-                        <ChevronLeft className="h-5 w-5" />
+                        <ChevronLeft className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
                       </Button>
 
                       <div className="text-center">
@@ -401,7 +401,7 @@ const Calendrier = () => {
                         onClick={() => navigateMonth("next")}
                         className="rounded-xl hover:bg-primary hover:text-white hover:border-primary"
                       >
-                        <ChevronRight className="h-5 w-5" />
+                        <ChevronRight className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
                       </Button>
                     </div>
 
