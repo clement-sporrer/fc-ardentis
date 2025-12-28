@@ -1,258 +1,457 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { MapPin, Calendar, Users, Heart, Trophy, Handshake, ChevronDown } from "lucide-react";
-import { useEffect, useState, useRef } from "react";
-import MapboxMap from "../components/MapboxMap";
+import { MapPin, Calendar, Users, Heart, Trophy, Handshake, ChevronDown, Star, Zap } from "lucide-react";
+import { useEffect, useState, useRef, useCallback } from "react";
 
-// Configuration parameters for easy editing
 const GOOGLE_PHOTOS_ALBUM_SHARE_URL = import.meta.env.VITE_GOOGLE_PHOTOS_ALBUM_SHARE_URL || "";
+
 const Index = () => {
   const [photosLoaded, setPhotosLoaded] = useState(false);
   const valuesRef = useRef<HTMLDivElement>(null);
   const presentationRef = useRef<HTMLDivElement>(null);
   const infoRef = useRef<HTMLDivElement>(null);
   const photoRef = useRef<HTMLDivElement>(null);
-  const scrollToPresentation = () => {
-    presentationRef.current?.scrollIntoView({
-      behavior: 'smooth'
-    });
-  };
-  const scrollToInfo = () => {
-    infoRef.current?.scrollIntoView({
-      behavior: 'smooth'
-    });
-  };
-  const scrollToPhotos = () => {
-    photoRef.current?.scrollIntoView({
-      behavior: 'smooth'
-    });
-  };
+
+  const scrollToSection = useCallback((ref: React.RefObject<HTMLDivElement | null>) => {
+    ref.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
   useEffect(() => {
-    // Simple check to see if Google Photos album is configured
     if (GOOGLE_PHOTOS_ALBUM_SHARE_URL) {
       setPhotosLoaded(true);
     }
 
-    // Reveal on scroll effect for values
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('revealed');
-        }
-      });
-    }, {
-      threshold: 0.1
-    });
-    const valueCards = valuesRef.current?.querySelectorAll('.value-card');
-    valueCards?.forEach(card => observer.observe(card));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("revealed");
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+    );
+
+    // Observe all reveal elements
+    document.querySelectorAll(".reveal-on-scroll").forEach((el) => observer.observe(el));
+
     return () => observer.disconnect();
   }, []);
-  const values = [{
-    icon: Users,
-    title: "Cohésion",
-    description: "L'esprit d'équipe avant tout"
-  }, {
-    icon: Handshake,
-    title: "Respect",
-    description: "Respect des coéquipiers et adversaires"
-  }, {
-    icon: Trophy,
-    title: "Performance",
-    description: "Excellence sur et en dehors du terrain"
-  }];
-  return <>
-      {/* Modern Hero Section - Full Space minus navbar (~64px) */}
-      <section className="bg-gradient-hero px-4 md:px-6 text-center relative overflow-hidden min-h-[calc(100vh-64px)] flex items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
-        <div className="container max-w-5xl mx-auto relative z-10 flex flex-col items-center justify-center py-12 md:py-0">
-          <div className="animate-fade-in flex flex-col items-center">
-            <img src="/assets/logo.png" alt="FC Ardentis Logo" className="h-32 md:h-48 w-auto object-contain mx-auto mb-4 drop-shadow-2xl animate-float" />
-            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-sport-condensed font-bold text-white leading-tight mb-2">
-              FC Ardentis
-            </h1>
-            <p className="text-xl md:text-2xl lg:text-3xl text-white/80 font-sport font-medium mb-8 md:mb-10">
+
+  const values = [
+    {
+      icon: Users,
+      title: "Cohésion",
+      description: "L'esprit d'équipe avant tout. Ensemble, nous sommes plus forts.",
+      gradient: "from-primary to-primary-hover",
+    },
+    {
+      icon: Handshake,
+      title: "Respect",
+      description: "Respect des coéquipiers, adversaires et du jeu lui-même.",
+      gradient: "from-accent to-pink-400",
+    },
+    {
+      icon: Trophy,
+      title: "Excellence",
+      description: "Viser l'excellence sur et en dehors du terrain.",
+      gradient: "from-gold to-gold-dark",
+    },
+  ];
+
+  const stats = [
+    { value: "2025", label: "Année de fondation", icon: Star },
+    { value: "11", label: "Joueurs actifs", icon: Users },
+    { value: "CFL", label: "Compétition", icon: Trophy },
+  ];
+
+  return (
+    <>
+      {/* Hero Section - Full Viewport */}
+      <section data-hero="true" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Background with gradient mesh */}
+        <div className="absolute inset-0 bg-gradient-hero" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-accent/10 via-transparent to-transparent" />
+        
+        {/* Animated gradient orbs */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-premium-float" />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-accent/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />
+        
+        {/* Content */}
+        <div className="container max-w-6xl mx-auto px-4 sm:px-6 relative z-10 text-center pt-20 pb-10">
+          {/* Logo with glow effect */}
+          <div className="relative inline-block mb-6 sm:mb-8 animate-rise-up">
+            <div className="absolute inset-0 bg-gold/30 blur-3xl rounded-full scale-150 animate-pulse-glow" />
+            <img
+              src="/assets/logo.png"
+              alt="FC Ardentis Logo"
+              className="relative h-32 sm:h-40 md:h-52 lg:h-60 w-auto object-contain mx-auto drop-shadow-2xl"
+            />
+          </div>
+          
+          {/* Title */}
+          <h1 
+            className="font-display font-bold text-white leading-none mb-4 animate-rise-up"
+            style={{ animationDelay: "100ms" }}
+          >
+            <span className="block text-display-sm sm:text-display-md md:text-display-lg lg:text-display-xl">
+              FC ARDENTIS
+            </span>
+          </h1>
+          
+          {/* Subtitle with gold accent */}
+          <div 
+            className="flex items-center justify-center gap-4 mb-8 sm:mb-10 animate-rise-up"
+            style={{ animationDelay: "200ms" }}
+          >
+            <span className="h-px w-12 bg-gradient-to-r from-transparent to-gold" />
+            <p className="text-lg sm:text-xl md:text-2xl text-gold font-sport font-medium tracking-wider uppercase">
               Since 2025
             </p>
+            <span className="h-px w-12 bg-gradient-to-l from-transparent to-gold" />
           </div>
-          <div className="flex flex-col sm:flex-row gap-4 md:gap-5 justify-center mb-8 md:mb-12 w-full max-w-md sm:max-w-none">
-            <Button asChild size="lg" className="font-sport rounded-full text-white text-lg md:text-xl px-10 md:px-14 py-5 md:py-6 bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary-hover))] hover-lift">
+
+          {/* CTA Buttons */}
+          <div 
+            className="flex flex-col sm:flex-row gap-4 sm:gap-5 justify-center mb-10 sm:mb-12 animate-rise-up"
+            style={{ animationDelay: "300ms" }}
+          >
+            <Button
+              asChild
+              variant="gold"
+              size="xl"
+              className="font-display text-lg sm:text-xl px-8 sm:px-12 rounded-full"
+            >
               <Link to="/rejoindre">Nous rejoindre</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="font-sport rounded-full border-2 border-white text-white hover:bg-white hover:text-primary text-lg md:text-xl px-10 md:px-14 py-5 md:py-6 hover-lift transition-sport">
+            <Button
+              asChild
+              variant="glass"
+              size="xl"
+              className="font-display text-lg sm:text-xl px-8 sm:px-12 rounded-full"
+            >
               <Link to="/equipe">Découvrir l'équipe</Link>
             </Button>
           </div>
-          <p className="text-sm md:text-base lg:text-lg text-white/70 font-sport max-w-2xl mx-auto mt-2 px-4">
-            Membres de la Commission de Football Loisir (<a href="https://www.cflparis.fr/" target="_blank" rel="noopener noreferrer" className="text-accent hover:text-white underline font-bold transition-sport">CFL</a> — compétition parisienne)
+
+          {/* CFL Badge */}
+          <p 
+            className="text-sm sm:text-base text-white/60 font-sport max-w-xl mx-auto animate-rise-up"
+            style={{ animationDelay: "400ms" }}
+          >
+            Membres de la{" "}
+            <a
+              href="https://www.cflparis.fr/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gold hover:text-white font-semibold underline underline-offset-2 transition-colors"
+            >
+              Commission de Football Loisir
+            </a>
+            {" "}— Compétition parisienne
           </p>
         </div>
-        
-        {/* Navigation Arrow */}
-        <button onClick={scrollToPresentation} className="absolute bottom-2 left-1/2 -translate-x-1/2 text-white/80 hover:text-white transition-colors animate-bounce cursor-pointer group" aria-label="Scroll to next section">
-          <ChevronDown className="h-10 w-10 md:h-12 md:w-12 group-hover:scale-110 transition-transform" />
+
+        {/* Scroll indicator */}
+        <button
+          onClick={() => scrollToSection(presentationRef)}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/50 hover:text-white transition-all duration-300 group cursor-pointer p-4"
+          aria-label="Scroll to next section"
+        >
+          <div className="flex flex-col items-center gap-2">
+            <span className="text-xs font-sport uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Explorer</span>
+            <ChevronDown className="h-8 w-8 animate-bounce" />
+          </div>
         </button>
       </section>
 
-      {/* Modern Presentation */}
-      <section ref={presentationRef} className="min-h-[calc(100vh-64px)] py-16 md:py-20 px-4 md:px-6 bg-gradient-section relative flex items-center">
-        <div className="container max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl md:text-5xl font-sport-condensed font-bold text-foreground mb-10 md:mb-12 leading-tight animate-fade-in mx-0 px-[10px] lg:text-5xl my-[30px]">
-            Bienvenue au <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">FC Ardentis</span>
-          </h2>
-          
-          <div className="grid md:grid-cols-2 gap-8 md:gap-12 mb-12 md:mb-16 text-base md:text-lg lg:text-xl font-sport text-foreground/80 leading-relaxed max-w-5xl mx-auto px-0 my-[10px]">
-            <div className="bg-gradient-card p-6 md:p-8 rounded-2xl shadow-card hover-lift animate-slide-in-right px-[10px] py-[30px]">
-              <p className="text-lg">
-                Né de la passion commune pour le football, le FC Ardentis rassemble des joueurs de tous niveaux autour des valeurs de respect et d'excellence. Notre club offre un environnement bienveillant pour progresser.
-              </p>
-            </div>
-            <div style={{
-            animationDelay: '0.2s'
-          }} className="bg-gradient-card p-6 md:p-8 rounded-2xl shadow-card hover-lift animate-slide-in-right py-0 px-[10px]">
-              <p className="my-0 text-lg">
-                Que vous soyez débutant ou expérimenté, notre équipe vous accueille 
-                avec enthousiasme. Rejoignez notre famille sportive et vivez 
-                l'aventure collective du football en région parisienne.
-              </p>
-            </div>
-          </div>
-
-          {/* Modern Values Cards with Reveal Effect */}
-          <div ref={valuesRef} className="grid md:grid-cols-3 gap-8 px-0 mx-0 py-[25px] my-0">
-            {values.map((value, index) => <div key={value.title} style={{
-            transitionDelay: `${index * 150}ms`
-          }} className="value-card reveal-on-scroll bg-gradient-card p-8 rounded-2xl shadow-card border border-border/10 hover-lift group px-0 my-0 mx-0 py-[10px]">
-                <div className="bg-gradient-to-br from-primary to-accent p-4 rounded-full w-20 h-20 mx-auto mb-6 group-hover:shadow-glow group-hover:animate-float transition-sport">
-                  <value.icon className="h-12 w-12 text-white mx-auto" />
+      {/* Stats Section */}
+      <section className="py-8 sm:py-12 bg-secondary relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5" />
+        <div className="container max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
+          <div className="grid grid-cols-3 gap-4 sm:gap-8">
+            {stats.map((stat, index) => (
+              <div 
+                key={stat.label}
+                className="text-center reveal-on-scroll"
+                style={{ transitionDelay: `${index * 100}ms` }}
+              >
+                <div className="flex items-center justify-center mb-2">
+                  <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-gold mr-2" />
+                  <span className="font-sport-condensed font-bold text-2xl sm:text-4xl md:text-5xl text-white">
+                    {stat.value}
+                  </span>
                 </div>
-                <h3 className="text-2xl font-sport-condensed font-bold text-foreground mb-3">
-                  {value.title}
-                </h3>
-                <p className="text-muted-foreground font-sport text-lg">
-                  {value.description}
+                <p className="text-white/60 font-sport text-xs sm:text-sm uppercase tracking-wide">
+                  {stat.label}
                 </p>
-              </div>)}
+              </div>
+            ))}
           </div>
         </div>
-        
-        {/* Navigation Arrow */}
-        <button onClick={scrollToInfo} className="absolute bottom-2 left-1/2 -translate-x-1/2 text-foreground/60 hover:text-foreground transition-colors animate-bounce cursor-pointer group" aria-label="Scroll to next section">
-          <ChevronDown className="h-10 w-10 md:h-12 md:w-12 group-hover:scale-110 transition-transform" />
+      </section>
+
+      {/* Presentation Section */}
+      <section
+        ref={presentationRef}
+        className="min-h-screen py-16 sm:py-24 px-4 sm:px-6 bg-gradient-section relative flex items-center"
+      >
+        <div className="container max-w-6xl mx-auto">
+          {/* Section Title */}
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="font-display font-bold text-foreground leading-tight mb-4 reveal-on-scroll">
+              <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
+                Bienvenue au
+              </span>
+              <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-gradient mt-2">
+                FC Ardentis
+              </span>
+            </h2>
+            <p className="text-muted-foreground font-sport text-lg sm:text-xl max-w-2xl mx-auto reveal-on-scroll" style={{ transitionDelay: "100ms" }}>
+              Un club où passion et convivialité se rencontrent
+            </p>
+          </div>
+
+          {/* Presentation Cards */}
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-8 mb-16 sm:mb-20 max-w-5xl mx-auto">
+            <div className="premium-card p-6 sm:p-8 reveal-on-scroll" style={{ transitionDelay: "200ms" }}>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2.5 rounded-xl bg-primary/10">
+                  <Zap className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="font-display font-bold text-xl text-foreground">Notre ADN</h3>
+              </div>
+              <p className="text-muted-foreground font-sport text-base sm:text-lg leading-relaxed">
+                Né de la passion commune pour le football, le FC Ardentis rassemble des
+                joueurs de tous niveaux autour des valeurs de respect et d'excellence.
+                Notre club offre un environnement bienveillant pour progresser.
+              </p>
+            </div>
+            
+            <div className="premium-card p-6 sm:p-8 reveal-on-scroll" style={{ transitionDelay: "300ms" }}>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2.5 rounded-xl bg-accent/10">
+                  <Heart className="h-5 w-5 text-accent" />
+                </div>
+                <h3 className="font-display font-bold text-xl text-foreground">Rejoignez-nous</h3>
+              </div>
+              <p className="text-muted-foreground font-sport text-base sm:text-lg leading-relaxed">
+                Que vous soyez débutant ou expérimenté, notre équipe vous accueille avec
+                enthousiasme. Rejoignez notre famille sportive et vivez l'aventure
+                collective du football en région parisienne.
+              </p>
+            </div>
+          </div>
+
+          {/* Values Cards */}
+          <div ref={valuesRef} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {values.map((value, index) => (
+              <div
+                key={value.title}
+                className="group premium-card p-6 sm:p-8 text-center reveal-on-scroll"
+                style={{ transitionDelay: `${400 + index * 100}ms` }}
+              >
+                <div className={`bg-gradient-to-br ${value.gradient} p-4 rounded-2xl w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-5 sm:mb-6 shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300 flex items-center justify-center`}>
+                  <value.icon className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
+                </div>
+                <h3 className="font-display font-bold text-xl sm:text-2xl text-foreground mb-3">
+                  {value.title}
+                </h3>
+                <p className="text-muted-foreground font-sport text-sm sm:text-base">
+                  {value.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <button
+          onClick={() => scrollToSection(infoRef)}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-foreground/40 hover:text-foreground transition-all duration-300 group cursor-pointer p-4"
+          aria-label="Scroll to next section"
+        >
+          <ChevronDown className="h-8 w-8 animate-bounce" />
         </button>
       </section>
 
-      {/* Modern Info Section */}
-      <section ref={infoRef} className="min-h-[calc(100vh-64px)] py-16 md:py-20 px-4 md:px-6 bg-gradient-hero-alt relative flex items-center">
-        <div className="container max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-5xl font-sport-condensed font-bold text-secondary-foreground text-center mb-12 md:mb-16 animate-fade-in my-[30px] lg:text-5xl">
-            Infos <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">pratiques</span>
-          </h2>
-          
-          <div className="grid md:grid-cols-2 gap-8 md:gap-10 py-px my-[15px]">
-            {/* Enhanced Localisation */}
-            <div className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover-lift py-[20px]">
-              <div className="flex items-center gap-4 mb-6 my-[13px]">
-                <div className="bg-accent p-3 rounded-full">
-                  <MapPin className="h-8 w-8 text-white" />
+      {/* Info Section */}
+      <section
+        ref={infoRef}
+        className="min-h-screen py-16 sm:py-24 px-4 sm:px-6 bg-gradient-hero-alt relative flex items-center overflow-hidden"
+      >
+        {/* Background orbs */}
+        <div className="absolute top-1/3 right-0 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 left-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl" />
+        
+        <div className="container max-w-6xl mx-auto relative z-10">
+          {/* Section Title */}
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="font-display font-bold text-white leading-tight mb-4 reveal-on-scroll">
+              <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
+                Infos pratiques
+              </span>
+            </h2>
+            <div className="flex items-center justify-center gap-4 reveal-on-scroll" style={{ transitionDelay: "100ms" }}>
+              <span className="h-px w-16 bg-gradient-to-r from-transparent to-gold" />
+              <Star className="h-4 w-4 text-gold" />
+              <span className="h-px w-16 bg-gradient-to-l from-transparent to-gold" />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
+            {/* Location Card */}
+            <div className="glass rounded-3xl p-6 sm:p-8 reveal-on-scroll hover-lift" style={{ transitionDelay: "200ms" }}>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-3 rounded-2xl bg-accent/20">
+                  <MapPin className="h-7 w-7 text-accent" />
                 </div>
-                <h3 className="text-2xl font-sport-condensed font-bold text-secondary-foreground">
+                <h3 className="font-display font-bold text-2xl text-white">
                   Localisation
                 </h3>
               </div>
-              <div className="text-left md:text-center text-secondary-foreground/90 font-sport mb-6 text-lg space-y-1">
-                <p className="text-base">Entraînement à Gennevilliers.</p>
-                <p className="text-base">Match lundi ou mercredi en région parisienne.</p>
+              <div className="text-white/80 font-sport mb-6 text-base sm:text-lg space-y-2">
+                <p>Entraînement à <span className="text-gold font-semibold">Gennevilliers</span></p>
+                <p>Matchs en <span className="text-gold font-semibold">région parisienne</span></p>
               </div>
-              <div className="rounded-xl overflow-hidden shadow-elevated">
-                <iframe title="Carte — Gennevilliers" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d84044.0441929625!2d2.221!3d48.935!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66f5c8c8c8c8b%3A0x0000000000000000!2sGennevilliers!5e0!3m2!1sfr!2sfr!4v1757100498113!5m2!1sfr!2sfr" width="100%" height="240" style={{
-                border: 0
-              }} allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
+              <div className="rounded-2xl overflow-hidden shadow-elevated border border-white/10">
+                <iframe
+                  title="Carte — Gennevilliers"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d84044.0441929625!2d2.221!3d48.935!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66f5c8c8c8c8b%3A0x0000000000000000!2sGennevilliers!5e0!3m2!1sfr!2sfr!4v1757100498113!5m2!1sfr!2sfr"
+                  width="100%"
+                  height="200"
+                  className="sm:h-[250px]"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
               </div>
             </div>
 
-            {/* Enhanced Créneaux */}
-            <div className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover-lift mx-0 my-0">
-              <div className="flex items-center gap-4 mb-6 my-0">
-                <div className="bg-primary p-3 rounded-full">
-                  <Calendar className="h-8 w-8 text-white" />
+            {/* Schedule Card */}
+            <div className="glass rounded-3xl p-6 sm:p-8 reveal-on-scroll hover-lift" style={{ transitionDelay: "300ms" }}>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-3 rounded-2xl bg-primary/20">
+                  <Calendar className="h-7 w-7 text-primary" />
                 </div>
-                <h3 className="text-2xl font-sport-condensed font-bold text-secondary-foreground">
+                <h3 className="font-display font-bold text-2xl text-white">
                   Créneaux
                 </h3>
               </div>
-              {/* Removed duplicate description to avoid redundancy */}
-              <div className="space-y-6">
-                <div className="bg-white/5 p-6 rounded-xl border border-white/10 my-[30px]">
-                  <p className="text-accent font-sport-condensed font-bold mb-1">Entraînements</p>
-                  <p className="text-secondary-foreground/80 font-sport">Dimanche 11h • Gennevilliers</p>
+              <div className="space-y-4 sm:space-y-5">
+                <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
+                  <p className="text-gold font-display font-bold mb-2 text-lg">
+                    Entraînements
+                  </p>
+                  <p className="text-white/70 font-sport">
+                    Dimanche à 11h • Gennevilliers
+                  </p>
                 </div>
-                <div className="bg-white/5 p-6 rounded-xl border border-white/10">
-                  <p className="text-accent font-sport-condensed font-bold mb-1">Matchs</p>
-                  <p className="text-secondary-foreground/80 font-sport">Lundi ou mercredi • Région parisienne</p>
+                <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
+                  <p className="text-accent font-display font-bold mb-2 text-lg">
+                    Matchs officiels
+                  </p>
+                  <p className="text-white/70 font-sport">
+                    Lundi ou mercredi • Région parisienne
+                  </p>
                 </div>
               </div>
-              <Link to="/contacts" className="inline-block mt-6 text-accent hover:text-primary font-sport font-medium underline transition-sport">
-                Plus d'infos sur la page Contacts →
+              <Link
+                to="/contacts"
+                className="inline-flex items-center gap-2 mt-6 text-gold hover:text-white font-sport font-medium transition-colors group"
+              >
+                Plus d'infos sur la page Contacts
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
               </Link>
             </div>
           </div>
         </div>
-        
-        {/* Navigation Arrow */}
-        <button onClick={scrollToPhotos} className="absolute bottom-2 left-1/2 -translate-x-1/2 text-secondary-foreground/60 hover:text-secondary-foreground transition-colors animate-bounce cursor-pointer group" aria-label="Scroll to next section">
-          <ChevronDown className="h-10 w-10 md:h-12 md:w-12 group-hover:scale-110 transition-transform mx-0 px-0 py-0 my-0" />
+
+        {/* Scroll indicator */}
+        <button
+          onClick={() => scrollToSection(photoRef)}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/40 hover:text-white transition-all duration-300 group cursor-pointer p-4"
+          aria-label="Scroll to next section"
+        >
+          <ChevronDown className="h-8 w-8 animate-bounce" />
         </button>
       </section>
 
-      {/* Galerie photos */}
-      <section ref={photoRef} className="py-16 px-4 bg-background">
+      {/* Photo Gallery Section */}
+      <section ref={photoRef} className="py-16 sm:py-24 px-4 sm:px-6 bg-background">
         <div className="container max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-sport-condensed font-bold text-foreground mb-8 my-[30px] md:text-5xl">
+          <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl text-foreground mb-4 reveal-on-scroll">
             Galerie photos
           </h2>
-          
-          {photosLoaded && GOOGLE_PHOTOS_ALBUM_SHARE_URL ? <div className="bg-card p-8 rounded-lg shadow-card border border-border/20">
+          <p className="text-muted-foreground font-sport text-lg mb-8 reveal-on-scroll" style={{ transitionDelay: "100ms" }}>
+            Nos meilleurs moments capturés
+          </p>
+
+          {photosLoaded && GOOGLE_PHOTOS_ALBUM_SHARE_URL ? (
+            <div className="premium-card p-8 sm:p-10 reveal-on-scroll" style={{ transitionDelay: "200ms" }}>
               <p className="text-muted-foreground font-sport mb-4">
                 Intégration Google Photos à venir
               </p>
-              <p className="text-sm text-muted-foreground font-sport">
-                Album URL configuré : {GOOGLE_PHOTOS_ALBUM_SHARE_URL.substring(0, 50)}...
+              <p className="text-sm text-muted-foreground/60 font-sport">
+                Album URL configuré
               </p>
-            </div> : <div className="bg-card p-8 rounded-lg shadow-card border border-border/20 my-0 py-[10px]">
-              <Heart className="h-16 w-16 text-primary mx-auto mb-4" />
-              <p className="text-muted-foreground font-sport mb-2">
+            </div>
+          ) : (
+            <div className="premium-card p-8 sm:p-12 reveal-on-scroll" style={{ transitionDelay: "200ms" }}>
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mx-auto mb-6">
+                <Heart className="h-10 w-10 text-primary" />
+              </div>
+              <p className="text-muted-foreground font-sport mb-2 text-lg">
                 Galerie photos à venir
               </p>
-              <p className="text-sm text-muted-foreground font-sport">
-                Configurez VITE_GOOGLE_PHOTOS_ALBUM_SHARE_URL pour afficher automatiquement l'album
+              <p className="text-sm text-muted-foreground/60 font-sport max-w-sm mx-auto">
+                Configurez l'URL de l'album Google Photos pour afficher automatiquement vos souvenirs
               </p>
-            </div>}
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Modern CTA Section */}
-      <section className="py-16 md:py-20 px-4 md:px-6 bg-gradient-hero relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-        <div className="container max-w-6xl mx-auto text-center relative z-10">
-          <h2 className="text-2xl md:text-3xl font-sport-condensed font-bold text-primary-foreground mb-6 md:mb-8 leading-tight animate-fade-in my-0 lg:text-5xl">Prêt à rejoindre l'aventure ?   <br />
-            
+      {/* CTA Section */}
+      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-gradient-hero relative overflow-hidden">
+        {/* Background effects */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gold/5 rounded-full blur-3xl" />
+        
+        <div className="container max-w-4xl mx-auto text-center relative z-10">
+          <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white mb-6 reveal-on-scroll leading-tight">
+            Prêt à rejoindre<br />l'aventure ?
           </h2>
-          
-          <p className="text-base text-white/90 mb-10 md:mb-12 font-sport max-w-3xl mx-auto px-4 animate-fade-in my-[15px] md:text-xl">
-            Que vous souhaitiez jouer, soutenir ou simplement découvrir notre club,
+
+          <p className="text-base sm:text-lg md:text-xl text-white/70 mb-10 sm:mb-12 font-sport max-w-2xl mx-auto reveal-on-scroll" style={{ transitionDelay: "100ms" }}>
+            Que vous souhaitiez jouer, soutenir ou simplement découvrir notre club, 
             nous vous accueillons avec passion !
           </p>
-          
-          <div className="flex flex-col sm:flex-row gap-5 md:gap-6 justify-center w-full max-w-md sm:max-w-none mx-auto px-4">
-            <Button asChild variant="ctaMainWhite" size="lg" className="text-lg md:text-xl px-8 md:px-10 py-4 md:py-5 hover-lift">
+
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 justify-center reveal-on-scroll" style={{ transitionDelay: "200ms" }}>
+            <Button
+              asChild
+              variant="gold"
+              size="xl"
+              className="font-display text-lg sm:text-xl px-10 sm:px-14 rounded-full"
+            >
               <Link to="/rejoindre">Nous rejoindre</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white hover:text-primary text-lg md:text-xl px-8 md:px-10 py-4 md:py-5 hover-lift transition-sport">
+            <Button
+              asChild
+              variant="glass"
+              size="xl"
+              className="font-display text-lg sm:text-xl px-10 sm:px-14 rounded-full"
+            >
               <Link to="/equipe">Rencontrer l'équipe</Link>
             </Button>
           </div>
         </div>
       </section>
-    </>;
+    </>
+  );
 };
+
 export default Index;

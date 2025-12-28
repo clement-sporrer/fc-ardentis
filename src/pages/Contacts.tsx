@@ -1,175 +1,200 @@
-import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Instagram, ExternalLink, Mail, MapPin, Calendar, Music, Youtube } from "lucide-react";
+import { Instagram, ExternalLink, Mail, MapPin, Calendar, Music, Youtube, MessageCircle, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Contacts = () => {
   const socialLinks = [
     {
       name: "Instagram",
+      handle: "@fc_ardentis",
       icon: Instagram,
-      url: "https://www.instagram.com/fc_ardentis/"
+      url: "https://www.instagram.com/fc_ardentis/",
+      gradient: "from-pink-500 to-purple-600",
     },
     {
       name: "TikTok",
+      handle: "@fc_ardentis",
       icon: Music,
-      url: "https://www.tiktok.com/@fc_ardentis"
+      url: "https://www.tiktok.com/@fc_ardentis",
+      gradient: "from-gray-900 to-gray-700",
     },
     {
       name: "YouTube",
+      handle: "@fc_ardentis",
       icon: Youtube,
-      url: "https://youtube.com/@fc_ardentis"
-    }
+      url: "https://youtube.com/@fc_ardentis",
+      gradient: "from-red-600 to-red-500",
+    },
   ];
 
   return (
     <div className="min-h-screen">
-      {/* Modern Hero Section (unified) */}
-      <section className="bg-gradient-hero py-20 md:py-28 px-4 text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
-        <div className="container max-w-5xl mx-auto relative z-10">
-        <h1 className="text-5xl md:text-6xl lg:text-7xl font-sport-condensed font-bold text-white mb-3 text-center">
-          Nous <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">contacter</span>
-        </h1>
-        <p className="text-lg md:text-xl text-white/90 font-sport max-w-3xl mx-auto text-center">
-          Rejoignez l'aventure FC Ardentis ou posez-nous vos questions
-        </p>
+      {/* Hero Section */}
+      <section data-hero="true" className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-hero" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-accent/20 via-transparent to-transparent" />
+        <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-accent/15 rounded-full blur-3xl" />
+        
+        <div className="container max-w-5xl mx-auto px-4 sm:px-6 relative z-10 text-center pt-24 sm:pt-28 pb-16 sm:pb-20">
+          <div className="flex items-center justify-center gap-4 mb-6 animate-rise-up">
+            <span className="h-px w-12 bg-gradient-to-r from-transparent to-gold" />
+            <MessageCircle className="h-8 w-8 text-gold" />
+            <span className="h-px w-12 bg-gradient-to-l from-transparent to-gold" />
+          </div>
+          
+          <h1 className="font-display font-bold text-white leading-tight mb-4 animate-rise-up" style={{ animationDelay: "100ms" }}>
+            <span className="block text-display-sm sm:text-display-md md:text-display-lg">Nous</span>
+            <span className="block text-display-sm sm:text-display-md md:text-display-lg text-gradient-gold">contacter</span>
+          </h1>
+          
+          <p className="text-lg sm:text-xl text-white/70 font-sport max-w-2xl mx-auto animate-rise-up" style={{ animationDelay: "200ms" }}>
+            Rejoignez l'aventure FC Ardentis ou posez-nous vos questions
+          </p>
         </div>
       </section>
 
-      <div className="container max-w-6xl mx-auto px-4 py-20">
-        <div className="grid lg:grid-cols-2 gap-16">
-          
-          {/* Modern Social Networks */}
-          <div className="space-y-8">
-            <h2 className="text-3xl md:text-4xl font-sport-condensed font-bold text-foreground mb-8">
-              Nos <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">réseaux sociaux</span>
-            </h2>
+      {/* Content */}
+      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-gradient-section">
+        <div className="container max-w-6xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
             
+            {/* Social Networks */}
+            <div>
+              <h2 className="font-display font-bold text-2xl sm:text-3xl text-foreground mb-8 flex items-center gap-3">
+                <span className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                  <Instagram className="h-5 w-5 text-white" />
+                </span>
+                Nos réseaux sociaux
+              </h2>
+              
+              <div className="space-y-4">
+                {socialLinks.map((social) => (
+                  <a
+                    key={social.name}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-5 p-5 premium-card group"
+                  >
+                    <div className={`bg-gradient-to-br ${social.gradient} p-4 rounded-2xl shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all`}>
+                      <social.icon className="h-7 w-7 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-display font-bold text-lg text-foreground mb-0.5">
+                        {social.name}
+                      </h3>
+                      <p className="text-muted-foreground font-sport text-sm">
+                        {social.handle}
+                      </p>
+                    </div>
+                    <ExternalLink className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Contact Info */}
             <div className="space-y-6">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.name}
-                  href={social.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-6 p-6 bg-gradient-card rounded-2xl shadow-card border border-border/10 hover-lift group transition-sport"
-                >
-                  <div className="bg-gradient-to-br from-primary to-accent p-4 rounded-full group-hover:shadow-glow transition-sport">
-                    <social.icon className="h-8 w-8 text-white" />
+              <h2 className="font-display font-bold text-2xl sm:text-3xl text-foreground mb-8 flex items-center gap-3">
+                <span className="h-10 w-10 rounded-xl bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center">
+                  <Mail className="h-5 w-5 text-gold-foreground" />
+                </span>
+                Contact direct
+              </h2>
+              
+              {/* Email Card */}
+              <div className="premium-card p-6 sm:p-8">
+                <div className="flex items-start gap-5 mb-6">
+                  <div className="p-3 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20">
+                    <Mail className="h-7 w-7 text-primary" />
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-sport-condensed font-bold text-xl text-foreground mb-1">
-                      {social.name}
+                  <div>
+                    <h3 className="font-display font-bold text-lg text-foreground mb-2">
+                      Email
+                    </h3>
+                    <a 
+                      href="mailto:fcardentis@gmail.com"
+                      className="text-primary hover:text-accent font-sport font-semibold text-lg transition-colors inline-flex items-center gap-2 group"
+                    >
+                      fcardentis@gmail.com
+                      <ArrowRight className="h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                    </a>
+                  </div>
+                </div>
+                
+                <p className="text-muted-foreground font-sport text-sm bg-muted/50 p-4 rounded-xl">
+                  Pour toute information, écrivez-nous. Réponse garantie sous 48h.
+                </p>
+              </div>
+
+              {/* Location Card */}
+              <div className="premium-card p-6 sm:p-8">
+                <div className="flex items-start gap-5 mb-6">
+                  <div className="p-3 rounded-2xl bg-gradient-to-br from-accent/20 to-primary/20">
+                    <MapPin className="h-7 w-7 text-accent" />
+                  </div>
+                  <div>
+                    <h3 className="font-display font-bold text-lg text-foreground mb-2">
+                      Localisation
+                    </h3>
+                    <div className="text-foreground/80 font-sport space-y-1">
+                      <p>Entraînement à <span className="font-semibold text-foreground">Gennevilliers</span></p>
+                      <p>Matchs en <span className="font-semibold text-foreground">région parisienne</span></p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl overflow-hidden shadow-elevated border border-border/20">
+                  <iframe
+                    title="Carte — Gennevilliers"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d84044.0441929625!2d2.221!3d48.935!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66f5c8c8c8c8b%3A0x0000000000000000!2sGennevilliers!5e0!3m2!1sfr!2sfr!4v1757100498113!5m2!1sfr!2sfr"
+                    width="100%"
+                    height="200"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                </div>
+              </div>
+
+              {/* Schedule Card */}
+              <div className="premium-card p-6 sm:p-8">
+                <div className="flex items-start gap-5 mb-6">
+                  <div className="p-3 rounded-2xl bg-gradient-to-br from-gold/20 to-gold-dark/20">
+                    <Calendar className="h-7 w-7 text-gold" />
+                  </div>
+                  <div>
+                    <h3 className="font-display font-bold text-lg text-foreground mb-2">
+                      Horaires
                     </h3>
                     <p className="text-muted-foreground font-sport">
-                      Suivez nos actualités et moments forts
+                      Entraînements et matchs
                     </p>
                   </div>
-                  <ExternalLink className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-sport" />
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Enhanced Contact & Location */}
-          <div className="space-y-8">
-            <h2 className="text-3xl md:text-4xl font-sport-condensed font-bold text-foreground mb-8">
-              Contact <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">direct</span>
-            </h2>
-            
-            {/* Modern Email Card */}
-            <div className="bg-gradient-card p-8 rounded-2xl shadow-card border border-border/10 hover-lift">
-              <div className="flex items-center gap-6 mb-6">
-                <div className="bg-gradient-to-br from-primary to-accent p-4 rounded-full">
-                  <Mail className="h-8 w-8 text-white" />
                 </div>
-                <div>
-                  <h3 className="font-sport-condensed font-bold text-xl text-foreground mb-2">
-                    Email
-                  </h3>
-                  <a 
-                    href="mailto:fcardentis@gmail.com"
-                    className="text-primary hover:text-accent font-sport font-medium text-lg transition-sport"
-                  >
-                    fcardentis@gmail.com
-                  </a>
-                </div>
-              </div>
-              
-              <p className="text-muted-foreground font-sport bg-muted/30 p-4 rounded-xl">
-                Pour toute information, écrivez-nous. Réponse garantie sous 48h.
-              </p>
-            </div>
-
-            {/* Enhanced Location */}
-            <div className="bg-gradient-card p-8 rounded-2xl shadow-card border border-border/10 hover-lift">
-              <div className="flex items-center gap-6 mb-6">
-                <div className="bg-gradient-to-br from-accent to-primary p-4 rounded-full">
-                  <MapPin className="h-8 w-8 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-sport-condensed font-bold text-xl text-foreground mb-2">
-                    Localisation
-                  </h3>
-                  <div className="text-foreground font-sport font-medium space-y-1">
-                    <p>Entraînement à Gennevilliers.</p>
-                    <p>Match en région parisienne.</p>
+                
+                <div className="space-y-3 mb-6">
+                  <div className="p-4 rounded-xl bg-primary/10 border border-primary/20">
+                    <p className="text-primary font-display font-bold mb-0.5">Dimanche 11h</p>
+                    <p className="text-muted-foreground font-sport text-sm">Entraînements • Gennevilliers</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-accent/10 border border-accent/20">
+                    <p className="text-accent font-display font-bold mb-0.5">Lundi ou mercredi</p>
+                    <p className="text-muted-foreground font-sport text-sm">Matchs • Région parisienne</p>
                   </div>
                 </div>
+                
+                <Button asChild variant="gold" size="lg" className="w-full rounded-xl">
+                  <Link to="/rejoindre">
+                    Nous rejoindre
+                  </Link>
+                </Button>
               </div>
-
-              <div className="rounded-xl overflow-hidden shadow-elevated mt-6">
-                <iframe
-                  title="Carte — Gennevilliers"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d84044.0441929625!2d2.221!3d48.935!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66f5c8c8c8c8b%3A0x0000000000000000!2sGennevilliers!5e0!3m2!1sfr!2sfr!4v1757100498113!5m2!1sfr!2sfr"
-                  width="100%"
-                  height="250"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                ></iframe>
-              </div>
-
-            </div>
-
-            {/* Enhanced Schedule */}
-            <div className="bg-gradient-card p-8 rounded-2xl shadow-card border border-border/10 hover-lift">
-              <div className="flex items-center gap-6 mb-6">
-                <div className="bg-gradient-to-br from-accent to-primary p-4 rounded-full">
-                  <Calendar className="h-8 w-8 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-sport-condensed font-bold text-xl text-foreground mb-2">
-                    Infos pratiques
-                  </h3>
-                  <p className="text-foreground font-sport">
-                    Entraînements et matchs
-                  </p>
-                </div>
-              </div>
-              
-              <div className="space-y-4 mb-6">
-                <div className="bg-primary/10 p-4 rounded-xl border border-primary/20">
-                  <p className="text-primary font-sport-condensed font-bold mb-1">Dimanche 11h</p>
-                  <p className="text-muted-foreground font-sport text-sm">Entraînements • Gennevilliers</p>
-                </div>
-                <div className="bg-accent/10 p-4 rounded-xl border border-accent/20">
-                  <p className="text-accent font-sport-condensed font-bold mb-1">Lundi ou mercredi</p>
-                  <p className="text-muted-foreground font-sport text-sm">Matchs • Région parisienne</p>
-                </div>
-              </div>
-              
-              <Button asChild variant="cta" className="w-full">
-                <Link to="/rejoindre">
-                  Nous rejoindre
-                </Link>
-              </Button>
             </div>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 };

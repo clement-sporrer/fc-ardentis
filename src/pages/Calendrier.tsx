@@ -8,10 +8,13 @@ import {
   MapPin,
   Trophy,
   Dumbbell,
+  Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { parseCSVLine, stripBOM } from "@/lib/utils";
 
 // ENV
 const GOOGLE_SHEET_EVENTS_CSV_URL = import.meta.env.VITE_GOOGLE_SHEET_EVENTS_CSV_URL || "";
@@ -23,12 +26,10 @@ const GOOGLE_SHEET_STANDINGS_CSV_URL = import.meta.env.VITE_SHEET_STANDINGS_CSV_
 type EventType = "match" | "entrainement";
 
 interface Event {
-  // CSV "MATCHS" — colonnes attendues :
-  // date,title,start_time,end_time,location,type,team_home,team_away,score_home,score_away,resultat,home_logo,away_logo
-  date: string;            // JJ/MM/AAAA (ou ISO fallback)
+  date: string;
   title: string;
-  start_time?: string;     // HH:MM
-  end_time?: string;       // HH:MM
+  start_time?: string;
+  end_time?: string;
   location: string;
   type: EventType;
   team_home?: string;
@@ -62,35 +63,11 @@ interface CalendarDay {
 /* ============================
    Utils
 ============================ */
-const parseCSVLine = (line: string): string[] => {
-  const out: string[] = [];
-  let cur = "";
-  let inQuotes = false;
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i];
-    if (c === '"') {
-      if (inQuotes && line[i + 1] === '"') {
-        cur += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (c === "," && !inQuotes) {
-      out.push(cur);
-      cur = "";
-    } else {
-      cur += c;
-    }
-  }
-  out.push(cur);
-  return out.map((v) => v.trim());
-};
-
 const monthNames = [
-  "Janvier","Février","Mars","Avril","Mai","Juin",
-  "Juillet","Août","Septembre","Octobre","Novembre","Décembre",
+  "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+  "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
 ];
-const dayNames = ["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"];
+const dayNames = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 
 const parseEventDate = (d: string): Date => {
   if (!d) return new Date(NaN);
@@ -109,18 +86,16 @@ const todayMidnight = () => {
   return new Date(t.getFullYear(), t.getMonth(), t.getDate());
 };
 
-// Convertit les valeurs du Google Sheet (win/draw/loose) vers les codes internes (V/N/D)
 const normalizeResult = (val: string): "V" | "N" | "D" | null => {
   const v = (val || "").toLowerCase().trim();
   if (v === "win" || v === "v" || v === "victoire") return "V";
   if (v === "draw" || v === "n" || v === "nul" || v === "match nul") return "N";
   if (v === "loose" || v === "lose" || v === "d" || v === "défaite" || v === "defaite") return "D";
-  if (v === "V" || v === "N" || v === "D") return v as "V" | "N" | "D";
   return null;
 };
 
 const computeResult = (e: Event) => {
-  if (e.resultat === "V" || e.resultat === "N" || e.resultat === "D") return e.resultat;
+  if (e.resultat) return e.resultat;
   const h = typeof e.score_home === "number" ? e.score_home : NaN;
   const a = typeof e.score_away === "number" ? e.score_away : NaN;
   if (Number.isNaN(h) || Number.isNaN(a)) return null;
@@ -131,8 +106,17 @@ const computeResult = (e: Event) => {
 
 const ResultBadge = ({ r }: { r?: string | null }) => {
   if (!r) return null;
-  const map: Record<string, string> = { V: "bg-green-600", N: "bg-gray-600", D: "bg-red-600" };
-  return <span className={`px-2 py-0.5 rounded text-white text-xs font-sport ${map[r] || "bg-gray-600"}`}>{r}</span>;
+  const styles: Record<string, string> = {
+    V: "bg-green-500 text-white",
+    N: "bg-gray-500 text-white",
+    D: "bg-red-500 text-white",
+  };
+  const labels: Record<string, string> = { V: "Victoire", N: "Nul", D: "Défaite" };
+  return (
+    <span className={`px-3 py-1 rounded-full text-xs font-display font-bold ${styles[r] || "bg-gray-500"}`}>
+      {labels[r] || r}
+    </span>
+  );
 };
 
 /* ============================
@@ -149,7 +133,7 @@ const Calendrier = () => {
   const [selectedEvent, setSelectedEvent] = useState<{ events: Event[]; date: string } | null>(null);
   const [showAllPastMatches, setShowAllPastMatches] = useState(false);
 
-  /* ------- Fetch Events (13 colonnes) ------- */
+  /* Fetch Events */
   useEffect(() => {
     const fetchEvents = async () => {
       if (!GOOGLE_SHEET_EVENTS_CSV_URL) {
@@ -159,7 +143,7 @@ const Calendrier = () => {
       try {
         const url = `${GOOGLE_SHEET_EVENTS_CSV_URL}${GOOGLE_SHEET_EVENTS_CSV_URL.includes("?") ? "&" : "?"}_ts=${Date.now()}`;
         const response = await fetch(url, { cache: "no-store" });
-        const raw = await response.text();
+        const raw = stripBOM(await response.text());
 
         const lines = raw.replace(/\r/g, "").split("\n").filter((l) => l.trim().length > 0);
         if (lines.length < 2) {
@@ -171,76 +155,34 @@ const Calendrier = () => {
         const header = parseCSVLine(lines[0]).map((h) => h.toLowerCase());
         const idx = (name: string) => header.indexOf(name);
 
-        const i_date = idx("date");
-        const i_title = idx("title");
-        const i_start = idx("start_time");
-        const i_end = idx("end_time");
-        const i_location = idx("location");
-        const i_type = idx("type");
-        const i_th = idx("team_home");
-        const i_ta = idx("team_away");
-        const i_sh = idx("score_home");
-        const i_sa = idx("score_away");
-        const i_res = idx("resultat");
-        const i_hl = idx("home_logo");
-        const i_al = idx("away_logo");
-
         const parsed: Event[] = [];
         for (let i = 1; i < lines.length; i++) {
           const cells = parseCSVLine(lines[i]);
-
-          const date = i_date >= 0 ? cells[i_date] || "" : "";
-          const type = (i_type >= 0 ? cells[i_type] || "" : "").toLowerCase() as EventType;
+          const date = cells[idx("date")] || "";
+          const type = (cells[idx("type")] || "").toLowerCase() as EventType;
           if (!date || (type !== "match" && type !== "entrainement")) continue;
+
+          const scoreHome = cells[idx("score_home")];
+          const scoreAway = cells[idx("score_away")];
 
           parsed.push({
             date,
-            title: i_title >= 0 ? cells[i_title] || "" : "",
-            start_time: i_start >= 0 ? cells[i_start] || "" : "",
-            end_time: i_end >= 0 ? cells[i_end] || "" : "",
-            location: i_location >= 0 ? cells[i_location] || "" : "",
+            title: cells[idx("title")] || "",
+            start_time: cells[idx("start_time")] || "",
+            end_time: cells[idx("end_time")] || "",
+            location: cells[idx("location")] || "",
             type,
-            team_home: i_th >= 0 ? cells[i_th] || "" : "",
-            team_away: i_ta >= 0 ? cells[i_ta] || "" : "",
-            score_home: i_sh >= 0 && cells[i_sh] !== "" ? Number(cells[i_sh]) : undefined,
-            score_away: i_sa >= 0 && cells[i_sa] !== "" ? Number(cells[i_sa]) : undefined,
-            resultat:
-              i_res >= 0 && cells[i_res]
-                ? (normalizeResult(cells[i_res]) || computeResult({
-                    date,
-                    title: i_title >= 0 ? cells[i_title] || "" : "",
-                    start_time: i_start >= 0 ? cells[i_start] || "" : "",
-                    end_time: i_end >= 0 ? cells[i_end] || "" : "",
-                    location: i_location >= 0 ? cells[i_location] || "" : "",
-                    type,
-                    team_home: i_th >= 0 ? cells[i_th] || "" : "",
-                    team_away: i_ta >= 0 ? cells[i_ta] || "" : "",
-                    score_home: i_sh >= 0 && cells[i_sh] !== "" ? Number(cells[i_sh]) : undefined,
-                    score_away: i_sa >= 0 && cells[i_sa] !== "" ? Number(cells[i_sa]) : undefined,
-                    home_logo: i_hl >= 0 ? cells[i_hl] || "" : "",
-                    away_logo: i_al >= 0 ? cells[i_al] || "" : "",
-                  }) as any)
-                : (computeResult({
-                    date,
-                    title: i_title >= 0 ? cells[i_title] || "" : "",
-                    start_time: i_start >= 0 ? cells[i_start] || "" : "",
-                    end_time: i_end >= 0 ? cells[i_end] || "" : "",
-                    location: i_location >= 0 ? cells[i_location] || "" : "",
-                    type,
-                    team_home: i_th >= 0 ? cells[i_th] || "" : "",
-                    team_away: i_ta >= 0 ? cells[i_ta] || "" : "",
-                    score_home: i_sh >= 0 && cells[i_sh] !== "" ? Number(cells[i_sh]) : undefined,
-                    score_away: i_sa >= 0 && cells[i_sa] !== "" ? Number(cells[i_sa]) : undefined,
-                    home_logo: i_hl >= 0 ? cells[i_hl] || "" : "",
-                    away_logo: i_al >= 0 ? cells[i_al] || "" : "",
-                  }) as any),
-            home_logo: i_hl >= 0 ? cells[i_hl] || "" : "",
-            away_logo: i_al >= 0 ? cells[i_al] || "" : "",
+            team_home: cells[idx("team_home")] || "",
+            team_away: cells[idx("team_away")] || "",
+            score_home: scoreHome !== "" ? Number(scoreHome) : undefined,
+            score_away: scoreAway !== "" ? Number(scoreAway) : undefined,
+            resultat: normalizeResult(cells[idx("resultat")] || "") || undefined,
+            home_logo: cells[idx("home_logo")] || "",
+            away_logo: cells[idx("away_logo")] || "",
           });
         }
 
         parsed.sort((a, b) => parseEventDate(a.date).getTime() - parseEventDate(b.date).getTime());
-
         setEvents(parsed);
         setError(null);
       } catch (err) {
@@ -256,7 +198,7 @@ const Calendrier = () => {
     return () => clearInterval(interval);
   }, []);
 
-  /* ------- Fetch Standings ------- */
+  /* Fetch Standings */
   useEffect(() => {
     const fetchStandings = async () => {
       if (!GOOGLE_SHEET_STANDINGS_CSV_URL) {
@@ -266,7 +208,7 @@ const Calendrier = () => {
       try {
         const url = `${GOOGLE_SHEET_STANDINGS_CSV_URL}${GOOGLE_SHEET_STANDINGS_CSV_URL.includes("?") ? "&" : "?"}_ts=${Date.now()}`;
         const response = await fetch(url, { cache: "no-store" });
-        const raw = await response.text();
+        const raw = stripBOM(await response.text());
 
         const lines = raw.replace(/\r/g, "").split("\n").filter((l) => l.trim().length > 0);
         if (lines.length < 2) {
@@ -275,7 +217,6 @@ const Calendrier = () => {
         }
 
         const header = parseCSVLine(lines[0]).map((h) => h.toLowerCase().trim());
-        const id = (name: string) => header.indexOf(name);
         const anyIdx = (...names: string[]) => {
           for (const n of names) {
             const i = header.indexOf(n);
@@ -284,32 +225,20 @@ const Calendrier = () => {
           return -1;
         };
 
-        const ir = id("rank");
-        const it = id("team");
-        const ip = id("played");
-        const iw = id("won");
-        const idr = id("draw");
-        const il = id("lost");
-        // Tolerate variants: goals_for|goal_for|bp, goals_against|goal_against|bc
-        const igf = anyIdx("goals_for","goal_for","bp","buts_pour","but_pour");
-        const iga = anyIdx("goals_against","goal_against","bc","buts_contre","but_contre");
-        const ipts = id("points");
-        const ilogo = id("team_logo_url");
-
         const parsed: Standing[] = [];
         for (let i = 1; i < lines.length; i++) {
           const cells = parseCSVLine(lines[i]);
           parsed.push({
-            rank: ir >= 0 ? Number(cells[ir] || 0) : 0,
-            team: it >= 0 ? cells[it] || "" : "",
-            played: ip >= 0 ? Number(cells[ip] || 0) : 0,
-            won: iw >= 0 ? Number(cells[iw] || 0) : 0,
-            draw: idr >= 0 ? Number(cells[idr] || 0) : 0,
-            lost: il >= 0 ? Number(cells[il] || 0) : 0,
-            goals_for: igf >= 0 ? Number(cells[igf] || 0) : 0,
-            goals_against: iga >= 0 ? Number(cells[iga] || 0) : 0,
-            points: ipts >= 0 ? Number(cells[ipts] || 0) : 0,
-            team_logo_url: ilogo >= 0 ? cells[ilogo] || "" : "",
+            rank: Number(cells[anyIdx("rank")] || 0),
+            team: cells[anyIdx("team")] || "",
+            played: Number(cells[anyIdx("played")] || 0),
+            won: Number(cells[anyIdx("won")] || 0),
+            draw: Number(cells[anyIdx("draw")] || 0),
+            lost: Number(cells[anyIdx("lost")] || 0),
+            goals_for: Number(cells[anyIdx("goals_for", "goal_for", "bp")] || 0),
+            goals_against: Number(cells[anyIdx("goals_against", "goal_against", "bc")] || 0),
+            points: Number(cells[anyIdx("points")] || 0),
+            team_logo_url: cells[anyIdx("team_logo_url")] || "",
           });
         }
 
@@ -325,30 +254,25 @@ const Calendrier = () => {
     fetchStandings();
   }, []);
 
-  /* ------- Génération calendrier Lundi→Dimanche ------- */
+  /* Calendar Grid */
   const calendarDays = useMemo<CalendarDay[]>(() => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
-
     const firstOfMonth = new Date(year, month, 1);
     const lastOfMonth = new Date(year, month + 1, 0);
-
-    // Lundi=0 … Dimanche=6
     const dayOfWeek = (d: Date) => (d.getDay() + 6) % 7;
 
     const start = new Date(firstOfMonth);
-    const offsetToMonday = dayOfWeek(start);
-    start.setDate(start.getDate() - offsetToMonday);
+    start.setDate(start.getDate() - dayOfWeek(start));
 
     const days: CalendarDay[] = [];
     for (let i = 0; i < 42; i++) {
       const d = new Date(start);
       d.setDate(start.getDate() + i);
-      const evts = events.filter((e) => isSameDay(parseEventDate(e.date), d));
       days.push({
         date: d,
         isCurrentMonth: d >= new Date(year, month, 1) && d <= lastOfMonth,
-        events: evts,
+        events: events.filter((e) => isSameDay(parseEventDate(e.date), d)),
       });
     }
     return days;
@@ -365,24 +289,6 @@ const Calendrier = () => {
     const newDate = new Date(currentDate);
     newDate.setMonth(newDate.getMonth() + (direction === "next" ? 1 : -1));
     setCurrentDate(newDate);
-  };
-  const goToToday = () => setCurrentDate(new Date());
-
-  const handleDayClick = (day: CalendarDay) => {
-    if (day.events.length > 0) {
-      setSelectedEvent({ events: day.events, date: day.events[0].date });
-    }
-  };
-
-  const getEventIcons = (evts: Event[]) => {
-    const hasMatch = evts.some((e) => e.type === "match");
-    const hasTraining = evts.some((e) => e.type === "entrainement");
-    return (
-      <div className="flex gap-1 justify-center mt-1">
-        {hasMatch && <Trophy className="h-3 w-3 text-primary" />}
-        {hasTraining && <Dumbbell className="h-3 w-3 text-secondary" />}
-      </div>
-    );
   };
 
   const pastMatches = useMemo(() => {
@@ -407,68 +313,85 @@ const Calendrier = () => {
       day: "numeric",
     });
 
-    return (
-      <div className="min-h-screen">
-        {/* Hero Section (identique à Notre équipe) */}
-        <section className="bg-gradient-hero py-20 md:py-28 px-4 text-center relative overflow-hidden !mt-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent"></div>
-          <div className="container max-w-5xl mx-auto relative z-10">
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-sport-condensed font-bold text-white mb-3">
-              <span className="text-white">Notre </span>
-              <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">calendrier</span>
-            </h1>
-            <p className="text-lg md:text-xl text-white/90 font-sport max-w-3xl mx-auto">
-              Matchs et entraînements à jour.
-            </p>
+  return (
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section data-hero="true" className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-hero" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
+        <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-accent/15 rounded-full blur-3xl" />
+        
+        <div className="container max-w-5xl mx-auto px-4 sm:px-6 relative z-10 text-center pt-24 sm:pt-28 pb-16 sm:pb-20">
+          <div className="flex items-center justify-center gap-4 mb-6 animate-rise-up">
+            <span className="h-px w-12 bg-gradient-to-r from-transparent to-gold" />
+            <CalendarIcon className="h-8 w-8 text-gold" />
+            <span className="h-px w-12 bg-gradient-to-l from-transparent to-gold" />
           </div>
-        </section>
+          
+          <h1 className="font-display font-bold text-white leading-tight mb-4 animate-rise-up" style={{ animationDelay: "100ms" }}>
+            <span className="block text-display-sm sm:text-display-md md:text-display-lg">Notre</span>
+            <span className="block text-display-sm sm:text-display-md md:text-display-lg text-gradient-gold">calendrier</span>
+          </h1>
+          
+          <p className="text-lg sm:text-xl text-white/70 font-sport max-w-2xl mx-auto animate-rise-up" style={{ animationDelay: "200ms" }}>
+            Matchs et entraînements à jour
+          </p>
+        </div>
+      </section>
 
       {/* Calendar + Lists */}
-      <section className="py-20 px-4 bg-gradient-section">
+      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-gradient-section">
         <div className="container max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Calendar Grid */}
             <div className="lg:col-span-2">
               {loading ? (
-                <div className="text-center py-12">
-                  <div className="inline-flex items-center gap-3 text-muted-foreground font-sport">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
-                    Chargement du calendrier...
-                  </div>
-                </div>
-              ) : error ? (
-                <div className="text-center py-12">
-                  <div className="inline-flex items-center gap-3 text-destructive font-sport">
-                    <AlertCircle className="h-6 w-6" />
-                    {error}
-                  </div>
-                </div>
-              ) : (
-                <Card className="shadow-card">
+                <Card className="premium-card">
                   <CardContent className="p-6">
+                    <div className="flex justify-between items-center mb-6">
+                      <Skeleton className="h-10 w-10 rounded-xl" />
+                      <Skeleton className="h-8 w-48" />
+                      <Skeleton className="h-10 w-10 rounded-xl" />
+                    </div>
+                    <div className="grid grid-cols-7 gap-2">
+                      {[...Array(42)].map((_, i) => (
+                        <Skeleton key={i} className="h-16 rounded-lg" />
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : error ? (
+                <Card className="premium-card">
+                  <CardContent className="p-12 text-center">
+                    <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
+                    <p className="text-destructive font-sport">{error}</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="premium-card overflow-hidden">
+                  <CardContent className="p-4 sm:p-6">
                     {/* Header */}
                     <div className="flex items-center justify-between mb-6">
                       <Button
                         variant="outline"
                         size="icon"
                         onClick={() => navigateMonth("prev")}
-                        className="hover:bg-secondary hover:text-secondary-foreground"
-                        aria-label="Mois précédent"
+                        className="rounded-xl hover:bg-primary hover:text-white hover:border-primary"
                       >
-                        <ChevronLeft className="h-4 w-4" />
+                        <ChevronLeft className="h-5 w-5" />
                       </Button>
 
                       <div className="text-center">
-                        <h2 className="text-2xl font-sport-condensed font-bold text-foreground">
+                        <h2 className="font-display font-bold text-xl sm:text-2xl text-foreground">
                           {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
                         </h2>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={goToToday}
-                          className="text-sm text-muted-foreground hover:text-primary"
+                          onClick={() => setCurrentDate(new Date())}
+                          className="text-sm text-primary hover:text-primary/80 font-sport"
                         >
-                          Aujourd&apos;hui
+                          Aujourd'hui
                         </Button>
                       </div>
 
@@ -476,43 +399,55 @@ const Calendrier = () => {
                         variant="outline"
                         size="icon"
                         onClick={() => navigateMonth("next")}
-                        className="hover:bg-secondary hover:text-secondary-foreground"
-                        aria-label="Mois suivant"
+                        className="rounded-xl hover:bg-primary hover:text-white hover:border-primary"
                       >
-                        <ChevronRight className="h-4 w-4" />
+                        <ChevronRight className="h-5 w-5" />
                       </Button>
                     </div>
 
-                    {/* Day headers (Mon→Sun) */}
-                    <div className="grid grid-cols-7 gap-1">
+                    {/* Days Header */}
+                    <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
                       {dayNames.map((d) => (
-                        <div key={d} className="p-2 text-center text-sm font-sport font-medium text-muted-foreground">
+                        <div key={d} className="p-2 text-center text-xs sm:text-sm font-display font-bold text-muted-foreground">
                           {d}
                         </div>
                       ))}
+                    </div>
 
-                      {/* 42 cells */}
+                    {/* Calendar Grid */}
+                    <div className="grid grid-cols-7 gap-1 sm:gap-2">
                       {calendarDays.map((day, idx) => (
                         <div
                           key={idx}
-                          onClick={() => handleDayClick(day)}
-                          className={[
-                            "p-2 min-h-[70px] border border-border/20 transition-sport",
-                            day.isCurrentMonth ? "bg-card text-card-foreground" : "bg-muted/30 text-muted-foreground",
-                            day.events.length > 0 ? "cursor-pointer hover:bg-accent hover:border-primary/50" : "",
-                            isSameDay(day.date, todayMidnight()) ? "ring-2 ring-primary/50" : "",
-                          ].join(" ")}
+                          onClick={() => day.events.length > 0 && setSelectedEvent({ events: day.events, date: day.events[0].date })}
+                          className={`
+                            p-1 sm:p-2 min-h-[60px] sm:min-h-[80px] rounded-xl border transition-all
+                            ${day.isCurrentMonth ? "bg-card" : "bg-muted/30"}
+                            ${day.events.length > 0 ? "cursor-pointer hover:border-primary hover:shadow-md" : "border-transparent"}
+                            ${isSameDay(day.date, todayMidnight()) ? "ring-2 ring-primary ring-offset-2" : ""}
+                          `}
                         >
-                          <div className="text-sm font-sport font-medium mb-1">{day.date.getDate()}</div>
-                          {day.events.length > 0 && getEventIcons(day.events)}
+                          <div className={`text-xs sm:text-sm font-sport font-medium ${day.isCurrentMonth ? "text-foreground" : "text-muted-foreground"}`}>
+                            {day.date.getDate()}
+                          </div>
+                          {day.events.length > 0 && (
+                            <div className="flex gap-1 mt-1 justify-center flex-wrap">
+                              {day.events.some((e) => e.type === "match") && (
+                                <Trophy className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
+                              )}
+                              {day.events.some((e) => e.type === "entrainement") && (
+                                <Dumbbell className="h-3 w-3 sm:h-4 sm:w-4 text-accent" />
+                              )}
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
 
                     {currentMonthEvents.length === 0 && (
-                      <div className="text-center py-8 text-muted-foreground font-sport">
-                        <CalendarIcon className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                        <p>Aucun événement prévu ce mois-ci.</p>
+                      <div className="text-center py-8 mt-4 rounded-xl bg-muted/50">
+                        <CalendarIcon className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+                        <p className="text-muted-foreground font-sport">Aucun événement ce mois-ci</p>
                       </div>
                     )}
                   </CardContent>
@@ -520,27 +455,30 @@ const Calendrier = () => {
               )}
             </div>
 
-            {/* Right column: Upcoming / Past */}
-            <div className="lg:col-span-1 space-y-8">
-              {/* Upcoming */}
-              <Card className="shadow-card">
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-sport-condensed font-bold text-foreground mb-4">Matchs à venir</h3>
+            {/* Right Column */}
+            <div className="space-y-6">
+              {/* Upcoming Matches */}
+              <Card className="premium-card">
+                <CardContent className="p-5 sm:p-6">
+                  <h3 className="font-display font-bold text-lg sm:text-xl text-foreground mb-4 flex items-center gap-2">
+                    <Trophy className="h-5 w-5 text-primary" />
+                    Matchs à venir
+                  </h3>
                   <div className="space-y-3">
                     {upcomingMatches.slice(0, 5).map((e, i) => (
                       <div
                         key={`up-${i}`}
-                        className="p-4 rounded-2xl bg-white bg-[radial-gradient(120%_120%_at_50%_0%,#888ce6_0%,transparent_55%)] border border-[#888ce6]/35 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-sport"
+                        className="p-4 rounded-xl bg-gradient-to-r from-primary/5 to-accent/5 border border-primary/10 hover:border-primary/30 transition-all"
                       >
-                        <div className="flex items-center justify-center gap-3 text-center">
+                        <div className="flex items-center justify-center gap-2 text-center">
                           {e.home_logo && (
-                            <img src={e.home_logo} alt={e.team_home || "Domicile"} className="h-7 w-7 object-contain" />
+                            <img src={e.home_logo} alt="" loading="lazy" className="h-6 w-6 object-contain" />
                           )}
-                          <span className="font-sport-condensed font-bold">{e.team_home || "Domicile"}</span>
-                          <span className="text-muted-foreground">VS</span>
-                          <span className="font-sport-condensed font-bold">{e.team_away || "Extérieur"}</span>
+                          <span className="font-display font-bold text-sm">{e.team_home || "Domicile"}</span>
+                          <span className="text-muted-foreground text-xs">VS</span>
+                          <span className="font-display font-bold text-sm">{e.team_away || "Extérieur"}</span>
                           {e.away_logo && (
-                            <img src={e.away_logo} alt={e.team_away || "Extérieur"} className="h-7 w-7 object-contain" />
+                            <img src={e.away_logo} alt="" loading="lazy" className="h-6 w-6 object-contain" />
                           )}
                         </div>
                         <div className="mt-2 text-center text-xs text-muted-foreground font-sport">
@@ -549,20 +487,23 @@ const Calendrier = () => {
                       </div>
                     ))}
                     {upcomingMatches.length === 0 && (
-                      <p className="text-sm text-muted-foreground font-sport">Aucun match programmé</p>
+                      <p className="text-sm text-muted-foreground font-sport text-center py-4">Aucun match programmé</p>
                     )}
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Past */}
-              <Card className="shadow-card">
-                <CardContent className="p-6">
+              {/* Past Matches */}
+              <Card className="premium-card">
+                <CardContent className="p-5 sm:p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-sport-condensed font-bold text-foreground">Matchs passés</h3>
+                    <h3 className="font-display font-bold text-lg sm:text-xl text-foreground flex items-center gap-2">
+                      <Star className="h-5 w-5 text-gold" />
+                      Résultats
+                    </h3>
                     {pastMatches.length > 3 && (
                       <Button variant="ghost" size="sm" onClick={() => setShowAllPastMatches((v) => !v)} className="text-sm">
-                        {showAllPastMatches ? "Voir moins" : "Voir plus"}
+                        {showAllPastMatches ? "Moins" : "Plus"}
                       </Button>
                     )}
                   </div>
@@ -573,44 +514,26 @@ const Calendrier = () => {
                       return (
                         <div
                           key={`past-${i}`}
-                          className="p-0 rounded-2xl bg-white bg-[radial-gradient(120%_120%_at_50%_0%,#888ce6_0%,transparent_55%)] border border-[#888ce6]/35 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-sport overflow-hidden"
+                          className="p-4 rounded-xl bg-muted/50 border border-border/50"
                         >
-                          <div className="flex">
-                            {/* Zone contenu 85% */}
-                            <div className="basis-[85%] px-4 py-3">
-                              <div className="flex items-center justify-center gap-3 text-center">
-                                {e.home_logo && (
-                                  <img src={e.home_logo} alt={e.team_home || "Domicile"} className="h-7 w-7 object-contain" />
-                                )}
-                                <div className="flex flex-col items-center">
-                                  <span className="font-sport-condensed font-bold">{e.team_home || "Domicile"}</span>
-                                  {typeof e.score_home === "number" && (
-                                    <span className="text-xs text-muted-foreground font-sport mt-0.5">{e.score_home}</span>
-                                  )}
-                                </div>
-                                <span className="text-muted-foreground">VS</span>
-                                <div className="flex flex-col items-center">
-                                  <span className="font-sport-condensed font-bold">{e.team_away || "Extérieur"}</span>
-                                  {typeof e.score_away === "number" && (
-                                    <span className="text-xs text-muted-foreground font-sport mt-0.5">{e.score_away}</span>
-                                  )}
-                                </div>
-                                {e.away_logo && (
-                                  <img src={e.away_logo} alt={e.team_away || "Extérieur"} className="h-7 w-7 object-contain" />
-                                )}
-                              </div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              {e.home_logo && <img src={e.home_logo} alt="" loading="lazy" className="h-5 w-5 object-contain" />}
+                              <span className="font-sport text-sm font-medium">{e.team_home}</span>
+                              <span className="font-display font-bold text-primary">{e.score_home}</span>
+                              <span className="text-muted-foreground">-</span>
+                              <span className="font-display font-bold text-primary">{e.score_away}</span>
+                              <span className="font-sport text-sm font-medium">{e.team_away}</span>
+                              {e.away_logo && <img src={e.away_logo} alt="" loading="lazy" className="h-5 w-5 object-contain" />}
                             </div>
-
-                            {/* Zone badge 15% */}
-                            <div className="basis-[15%] flex items-center justify-center px-2">
-                              <ResultBadge r={res} />
-                            </div>
+                            <ResultBadge r={res} />
                           </div>
+                          <div className="mt-1 text-xs text-muted-foreground font-sport">{e.date}</div>
                         </div>
                       );
                     })}
                     {pastMatches.length === 0 && (
-                      <p className="text-sm text-muted-foreground font-sport">Aucun match passé</p>
+                      <p className="text-sm text-muted-foreground font-sport text-center py-4">Aucun résultat</p>
                     )}
                   </div>
                 </CardContent>
@@ -618,58 +541,62 @@ const Calendrier = () => {
             </div>
           </div>
 
-          {/* Standings Section */}
+          {/* Standings */}
           {GOOGLE_SHEET_STANDINGS_CSV_URL && (
             <div className="mt-12">
-              <Card className="shadow-card">
-                <CardContent className="p-6">
-                  <h3 className="text-2xl font-sport-condensed font-bold text-foreground mb-6 text-center">
-                    <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Classement</span>
+              <Card className="premium-card overflow-hidden">
+                <CardContent className="p-6 sm:p-8">
+                  <h3 className="font-display font-bold text-xl sm:text-2xl text-foreground mb-6 flex items-center gap-3">
+                    <Trophy className="h-6 w-6 text-gold" />
+                    Classement
                   </h3>
+                  
                   {standingsLoading ? (
-                    <div className="text-center py-8">
-                      <div className="inline-flex items-center gap-3 text-muted-foreground font-sport">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
-                        Chargement du classement...
-                      </div>
+                    <div className="space-y-3">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <Skeleton key={i} className="h-12 w-full rounded-lg" />
+                      ))}
                     </div>
                   ) : standings.length === 0 ? (
-                    <div className="text-center py-8">
-                      <p className="text-muted-foreground font-sport">Classement non disponible</p>
-                    </div>
+                    <p className="text-center text-muted-foreground font-sport py-8">Classement non disponible</p>
                   ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
+                    <div className="overflow-x-auto -mx-6 px-6">
+                      <table className="w-full text-sm min-w-[600px]">
                         <thead>
-                          <tr className="border-b border-border/20">
-                            <th className="text-left py-2 font-sport-condensed font-bold text-foreground">#</th>
-                            <th className="text-left py-2 font-sport-condensed font-bold text-foreground">Équipe</th>
-                            <th className="text-center py-2 font-sport-condensed font-bold text-foreground">J</th>
-                            <th className="text-center py-2 font-sport-condensed font-bold text-foreground">V</th>
-                            <th className="text-center py-2 font-sport-condensed font-bold text-foreground">N</th>
-                            <th className="text-center py-2 font-sport-condensed font-bold text-foreground">D</th>
-                            <th className="text-center py-2 font-sport-condensed font-bold text-foreground">BP</th>
-                            <th className="text-center py-2 font-sport-condensed font-bold text-foreground">BC</th>
-                            <th className="text-center py-2 font-sport-condensed font-bold text-foreground">Pts</th>
+                          <tr className="border-b-2 border-primary/20">
+                            <th className="text-left py-3 px-2 font-display font-bold text-foreground">#</th>
+                            <th className="text-left py-3 px-2 font-display font-bold text-foreground">Équipe</th>
+                            <th className="text-center py-3 px-2 font-display font-bold text-foreground">J</th>
+                            <th className="text-center py-3 px-2 font-display font-bold text-foreground">V</th>
+                            <th className="text-center py-3 px-2 font-display font-bold text-foreground">N</th>
+                            <th className="text-center py-3 px-2 font-display font-bold text-foreground">D</th>
+                            <th className="text-center py-3 px-2 font-display font-bold text-foreground">+/-</th>
+                            <th className="text-center py-3 px-2 font-display font-bold text-foreground">Pts</th>
                           </tr>
                         </thead>
                         <tbody>
                           {standings.map((s, idx) => (
-                            <tr key={idx} className={`border-b border-border/10 ${s.team === "FC Ardentis" ? "bg-primary/5" : ""}`}>
-                              <td className="py-2 font-sport font-medium">{s.rank}</td>
-                              <td className="py-2 font-sport font-medium">
+                            <tr 
+                              key={idx} 
+                              className={`border-b border-border/10 hover:bg-muted/50 transition-colors ${
+                                s.team.toLowerCase().includes("ardentis") ? "bg-primary/5" : ""
+                              }`}
+                            >
+                              <td className="py-3 px-2 font-display font-bold">{s.rank}</td>
+                              <td className="py-3 px-2 font-sport font-medium">
                                 <div className="flex items-center gap-2">
-                                  {s.team_logo_url && <img src={s.team_logo_url} alt={`Logo ${s.team}`} className="h-5 w-5 object-contain" />}
-                                  {s.team}
+                                  {s.team_logo_url && <img src={s.team_logo_url} alt="" loading="lazy" className="h-5 w-5 object-contain" />}
+                                  <span className={s.team.toLowerCase().includes("ardentis") ? "text-primary font-bold" : ""}>
+                                    {s.team}
+                                  </span>
                                 </div>
                               </td>
-                              <td className="text-center py-2 font-sport">{s.played}</td>
-                              <td className="text-center py-2 font-sport">{s.won}</td>
-                              <td className="text-center py-2 font-sport">{s.draw}</td>
-                              <td className="text-center py-2 font-sport">{s.lost}</td>
-                              <td className="text-center py-2 font-sport">{s.goals_for}</td>
-                              <td className="text-center py-2 font-sport">{s.goals_against}</td>
-                              <td className="text-center py-2 font-sport font-bold text-primary">{s.points}</td>
+                              <td className="text-center py-3 px-2 font-sport">{s.played}</td>
+                              <td className="text-center py-3 px-2 font-sport text-green-600">{s.won}</td>
+                              <td className="text-center py-3 px-2 font-sport">{s.draw}</td>
+                              <td className="text-center py-3 px-2 font-sport text-red-500">{s.lost}</td>
+                              <td className="text-center py-3 px-2 font-sport">{s.goals_for - s.goals_against}</td>
+                              <td className="text-center py-3 px-2 font-display font-bold text-primary">{s.points}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -683,51 +610,48 @@ const Calendrier = () => {
         </div>
       </section>
 
-      {/* Event Details Modal */}
+      {/* Event Modal */}
       <Dialog open={!!selectedEvent} onOpenChange={() => setSelectedEvent(null)}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-card border-border/50">
           <DialogHeader>
-            <DialogTitle className="font-sport-condensed font-bold text-foreground">
+            <DialogTitle className="font-display font-bold text-xl text-foreground">
               {selectedEvent && formatLongDate(selectedEvent.date)}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="space-y-4 mt-2">
             {selectedEvent?.events.map((e, i) => (
-              <Card key={i} className="border border-border/20">
-                <CardContent className="p-4 space-y-3">
-                  {e.type === "match" && (
-                    <div className="flex items-center justify-center gap-3 text-center">
-                      {e.home_logo && <img src={e.home_logo} alt={e.team_home || "Domicile"} className="h-7 w-7 object-contain" />}
-                      <span className="font-sport-condensed font-bold">{e.team_home || "Domicile"}</span>
-                      <span className="text-muted-foreground">VS</span>
-                      <span className="font-sport-condensed font-bold">{e.team_away || "Extérieur"}</span>
-                      {e.away_logo && <img src={e.away_logo} alt={e.team_away || "Extérieur"} className="h-7 w-7 object-contain" />}
+              <div key={i} className="p-4 rounded-xl bg-muted/50 space-y-3">
+                {e.type === "match" && (
+                  <div className="flex items-center justify-center gap-3 text-center">
+                    {e.home_logo && <img src={e.home_logo} alt="" loading="lazy" className="h-8 w-8 object-contain" />}
+                    <span className="font-display font-bold">{e.team_home || "Domicile"}</span>
+                    <span className="text-muted-foreground">VS</span>
+                    <span className="font-display font-bold">{e.team_away || "Extérieur"}</span>
+                    {e.away_logo && <img src={e.away_logo} alt="" loading="lazy" className="h-8 w-8 object-contain" />}
+                  </div>
+                )}
+
+                <div className="space-y-2 text-sm font-sport">
+                  {(e.start_time || e.end_time) && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Clock className="h-4 w-4" />
+                      <span>{e.start_time || ""} {e.end_time ? `→ ${e.end_time}` : ""}</span>
                     </div>
                   )}
-
-                  <div className="space-y-2 text-sm font-sport">
-                    {(e.start_time || e.end_time) && (
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-muted-foreground" />
-                        <span>
-                          {e.start_time || ""} {e.end_time ? `→ ${e.end_time}` : ""}
-                        </span>
-                      </div>
-                    )}
-                    {e.location && (
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span>{e.location}</span>
-                      </div>
-                    )}
-                    {typeof e.score_home === "number" && typeof e.score_away === "number" && (
-                      <div>Score : {e.score_home} - {e.score_away}</div>
-                    )}
-                    {e.title && <div className="text-muted-foreground">{e.title}</div>}
-                  </div>
-                </CardContent>
-              </Card>
+                  {e.location && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <MapPin className="h-4 w-4" />
+                      <span>{e.location}</span>
+                    </div>
+                  )}
+                  {typeof e.score_home === "number" && typeof e.score_away === "number" && (
+                    <div className="text-center font-display font-bold text-lg text-primary">
+                      {e.score_home} - {e.score_away}
+                    </div>
+                  )}
+                </div>
+              </div>
             ))}
           </div>
         </DialogContent>

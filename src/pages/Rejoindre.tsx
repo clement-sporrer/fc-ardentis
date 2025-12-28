@@ -1,44 +1,42 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PhoneField } from "@/components/PhoneField";
-import { CheckCircle2, Loader2, AlertCircle } from "lucide-react";
+import { CheckCircle2, Loader2, AlertCircle, Users, Handshake, Sparkles } from "lucide-react";
 
 type TypeProfil = "joueur" | "partenaire";
 
 const WEBHOOK_URL = import.meta.env.VITE_JOIN_WEBHOOK_URL as string;
 
 export default function Rejoindre() {
-  // Sélection du type
   const [type, setType] = useState<TypeProfil>("joueur");
 
-  // Champs communs
+  // Common fields
   const [prenom, setPrenom] = useState("");
   const [nom, setNom] = useState("");
   const [email, setEmail] = useState("");
   const [telephone, setTelephone] = useState("");
 
-  // Spécifique joueur
+  // Player specific
   const [dateNaissance, setDateNaissance] = useState("");
   const [posteSouhaite, setPosteSouhaite] = useState("");
   const [canal, setCanal] = useState("");
 
-  // Spécifique partenaire
+  // Partner specific
   const [entreprise, setEntreprise] = useState("");
   const [siteWeb, setSiteWeb] = useState("");
 
-  // Commun
+  // Common
   const [message, setMessage] = useState("");
 
-  // RGPD / état
+  // State
   const [consent, setConsent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState<null | "ok" | "ko">(null);
   const [errorMsg, setErrorMsg] = useState<string>("");
 
-  // Honeypot anti-bot
+  // Honeypot
   const [websiteTrap, setWebsiteTrap] = useState("");
 
-  // Validation minimale alignée avec l’Apps Script (type/prenom/email requis + champs métier)
   const requiredOK =
     consent &&
     prenom.trim() !== "" &&
@@ -73,9 +71,8 @@ export default function Rejoindre() {
       return;
     }
 
-    // Honeypot: si rempli → stop (probable bot)
     if (websiteTrap.trim() !== "") {
-      setSent("ok"); // on fait comme si tout allait bien pour ne pas donner d'indice aux bots
+      setSent("ok");
       resetForm();
       return;
     }
@@ -89,7 +86,6 @@ export default function Rejoindre() {
     const payload =
       type === "joueur"
         ? {
-            // Schéma EXACT attendu par l’Apps Script (onglet Joueurs)
             type: "joueur",
             prenom: prenom.trim(),
             nom: nom.trim(),
@@ -101,14 +97,13 @@ export default function Rejoindre() {
             message: message.trim(),
           }
         : {
-            // Schéma EXACT attendu par l’Apps Script (onglet Partenaires)
             type: "partenaire",
             prenom: prenom.trim(),
             nom: nom.trim(),
             email: email.trim(),
             telephone: telephone.trim(),
             entreprise: entreprise.trim(),
-            site_web: siteWeb.trim(), // optionnel OK si vide
+            site_web: siteWeb.trim(),
             message: message.trim(),
           };
 
@@ -116,26 +111,23 @@ export default function Rejoindre() {
       setSubmitting(true);
       const res = await fetch(WEBHOOK_URL, {
         method: "POST",
-        headers: { "Content-Type": "text/plain" }, // évite le préflight CORS
+        headers: { "Content-Type": "text/plain" },
         body: JSON.stringify(payload),
       });
 
-      // L’Apps Script renvoie { ok: true } ou { ok:false, error:"..." }
       let json: any = {};
       try {
         json = await res.json();
-      } catch {
-        // si pas de JSON (rare), on tolère ok via res.ok
-      }
+      } catch {}
 
       if (res.ok && (json?.ok === true || json?.status === "success" || json?.result === "success")) {
         setSent("ok");
         resetForm();
       } else {
         setSent("ko");
-        setErrorMsg(json?.error || "Erreur lors de l’envoi. Réessaie dans un instant.");
+        setErrorMsg(json?.error || "Erreur lors de l'envoi. Réessaie dans un instant.");
       }
-    } catch (err) {
+    } catch {
       setSent("ko");
       setErrorMsg("Impossible de contacter le serveur. Vérifie ta connexion et réessaie.");
     } finally {
@@ -143,156 +135,168 @@ export default function Rejoindre() {
     }
   };
 
-  // Styles cartes cliquables
-  const cardBase =
-    "flex-1 rounded-2xl p-5 border transition-all cursor-pointer select-none focus:outline-none";
-  const cardActive =
-    "bg-gradient-to-br from-primary/10 to-accent/10 border-primary/30 ring-2 ring-primary/40";
-  const cardInactive =
-    "bg-card border-border hover:border-primary/40 hover:bg-primary/5";
+  const inputClass = "w-full rounded-xl border border-border bg-background px-4 py-3 font-sport outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all";
 
   return (
     <div className="min-h-screen">
-      {/* Hero section (cohérente avec les autres pages) */}
-      <section className="bg-gradient-hero py-20 md:py-28 px-4 text-center !mt-0">
-        <div className="container max-w-5xl mx-auto">
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-sport-condensed font-bold text-white mb-3">
-            <span className="text-white">Nous </span>
-            <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
-              rejoindre
-            </span>
+      {/* Hero Section */}
+      <section data-hero="true" className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-hero" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gold/15 via-transparent to-transparent" />
+        <div className="absolute top-1/3 left-1/4 w-72 h-72 bg-gold/10 rounded-full blur-3xl" />
+        
+        <div className="container max-w-5xl mx-auto px-4 sm:px-6 relative z-10 text-center pt-24 sm:pt-28 pb-16 sm:pb-20">
+          <div className="flex items-center justify-center gap-4 mb-6 animate-rise-up">
+            <span className="h-px w-12 bg-gradient-to-r from-transparent to-gold" />
+            <Sparkles className="h-8 w-8 text-gold" />
+            <span className="h-px w-12 bg-gradient-to-l from-transparent to-gold" />
+          </div>
+          
+          <h1 className="font-display font-bold text-white leading-tight mb-4 animate-rise-up" style={{ animationDelay: "100ms" }}>
+            <span className="block text-display-sm sm:text-display-md md:text-display-lg">Nous</span>
+            <span className="block text-display-sm sm:text-display-md md:text-display-lg text-gradient-gold">rejoindre</span>
           </h1>
-          <p className="text-lg md:text-xl text-white/90 font-sport max-w-3xl mx-auto">
-            Devenez joueur ou partenaire du FC Ardentis.
+          
+          <p className="text-lg sm:text-xl text-white/70 font-sport max-w-2xl mx-auto animate-rise-up" style={{ animationDelay: "200ms" }}>
+            Devenez joueur ou partenaire du FC Ardentis
           </p>
         </div>
       </section>
 
-      <section className="py-14 px-4 bg-gradient-section">
-        <div className="container max-w-4xl mx-auto">
-          {/* Sélecteur de profil */}
-          <div className="mb-8">
-            <h2 className="font-sport-condensed text-xl mb-3">Choisissez votre profil</h2>
-            <div className="flex gap-4">
-              <div
-                className={`${cardBase} ${type === "joueur" ? cardActive : cardInactive}`}
+      {/* Form Section */}
+      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-gradient-section">
+        <div className="container max-w-3xl mx-auto">
+          {/* Profile Selector */}
+          <div className="mb-10">
+            <h2 className="font-display font-bold text-xl sm:text-2xl text-foreground mb-4">
+              Choisissez votre profil
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                type="button"
                 onClick={() => setType("joueur")}
-                role="button"
-                aria-pressed={type === "joueur"}
-                tabIndex={0}
-                onKeyDown={(e) => (e.key === "Enter" || e.key === " " ? setType("joueur") : null)}
+                className={`p-5 sm:p-6 rounded-2xl border-2 transition-all text-left ${
+                  type === "joueur"
+                    ? "border-primary bg-primary/10 shadow-lg"
+                    : "border-border hover:border-primary/50 hover:bg-muted/50"
+                }`}
               >
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="type"
-                    value="joueur"
-                    checked={type === "joueur"}
-                    onChange={() => setType("joueur")}
-                    className="accent-primary h-4 w-4"
-                  />
-                  <span className="font-sport font-medium">Joueur</span>
-                </label>
-              </div>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className={`p-2 rounded-xl ${type === "joueur" ? "bg-primary/20" : "bg-muted"}`}>
+                    <Users className={`h-5 w-5 ${type === "joueur" ? "text-primary" : "text-muted-foreground"}`} />
+                  </div>
+                  <span className={`font-display font-bold text-lg ${type === "joueur" ? "text-primary" : "text-foreground"}`}>
+                    Joueur
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground font-sport">
+                  Rejoindre l'équipe sur le terrain
+                </p>
+              </button>
 
-              <div
-                className={`${cardBase} ${type === "partenaire" ? cardActive : cardInactive}`}
+              <button
+                type="button"
                 onClick={() => setType("partenaire")}
-                role="button"
-                aria-pressed={type === "partenaire"}
-                tabIndex={0}
-                onKeyDown={(e) => (e.key === "Enter" || e.key === " " ? setType("partenaire") : null)}
+                className={`p-5 sm:p-6 rounded-2xl border-2 transition-all text-left ${
+                  type === "partenaire"
+                    ? "border-gold bg-gold/10 shadow-lg"
+                    : "border-border hover:border-gold/50 hover:bg-muted/50"
+                }`}
               >
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="type"
-                    value="partenaire"
-                    checked={type === "partenaire"}
-                    onChange={() => setType("partenaire")}
-                    className="accent-primary h-4 w-4"
-                  />
-                  <span className="font-sport font-medium">Partenaire</span>
-                </label>
-              </div>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className={`p-2 rounded-xl ${type === "partenaire" ? "bg-gold/20" : "bg-muted"}`}>
+                    <Handshake className={`h-5 w-5 ${type === "partenaire" ? "text-gold" : "text-muted-foreground"}`} />
+                  </div>
+                  <span className={`font-display font-bold text-lg ${type === "partenaire" ? "text-gold" : "text-foreground"}`}>
+                    Partenaire
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground font-sport">
+                  Devenir sponsor ou partenaire
+                </p>
+              </button>
             </div>
           </div>
 
           <form onSubmit={onSubmit} className="space-y-8">
-            {/* Bloc infos personnelles */}
-            <div className="rounded-2xl bg-card border border-border/60 shadow-card p-6 space-y-5">
-              <h3 className="font-sport-condensed text-lg">Informations personnelles</h3>
+            {/* Personal Info */}
+            <div className="premium-card p-6 sm:p-8">
+              <h3 className="font-display font-bold text-lg mb-5 flex items-center gap-2">
+                <span className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary text-sm font-bold">1</span>
+                Informations personnelles
+              </h3>
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <label className="font-sport text-sm">Prénom *</label>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="font-sport text-sm text-muted-foreground mb-1.5 block">Prénom *</label>
                   <input
                     type="text"
                     value={prenom}
                     onChange={(e) => setPrenom(e.target.value)}
-                    className="w-full rounded-xl border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40"
+                    className={inputClass}
                     placeholder="Ex. Antoine"
                     required
                   />
                 </div>
-                <div className="grid gap-2">
-                  <label className="font-sport text-sm">Nom</label>
+                <div>
+                  <label className="font-sport text-sm text-muted-foreground mb-1.5 block">Nom</label>
                   <input
                     type="text"
                     value={nom}
                     onChange={(e) => setNom(e.target.value)}
-                    className="w-full rounded-xl border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40"
+                    className={inputClass}
                     placeholder="Ex. Durand"
                   />
                 </div>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <label className="font-sport text-sm">Email *</label>
+              <div className="grid sm:grid-cols-2 gap-4 mt-4">
+                <div>
+                  <label className="font-sport text-sm text-muted-foreground mb-1.5 block">Email *</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full rounded-xl border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40"
+                    className={inputClass}
                     placeholder="prenom@exemple.com"
                     required
                   />
                 </div>
-
-                <div className="grid gap-2">
-                  <label className="font-sport text-sm">Téléphone (optionnel)</label>
+                <div>
+                  <label className="font-sport text-sm text-muted-foreground mb-1.5 block">Téléphone</label>
                   <PhoneField value={telephone} onChange={setTelephone} />
                 </div>
               </div>
             </div>
 
-            {/* Bloc spécifique JOUEUR */}
+            {/* Player Specific */}
             {type === "joueur" && (
-              <div className="rounded-2xl bg-card border border-border/60 shadow-card p-6 space-y-5">
-                <h3 className="font-sport-condensed text-lg">Informations sportives</h3>
+              <div className="premium-card p-6 sm:p-8">
+                <h3 className="font-display font-bold text-lg mb-5 flex items-center gap-2">
+                  <span className="h-8 w-8 rounded-lg bg-accent/10 flex items-center justify-center text-accent text-sm font-bold">2</span>
+                  Informations sportives
+                </h3>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <label className="font-sport text-sm">Date de naissance *</label>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="font-sport text-sm text-muted-foreground mb-1.5 block">Date de naissance *</label>
                     <input
                       type="date"
                       value={dateNaissance}
                       onChange={(e) => setDateNaissance(e.target.value)}
-                      className="w-full rounded-xl border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40"
+                      className={inputClass}
                       required
                     />
                   </div>
-
-                  <div className="grid gap-2">
-                    <label className="font-sport text-sm">Poste préféré *</label>
+                  <div>
+                    <label className="font-sport text-sm text-muted-foreground mb-1.5 block">Poste préféré *</label>
                     <select
                       value={posteSouhaite}
                       onChange={(e) => setPosteSouhaite(e.target.value)}
-                      className="w-full rounded-xl border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40"
+                      className={inputClass}
                       required
                     >
-                      <option value="">Sélectionnez un poste</option>
+                      <option value="">Sélectionnez</option>
                       <option>Gardien</option>
                       <option>Défenseur</option>
                       <option>Milieu</option>
@@ -301,51 +305,51 @@ export default function Rejoindre() {
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <label className="font-sport text-sm">Comment nous avez-vous connu ?</label>
-                    <select
-                      value={canal}
-                      onChange={(e) => setCanal(e.target.value)}
-                      className="w-full rounded-xl border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40"
-                    >
-                      <option value="">Sélectionnez une option</option>
-                      <option>Instagram</option>
-                      <option>TikTok</option>
-                      <option>Google</option>
-                      <option>Ami / bouche-à-oreille</option>
-                      <option>Autre</option>
-                    </select>
-                  </div>
+                <div className="mt-4">
+                  <label className="font-sport text-sm text-muted-foreground mb-1.5 block">Comment nous avez-vous connu ?</label>
+                  <select
+                    value={canal}
+                    onChange={(e) => setCanal(e.target.value)}
+                    className={inputClass}
+                  >
+                    <option value="">Sélectionnez</option>
+                    <option>Instagram</option>
+                    <option>TikTok</option>
+                    <option>Google</option>
+                    <option>Ami / bouche-à-oreille</option>
+                    <option>Autre</option>
+                  </select>
                 </div>
               </div>
             )}
 
-            {/* Bloc spécifique PARTENAIRE */}
+            {/* Partner Specific */}
             {type === "partenaire" && (
-              <div className="rounded-2xl bg-card border border-border/60 shadow-card p-6 space-y-5">
-                <h3 className="font-sport-condensed text-lg">Informations partenaire</h3>
+              <div className="premium-card p-6 sm:p-8">
+                <h3 className="font-display font-bold text-lg mb-5 flex items-center gap-2">
+                  <span className="h-8 w-8 rounded-lg bg-gold/10 flex items-center justify-center text-gold text-sm font-bold">2</span>
+                  Informations partenaire
+                </h3>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <label className="font-sport text-sm">Entreprise *</label>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="font-sport text-sm text-muted-foreground mb-1.5 block">Entreprise *</label>
                     <input
                       type="text"
                       value={entreprise}
                       onChange={(e) => setEntreprise(e.target.value)}
-                      className="w-full rounded-xl border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40"
-                      placeholder="Nom de l’entreprise"
+                      className={inputClass}
+                      placeholder="Nom de l'entreprise"
                       required
                     />
                   </div>
-
-                  <div className="grid gap-2">
-                    <label className="font-sport text-sm">Site web (optionnel)</label>
+                  <div>
+                    <label className="font-sport text-sm text-muted-foreground mb-1.5 block">Site web</label>
                     <input
                       type="url"
                       value={siteWeb}
                       onChange={(e) => setSiteWeb(e.target.value)}
-                      className="w-full rounded-xl border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40"
+                      className={inputClass}
                       placeholder="https://exemple.com"
                     />
                   </div>
@@ -353,40 +357,42 @@ export default function Rejoindre() {
               </div>
             )}
 
-            {/* Message libre */}
-            <div className="rounded-2xl bg-card border border-border/60 shadow-card p-6 space-y-5">
-              <h3 className="font-sport-condensed text-lg">Message libre (optionnel)</h3>
+            {/* Message */}
+            <div className="premium-card p-6 sm:p-8">
+              <h3 className="font-display font-bold text-lg mb-5 flex items-center gap-2">
+                <span className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground text-sm font-bold">3</span>
+                Message (optionnel)
+              </h3>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={4}
-                className="w-full rounded-xl border border-border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40"
+                className={inputClass}
                 placeholder={
                   type === "joueur"
-                    ? "Ajoute des précisions (disponibilités, expérience...)"
-                    : "Parle-nous de ton intérêt (sponsoring maillots, visibilité, etc.)"
+                    ? "Disponibilités, expérience, motivations..."
+                    : "Type de partenariat envisagé, visibilité souhaitée..."
                 }
               />
             </div>
 
-            {/* RGPD + honeypot */}
-            <div className="rounded-2xl bg-card border border-border/60 shadow-card p-6 space-y-4">
+            {/* Consent */}
+            <div className="premium-card p-6 sm:p-8">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={consent}
                   onChange={(e) => setConsent(e.target.checked)}
-                  className="accent-primary mt-1"
+                  className="accent-primary mt-1 h-5 w-5"
                 />
-                <span className="text-sm font-sport text-foreground/90">
-                  J’accepte que mes données soient utilisées pour traiter ma demande et me recontacter
+                <span className="text-sm font-sport text-foreground/80">
+                  J'accepte que mes données soient utilisées pour traiter ma demande et me recontacter
                   dans le cadre des activités du FC Ardentis. *
                 </span>
               </label>
 
-              {/* Champ honeypot invisible pour bots */}
+              {/* Honeypot */}
               <div className="hidden">
-                <label>Website</label>
                 <input
                   type="text"
                   value={websiteTrap}
@@ -395,26 +401,28 @@ export default function Rejoindre() {
               </div>
             </div>
 
-            {/* Messages d’état */}
+            {/* Status Messages */}
             {sent === "ok" && (
-              <div className="flex items-center gap-2 text-green-600 font-sport">
-                <CheckCircle2 className="h-5 w-5" />
-                Votre demande a bien été envoyée. Merci !
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-600">
+                <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
+                <span className="font-sport">Votre demande a bien été envoyée. Merci !</span>
               </div>
             )}
             {sent === "ko" && (
-              <div className="flex items-center gap-2 text-red-600 font-sport">
-                <AlertCircle className="h-5 w-5" />
-                {errorMsg || "Une erreur est survenue. Réessaie."}
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive">
+                <AlertCircle className="h-5 w-5 flex-shrink-0" />
+                <span className="font-sport">{errorMsg || "Une erreur est survenue. Réessaie."}</span>
               </div>
             )}
 
             {/* Submit */}
-            <div className="flex justify-center">
+            <div className="flex justify-center pt-4">
               <Button
                 type="submit"
                 disabled={submitting || !requiredOK}
-                className="px-6 py-6 text-base rounded-2xl min-w-[240px]"
+                variant="gold"
+                size="xl"
+                className="min-w-[280px] rounded-xl"
               >
                 {submitting ? (
                   <span className="inline-flex items-center gap-2">

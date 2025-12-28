@@ -3,13 +3,8 @@ import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate, Link } from "react-router-dom";
-
-/** Convertit en nombre sûr (gère virgules et NaN) */
-function toNumberSafe(v: any, fallback = 0): number {
-  if (typeof v === "number" && Number.isFinite(v)) return v;
-  const n = parseFloat(String(v ?? "").replace(",", "."));
-  return Number.isFinite(n) ? n : fallback;
-}
+import { ShoppingCart, Trash2, ArrowRight, Package } from "lucide-react";
+import { toNumberSafe } from "@/lib/utils";
 
 export default function Checkout() {
   const { state, dispatch } = useCart();
@@ -17,7 +12,6 @@ export default function Checkout() {
 
   const items = Array.isArray(state.items) ? state.items : [];
 
-  // Total robuste
   const total = useMemo(() => {
     return items.reduce((sum, it: any) => {
       const price = toNumberSafe(it?.price_eur, 0);
@@ -32,94 +26,157 @@ export default function Checkout() {
   };
 
   const goToDetails = () => {
-    // ✅ C’est ça qui te manquait avant : on envoie vers la page d’infos client
     navigate("/checkout/details");
   };
 
   if (!items.length) {
     return (
-      <div className="container max-w-4xl mx-auto py-16 px-4 text-center">
-        <h1 className="text-3xl font-bold mb-2">Votre panier est vide</h1>
-        <p className="text-muted-foreground mb-6">
-          Parcourez la boutique et ajoutez des articles personnalisés.
-        </p>
-        <Button asChild>
-          <Link to="/shop">Aller à la boutique</Link>
-        </Button>
+      <div className="min-h-screen">
+        {/* Hero Section */}
+        <section 
+          data-hero="true"
+          className="relative min-h-[50vh] flex items-center justify-center overflow-hidden bg-gradient-hero"
+        >
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
+          
+          <div className="container max-w-4xl mx-auto px-4 sm:px-6 relative z-10 text-center pt-24 sm:pt-28 pb-16 sm:pb-20">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-6 animate-rise-up">
+              <ShoppingCart className="h-10 w-10 text-white/70" />
+            </div>
+            
+            <h1 className="font-display font-bold text-3xl sm:text-4xl text-white mb-4 animate-rise-up" style={{ animationDelay: "100ms" }}>
+              Votre panier est vide
+            </h1>
+            
+            <p className="text-lg text-white/70 font-sport mb-8 animate-rise-up" style={{ animationDelay: "200ms" }}>
+              Parcourez la boutique et ajoutez des articles personnalisés.
+            </p>
+            
+            <Button asChild variant="gold" size="xl" className="rounded-full font-display animate-rise-up" style={{ animationDelay: "300ms" }}>
+              <Link to="/shop">
+                <Package className="h-5 w-5 mr-2" />
+                Aller à la boutique
+              </Link>
+            </Button>
+          </div>
+        </section>
       </div>
     );
   }
 
   return (
-    <div className="container max-w-6xl mx-auto py-12 px-4">
-      <h1 className="text-3xl md:text-4xl font-sport-condensed font-bold mb-6">Panier</h1>
-
-      <div className="space-y-4">
-        {items.map((it: any) => {
-          const price = toNumberSafe(it?.price_eur, 0);
-          const qty = Math.max(1, toNumberSafe(it?.quantity, 1));
-          const lineTotal = price * qty;
-
-          return (
-            <Card key={it?.lineItemId || `${it?.id}-${Math.random()}`} className="border border-border/20 shadow-card rounded-2xl">
-              <CardContent className="p-4 md:p-5 flex items-start gap-4">
-                {it?.image_url ? (
-                  <img
-                    src={it.image_url}
-                    alt={it?.name || "Produit"}
-                    className="w-24 h-24 md:w-28 md:h-28 object-cover rounded-xl"
-                    onError={(e) => ((e.currentTarget as HTMLImageElement).style.visibility = "hidden")}
-                  />
-                ) : null}
-
-                <div className="flex-1">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h3 className="font-sport-condensed font-bold text-lg">{it?.name || "Produit"}</h3>
-                      <p className="text-sm text-muted-foreground font-sport">
-                        {it?.size ? <>Taille : {it.size} • </> : null}
-                        {it?.number ? <>Numéro : {it.number} • </> : null}
-                        {it?.flocage ? <>Flocage : {it.flocage}</> : null}
-                      </p>
-                    </div>
-                    <div className="text-right whitespace-nowrap">
-                      <div className="font-sport font-semibold">{price.toFixed(2)}€</div>
-                      <div className="text-xs text-muted-foreground font-sport">Qté : {qty}</div>
-                      <div className="text-xs text-muted-foreground font-sport">Sous-total : {lineTotal.toFixed(2)}€</div>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 flex gap-2">
-                    <Button asChild variant="outline" className="font-sport">
-                      <Link to="/shop">Continuer mes achats</Link>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="text-red-500 font-sport"
-                      onClick={() => removeLine(String(it?.lineItemId))}
-                    >
-                      Supprimer
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      <div className="mt-8 flex items-center justify-between">
-        <div className="text-lg font-sport">
-          Total : <b>{toNumberSafe(total, 0).toFixed(2)}€</b>
-          <div className="text-xs text-muted-foreground font-sport">
-            Livraison sous 2 mois • Retrait en main propre auprès du club
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section 
+        data-hero="true"
+        className="relative pt-24 sm:pt-28 pb-12 sm:pb-16 overflow-hidden bg-gradient-hero"
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
+        
+        <div className="container max-w-6xl mx-auto px-4 sm:px-6 relative z-10 text-center">
+          <div className="flex items-center justify-center gap-4 mb-4 animate-rise-up">
+            <span className="h-px w-12 bg-gradient-to-r from-transparent to-gold" />
+            <ShoppingCart className="h-6 w-6 text-gold" />
+            <span className="h-px w-12 bg-gradient-to-l from-transparent to-gold" />
           </div>
+          
+          <h1 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl text-white mb-2 animate-rise-up" style={{ animationDelay: "100ms" }}>
+            Votre panier
+          </h1>
+          
+          <p className="text-white/70 font-sport animate-rise-up" style={{ animationDelay: "200ms" }}>
+            {items.length} article{items.length > 1 ? "s" : ""} • Total: {toNumberSafe(total, 0).toFixed(2)}€
+          </p>
         </div>
-        {/* ✅ Redirection vers la page d’infos client */}
-        <Button onClick={goToDetails} className="font-sport bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary-hover))] text-white">
-          Passer la commande
-        </Button>
-      </div>
+      </section>
+
+      {/* Cart Content */}
+      <section className="py-12 px-4 sm:px-6 bg-gradient-section">
+        <div className="container max-w-4xl mx-auto">
+          <div className="space-y-4">
+            {items.map((it: any) => {
+              const price = toNumberSafe(it?.price_eur, 0);
+              const qty = Math.max(1, toNumberSafe(it?.quantity, 1));
+              const lineTotal = price * qty;
+
+              return (
+                <Card key={it?.lineItemId || `${it?.id}-${Math.random()}`} className="premium-card overflow-hidden">
+                  <CardContent className="p-4 sm:p-6 flex flex-col sm:flex-row items-start gap-4">
+                    {it?.image_url && (
+                      <div className="w-full sm:w-28 h-28 rounded-xl overflow-hidden bg-muted/30 flex-shrink-0">
+                        <img
+                          src={it.image_url}
+                          alt={it?.name || "Produit"}
+                          loading="lazy"
+                          className="w-full h-full object-cover"
+                          onError={(e) => ((e.currentTarget as HTMLImageElement).style.visibility = "hidden")}
+                        />
+                      </div>
+                    )}
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <h3 className="font-display font-bold text-lg text-foreground">{it?.name || "Produit"}</h3>
+                          <p className="text-sm text-muted-foreground font-sport mt-1">
+                            {it?.size && <span>Taille: {it.size}</span>}
+                            {it?.number && <span> • N°{it.number}</span>}
+                            {it?.flocage && <span> • {it.flocage}</span>}
+                          </p>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <div className="font-display font-bold text-lg text-primary">{price.toFixed(2)}€</div>
+                          <div className="text-xs text-muted-foreground font-sport">Qté: {qty}</div>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <Button asChild variant="outline" size="sm" className="rounded-full font-sport">
+                          <Link to="/shop">Continuer mes achats</Link>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10 rounded-full font-sport"
+                          onClick={() => removeLine(String(it?.lineItemId))}
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Supprimer
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* Summary */}
+          <Card className="premium-card mt-8">
+            <CardContent className="p-6">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                  <p className="font-display font-bold text-2xl text-foreground">
+                    Total: {toNumberSafe(total, 0).toFixed(2)}€
+                  </p>
+                  <p className="text-sm text-muted-foreground font-sport mt-1">
+                    Livraison sous 2 mois • Retrait en main propre
+                  </p>
+                </div>
+                <Button 
+                  onClick={goToDetails} 
+                  variant="gold"
+                  size="xl"
+                  className="w-full sm:w-auto rounded-full font-display"
+                >
+                  Passer la commande
+                  <ArrowRight className="h-5 w-5 ml-2" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
     </div>
   );
 }
