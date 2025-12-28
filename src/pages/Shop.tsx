@@ -65,33 +65,24 @@ export default function Shop() {
         credentials: 'omit'
       });
       
-      // Vérifier si la requête a été redirigée
-      if (res.redirected) {
-        console.log('✅ Request redirected to:', res.url);
-      }
-      
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}: ${res.statusText}`);
       }
+      
         const raw = stripBOM(await res.text());
-        console.log('📄 CSV length:', raw.length, '| First 200 chars:', raw.substring(0, 200));
-        
         if (!raw || raw.trim().length === 0) {
           throw new Error("Réponse vide du serveur");
         }
         const lines = raw.replace(/\r/g, "").split("\n").filter(Boolean);
-        console.log('📊 Lines count:', lines.length, '| Header:', lines[0]?.substring(0, 100));
 
         if (lines.length < 2) {
-          console.warn('⚠️ No data rows in CSV');
           setProducts([]);
           setLoading(false);
           return;
         }
 
-        const allItems = lines.slice(1).map((line, idx) => {
+        const items: Product[] = lines.slice(1).map((line) => {
           const v = parseCSVLine(line, ",");
-          console.log(`📝 Row ${idx + 1}: ${v.length} cols | ID="${v[0]}" | Active="${v[9]}" | Name="${v[1]?.substring(0, 20)}"`);
           if (v.length < 11) return null;
 
           return {
@@ -107,10 +98,7 @@ export default function Shop() {
             active: (v[9] || "").toLowerCase() === "true",
             soldout: (v[10] || "").toLowerCase() === "true",
           } as Product;
-        });
-
-        const items = allItems.filter((p): p is Product => p !== null && p.active && !!p.id);
-        console.log('✅ Products parsed:', allItems.length, '| Active:', items.length);
+        }).filter((p): p is Product => p !== null && p.active && !!p.id);
 
         setProducts(items);
       } catch (err) {
@@ -124,6 +112,24 @@ export default function Shop() {
 
     fetchProducts();
   }, []);
+
+  // IntersectionObserver pour révéler les produits au scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("revealed");
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+    );
+
+    document.querySelectorAll(".reveal-on-scroll").forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, [products]); // Déclencher après le chargement des produits
 
   const handleImageLoad = (id: string) => {
     setImageLoaded((prev) => ({ ...prev, [id]: true }));
