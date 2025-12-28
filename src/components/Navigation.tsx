@@ -225,9 +225,7 @@ export default function Navigation() {
             size="icon"
             className={`h-12 w-12 rounded-full transition-all duration-300 ${
               open 
-                ? showTransparent 
-                  ? "bg-white/20 backdrop-blur-md border-white/30" 
-                  : "bg-primary text-primary-foreground border-primary"
+                ? "bg-primary text-primary-foreground border-primary shadow-lg"
                 : ""
             }`}
             aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
@@ -254,9 +252,13 @@ export default function Navigation() {
       {/* Mobile Menu */}
       <div
         id="mobile-menu"
-        className={`lg:hidden fixed inset-0 top-16 bg-secondary transition-all duration-500 ease-out ${
+        className={`lg:hidden fixed inset-0 top-16 transition-all duration-500 ease-out ${
           open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
+        style={{
+          backgroundColor: open ? 'hsl(224, 47%, 11%)' : 'transparent',
+          backdropFilter: open ? 'blur(20px)' : 'none',
+        }}
       >
         <nav className="container mx-auto px-6 py-8 flex flex-col h-full">
           {/* Navigation Links */}
