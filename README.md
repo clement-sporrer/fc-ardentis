@@ -12,6 +12,7 @@
   [![React](https://img.shields.io/badge/React-18.3-61DAFB?logo=react)](https://react.dev)
   [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript)](https://www.typescriptlang.org)
   [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-06B6D4?logo=tailwindcss)](https://tailwindcss.com)
+  [![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red)](LICENSE)
 </div>
 
 ---
@@ -34,7 +35,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/fc-ardentis.git
+git clone https://github.com/clement-sporrer/fc-ardentis.git
 cd fc-ardentis
 
 # Install dependencies
@@ -47,7 +48,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Visit `http://localhost:5173` to view the site.
+Open [http://localhost:5173](http://localhost:5173) to view the site.
 
 ---
 
@@ -177,6 +178,12 @@ npm run preview
 
 # Lint code
 npm run lint
+
+# Type check
+npm run typecheck
+
+# Format code (Prettier)
+npx prettier --write .
 ```
 
 ### Testing Stripe Locally

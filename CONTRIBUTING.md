@@ -25,7 +25,7 @@ Thank you for your interest in contributing to the FC Ardentis website!
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/fc-ardentis.git
+git clone https://github.com/clement-sporrer/fc-ardentis.git
 cd fc-ardentis
 
 # Install dependencies

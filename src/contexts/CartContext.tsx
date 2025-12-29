@@ -37,8 +37,10 @@ const CartContext = createContext<{
 function reducer(state: State, action: Action): State {
     switch (action.type) {
       case "HYDRATE": {
-        const raw = Array.isArray(action.payload?.items) ? action.payload?.items! : [];
-        const items = raw.map((it: any) => ({
+        const raw = Array.isArray(action.payload?.items) ? action.payload.items : [];
+        const items = raw.map((it: unknown) => {
+          const item = it as Partial<CartItem>;
+          return {
           lineItemId: String(it?.lineItemId ?? `${Date.now()}-${Math.random()}`),
           id: String(it?.id ?? ""),
           name: String(it?.name ?? ""),
@@ -47,8 +49,9 @@ function reducer(state: State, action: Action): State {
           image_url: it?.image_url ?? "",
           size: it?.size ?? "",
           number: it?.number ?? "",
-          flocage: it?.flocage ?? "",
-        }));
+          flocage: item?.flocage ?? "",
+          };
+        });
         return { items };
       }
 
@@ -93,14 +96,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     } catch {
       localStorage.removeItem(STORAGE_KEY);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Persist
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch {}
+    } catch (error) {
+      console.warn("Failed to persist cart to localStorage:", error);
+    }
   }, [state]);
 
   return <CartContext.Provider value={{ state, dispatch }}>{children}</CartContext.Provider>;

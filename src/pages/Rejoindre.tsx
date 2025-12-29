@@ -115,10 +115,12 @@ export default function Rejoindre() {
         body: JSON.stringify(payload),
       });
 
-      let json: any = {};
+      let json: unknown = {};
       try {
         json = await res.json();
-      } catch {}
+      } catch (error) {
+        console.warn("Failed to parse response:", error);
+      }
 
       if (res.ok && (json?.ok === true || json?.status === "success" || json?.result === "success")) {
         setSent("ok");

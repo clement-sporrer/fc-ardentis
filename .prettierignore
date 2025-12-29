@@ -1,0 +1,18 @@
+# Build outputs
+dist/
+node_modules/
+
+# Lock files
+package-lock.json
+bun.lockb
+
+# Generated files
+*.min.js
+*.min.css
+
+# Markdown (preserve formatting)
+*.md
+
+# Config files that have specific formatting
+.vercel/
+

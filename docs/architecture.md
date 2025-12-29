@@ -221,5 +221,5 @@ All sensitive configuration is stored in environment variables:
 - `SHEET_ORDERS_WEBAPP_URL` - Google Apps Script endpoint
 - `PRODUCTS_CSV_URL` - Product catalog URL
 
-See [Environment Variables](./env-variables.md) for complete list.
+See the [.env.example](../.env.example) file for the complete list of environment variables.
 

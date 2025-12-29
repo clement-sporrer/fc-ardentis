@@ -31,7 +31,9 @@ function buildCsvUrl() {
     (import.meta as any).env?.VITE_SHEET_PRODUCTS_CSV_URL ||
     (import.meta as any).env?.NEXT_PUBLIC_SHEET_PRODUCTS_CSV_URL ||
     "";
-  try { base = decodeURIComponent(base); } catch {}
+  try { base = decodeURIComponent(base); } catch (error) {
+    console.warn("Failed to decode URI component:", error);
+  }
   base = base.replace(/([?&])_ts=[^&]*/g, "").replace(/[?&]$/, "");
   return base + (base.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
 }
