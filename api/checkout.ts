@@ -1,6 +1,7 @@
 // api/checkout.ts
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import Stripe from "stripe";
+import { checkRateLimit } from "./rate-limit";
 
 // Lazy Stripe init after env checks
 let stripeSingleton: Stripe | null = null;
@@ -89,14 +90,55 @@ async function loadCatalog(): Promise<Record<string, Product>> {
 
 function validateCustomer(c: any) {
   if (!c || typeof c !== "object") return "Missing customer";
-  if (!c.first_name || !c.last_name) return "Missing customer name";
-  if (!c.email || !/^\S+@\S+\.\S+$/.test(String(c.email))) return "Invalid email";
+  
+  // Validate first name
+  const firstName = String(c.first_name || "").trim();
+  if (!firstName || firstName.length === 0) return "Missing first name";
+  if (firstName.length > 50) return "First name too long (max 50 characters)";
+  
+  // Validate last name
+  const lastName = String(c.last_name || "").trim();
+  if (!lastName || lastName.length === 0) return "Missing last name";
+  if (lastName.length > 50) return "Last name too long (max 50 characters)";
+  
+  // Validate email
+  const email = String(c.email || "").trim();
+  if (!email || email.length === 0) return "Missing email";
+  if (email.length > 254) return "Email too long (max 254 characters)";
+  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+  if (!emailRegex.test(email)) return "Invalid email format";
+  
+  // Validate phone (optional but check length if provided)
+  if (c.phone) {
+    const phone = String(c.phone).trim();
+    if (phone.length > 20) return "Phone number too long (max 20 characters)";
+  }
+  
+  // Validate note (optional but check length if provided)
+  if (c.note) {
+    const note = String(c.note).trim();
+    if (note.length > 1000) return "Note too long (max 1000 characters)";
+  }
+  
   return null;
 }
 
 // --- Handler ---
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+
+  // Rate limiting: 10 requests per minute per IP
+  const rateLimit = checkRateLimit(req, 10, 60 * 1000);
+  if (!rateLimit.allowed) {
+    res.setHeader("X-RateLimit-Limit", "10");
+    res.setHeader("X-RateLimit-Remaining", String(rateLimit.remaining));
+    res.setHeader("X-RateLimit-Reset", new Date(rateLimit.resetAt).toISOString());
+    return res.status(429).json({
+      error: "Too many requests",
+      message: "Vous avez effectué trop de requêtes. Veuillez réessayer dans quelques instants.",
+      retryAfter: Math.ceil((rateLimit.resetAt - Date.now()) / 1000),
+    });
+  }
 
   try {
     const { customer, items } = req.body || {};

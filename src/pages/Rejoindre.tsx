@@ -119,7 +119,7 @@ export default function Rejoindre() {
       try {
         json = await res.json();
       } catch (error) {
-        console.warn("Failed to parse response:", error);
+        logger.warn("Failed to parse response:", error);
       }
 
       if (res.ok && (json?.ok === true || json?.status === "success" || json?.result === "success")) {

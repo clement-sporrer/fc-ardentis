@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { stripBOM, detectCSVDelimiter, parseCSVLine, normalizeString } from "@/lib/utils";
+import { logger } from "@/lib/logger";
 
 /**
  * Hook to load and count team players from CSV
@@ -27,14 +28,14 @@ export function useTeamPlayers() {
         const url = `${TEAM_CSV_URL}${TEAM_CSV_URL.includes("?") ? "&" : "?"}_ts=${Date.now()}`;
         const res = await fetch(url, { cache: "no-store" });
         if (!res.ok) {
-          console.warn(`Team players fetch failed: HTTP ${res.status}`);
+          logger.warn(`Team players fetch failed: HTTP ${res.status}`);
           setCount(0);
           setLoading(false);
           return;
         }
         const raw0 = await res.text();
         if (!raw0 || raw0.trim().length === 0) {
-          console.warn("Team players response is empty");
+          logger.warn("Team players response is empty");
           setCount(0);
           setLoading(false);
           return;
@@ -80,7 +81,7 @@ export function useTeamPlayers() {
 
         setCount(playerCount);
       } catch (error) {
-        console.error("Error loading team players count:", error);
+        logger.error("Error loading team players count:", error);
         setCount(0);
       } finally {
         setLoading(false);

@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Users, Star, Trophy, Target, Filter, ArrowUpDown } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { logger } from "@/lib/logger";
 
 /** ====== URL CSV publié ====== */
 const TEAM_CSV_URL =
@@ -185,7 +186,7 @@ const Equipe = () => {
         setPlayers(parsed);
         setError(null);
       } catch (e) {
-        console.error("Erreur chargement équipe:", e);
+        logger.error("Erreur chargement équipe:", e);
         const errMsg = e instanceof Error ? e.message : String(e);
         setError(`Erreur lors du chargement de l'équipe. ${errMsg.includes("HTTP") ? errMsg : "Vérifiez la configuration."}`);
       } finally {

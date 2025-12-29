@@ -1,4 +1,5 @@
 import { createContext, useContext, useReducer, useEffect } from "react";
+import { logger } from "@/lib/logger";
 
 export type CartItem = {
   lineItemId: string;
@@ -103,7 +104,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch (error) {
-      console.warn("Failed to persist cart to localStorage:", error);
+      logger.warn("Failed to persist cart to localStorage:", error);
     }
   }, [state]);
 

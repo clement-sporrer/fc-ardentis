@@ -11,6 +11,7 @@ import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import { CartProvider } from "@/contexts/CartContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { logger } from "@/lib/logger";
 
 // Eager load - critical path pages
 import Index from "./pages/Index";
@@ -20,7 +21,7 @@ import NotFound from "./pages/NotFound";
 const lazyWithErrorHandling = (importFn: () => Promise<any>) => {
   return lazy(() => 
     importFn().catch((error) => {
-      console.error("Failed to load module:", error);
+      logger.error("Failed to load module:", error);
       throw error;
     })
   );

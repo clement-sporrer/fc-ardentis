@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
 import { toNumberSafe, buildCSVUrl, parseCSVLine, stripBOM } from "@/lib/utils";
 import { AlertCircle, ShoppingBag, Sparkles } from "lucide-react";
+import { logger } from "@/lib/logger";
 
 type ProductType = "maillot" | "short" | "charte";
 
@@ -102,7 +103,7 @@ export default function Shop() {
 
         setProducts(items);
       } catch (err) {
-        console.error("Erreur chargement produits:", err);
+        logger.error("Erreur chargement produits:", err);
         const errMsg = err instanceof Error ? err.message : String(err);
         setErrorMsg(`Impossible de charger les produits. ${errMsg.includes("HTTP") ? errMsg : "Vérifiez la configuration."}`);
       } finally {

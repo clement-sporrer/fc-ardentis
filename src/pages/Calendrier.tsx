@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { parseCSVLine, stripBOM } from "@/lib/utils";
+import { logger } from "@/lib/logger";
 
 // ENV
 const GOOGLE_SHEET_EVENTS_CSV_URL = import.meta.env.VITE_GOOGLE_SHEET_EVENTS_CSV_URL || "";
@@ -194,7 +195,7 @@ const Calendrier = () => {
         setEvents(parsed);
         setError(null);
       } catch (err) {
-        console.error("Erreur chargement événements:", err);
+        logger.error("Erreur chargement événements:", err);
         const errMsg = err instanceof Error ? err.message : String(err);
         setError(`Erreur lors du chargement des événements. ${errMsg.includes("HTTP") ? errMsg : "Vérifiez la configuration."}`);
       } finally {
@@ -220,13 +221,13 @@ const Calendrier = () => {
         const url = `${GOOGLE_SHEET_STANDINGS_CSV_URL}${GOOGLE_SHEET_STANDINGS_CSV_URL.includes("?") ? "&" : "?"}_ts=${Date.now()}`;
         const response = await fetch(url, { cache: "no-store" });
         if (!response.ok) {
-          console.warn(`Standings fetch failed: HTTP ${response.status}`);
+          logger.warn(`Standings fetch failed: HTTP ${response.status}`);
           setStandings([]);
           return;
         }
         const raw = stripBOM(await response.text());
         if (!raw || raw.trim().length === 0) {
-          console.warn("Standings response is empty");
+          logger.warn("Standings response is empty");
           setStandings([]);
           return;
         }
@@ -266,7 +267,7 @@ const Calendrier = () => {
         parsed.sort((a, b) => (a.rank || 999) - (b.rank || 999) || b.points - a.points);
         setStandings(parsed);
       } catch (err) {
-        console.error("Error fetching standings:", err);
+        logger.error("Error fetching standings:", err);
       } finally {
         setStandingsLoading(false);
       }

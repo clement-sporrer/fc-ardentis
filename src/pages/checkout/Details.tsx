@@ -7,6 +7,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PhoneField, isValidIntlPhone } from "@/components/PhoneField";
 import { CreditCard, Loader2, ShieldCheck } from "lucide-react";
 import { toNumberSafe } from "@/lib/utils";
+import { toast } from "@/components/ui/sonner";
+import { logger } from "@/lib/logger";
+import { isValidEmail, isValidName, isValidText, FIELD_LIMITS, sanitizeString } from "@/lib/validation";
 
 function formatEUR(n: number): string {
   return (Math.round(n * 100) / 100).toFixed(2).replace(".", ",") + " €";
@@ -35,15 +38,14 @@ export default function CheckoutDetails() {
     }, 0);
   }, [items]);
 
-  // Validation
-  const isNonEmpty = (s: string) => s.trim().length > 0;
-  const isValidEmail = (s: string) => /^(?!.{255})([\w.!#$%&'*+\-/=?^`{|}~]+)@([\w-]+\.)+[A-Za-z]{2,}$/.test(s.trim());
-  const firstNameValid = isNonEmpty(firstName);
-  const lastNameValid = isNonEmpty(lastName);
+  // Validation with length limits
+  const firstNameValid = isValidName(firstName);
+  const lastNameValid = isValidName(lastName);
   const emailValid = isValidEmail(email);
   const phoneValid = isValidIntlPhone(phone);
+  const noteValid = !note || isValidText(note, FIELD_LIMITS.note);
 
-  const canSubmit = firstNameValid && lastNameValid && emailValid && phoneValid && items.length > 0 && !submitting;
+  const canSubmit = firstNameValid && lastNameValid && emailValid && phoneValid && noteValid && items.length > 0 && !submitting;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,11 +56,11 @@ export default function CheckoutDetails() {
     try {
       const payload = {
         customer: {
-          first_name: firstName.trim(),
-          last_name: lastName.trim(),
-          email: email.trim(),
-          phone: phone.trim(),
-          note: note.trim(),
+          first_name: sanitizeString(firstName, FIELD_LIMITS.firstName),
+          last_name: sanitizeString(lastName, FIELD_LIMITS.lastName),
+          email: sanitizeString(email, FIELD_LIMITS.email),
+          phone: sanitizeString(phone, FIELD_LIMITS.phone),
+          note: sanitizeString(note, FIELD_LIMITS.note),
         },
         items: items.map((it: any) => ({
           id: String(it.id),
@@ -85,10 +87,14 @@ export default function CheckoutDetails() {
       }
 
       const errMsg = json?.error || "Impossible de créer la session de paiement.";
-      alert(errMsg);
+      toast.error("Erreur de paiement", {
+        description: errMsg,
+      });
     } catch (err) {
-      console.error(err);
-      alert("Erreur inattendue lors de la création du paiement.");
+      logger.error(err);
+      toast.error("Erreur inattendue", {
+        description: "Une erreur est survenue lors de la création du paiement. Veuillez réessayer.",
+      });
     } finally {
       setSubmitting(false);
     }
@@ -159,7 +165,11 @@ export default function CheckoutDetails() {
                         className={inputClass}
                       />
                       {submitted && !firstNameValid && (
-                        <p className="mt-1 text-xs text-destructive font-sport">Le prénom est requis.</p>
+                        <p className="mt-1 text-xs text-destructive font-sport">
+                          {firstName.trim().length === 0 
+                            ? "Le prénom est requis." 
+                            : "Le prénom doit contenir uniquement des lettres (max 50 caractères)."}
+                        </p>
                       )}
                     </div>
                     <div>
@@ -172,7 +182,11 @@ export default function CheckoutDetails() {
                         className={inputClass}
                       />
                       {submitted && !lastNameValid && (
-                        <p className="mt-1 text-xs text-destructive font-sport">Le nom est requis.</p>
+                        <p className="mt-1 text-xs text-destructive font-sport">
+                          {lastName.trim().length === 0 
+                            ? "Le nom est requis." 
+                            : "Le nom doit contenir uniquement des lettres (max 50 caractères)."}
+                        </p>
                       )}
                     </div>
                     <div>
@@ -186,7 +200,11 @@ export default function CheckoutDetails() {
                         className={inputClass}
                       />
                       {submitted && !emailValid && (
-                        <p className="mt-1 text-xs text-destructive font-sport">Adresse email invalide.</p>
+                        <p className="mt-1 text-xs text-destructive font-sport">
+                          {email.trim().length === 0 
+                            ? "L'email est requis." 
+                            : "Format d'email invalide (max 254 caractères)."}
+                        </p>
                       )}
                     </div>
                     <div>
@@ -197,13 +215,26 @@ export default function CheckoutDetails() {
                       )}
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="font-sport text-sm text-muted-foreground mb-1.5 block">Commentaire (optionnel)</label>
+                      <label className="font-sport text-sm text-muted-foreground mb-1.5 block">
+                        Commentaire (optionnel, max {FIELD_LIMITS.note} caractères)
+                      </label>
                       <Input
                         value={note}
                         onChange={(e) => setNote(e.target.value)}
                         placeholder="Infos utiles (disponibilités, etc.)"
                         className={inputClass}
+                        maxLength={FIELD_LIMITS.note}
                       />
+                      {note.length > FIELD_LIMITS.note * 0.9 && (
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {FIELD_LIMITS.note - note.length} caractères restants
+                        </p>
+                      )}
+                      {submitted && !noteValid && (
+                        <p className="mt-1 text-xs text-destructive font-sport">
+                          Le commentaire est trop long (max {FIELD_LIMITS.note} caractères).
+                        </p>
+                      )}
                     </div>
                   </div>
 

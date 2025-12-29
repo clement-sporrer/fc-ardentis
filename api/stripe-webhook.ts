@@ -1,6 +1,7 @@
 // api/stripe-webhook.ts
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import Stripe from "stripe";
+import { checkRateLimit } from "./rate-limit";
 
 export const config = { api: { bodyParser: false } };
 
@@ -15,6 +16,15 @@ function buffer(req: any): Promise<Buffer> {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") return res.status(405).send("Method not allowed");
+
+  // Rate limiting: 20 requests per minute per IP (webhooks can be more frequent)
+  const rateLimit = checkRateLimit(req, 20, 60 * 1000);
+  if (!rateLimit.allowed) {
+    res.setHeader("X-RateLimit-Limit", "20");
+    res.setHeader("X-RateLimit-Remaining", String(rateLimit.remaining));
+    res.setHeader("X-RateLimit-Reset", new Date(rateLimit.resetAt).toISOString());
+    return res.status(429).send("Too many requests");
+  }
 
   const secret = process.env.STRIPE_SECRET_KEY as string | undefined;
   if (!secret) return res.status(500).send("Missing STRIPE_SECRET_KEY");

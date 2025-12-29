@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Skeleton } from "@/components/ui/skeleton";
 import { ShoppingBag, Check, Ruler, Package, AlertCircle } from "lucide-react";
 import { toNumberSafe, stripBOM } from "@/lib/utils";
+import { logger } from "@/lib/logger";
 
 type ProductType = "maillot" | "short";
 
@@ -32,7 +33,7 @@ function buildCsvUrl() {
     (import.meta as any).env?.NEXT_PUBLIC_SHEET_PRODUCTS_CSV_URL ||
     "";
   try { base = decodeURIComponent(base); } catch (error) {
-    console.warn("Failed to decode URI component:", error);
+    logger.warn("Failed to decode URI component:", error);
   }
   base = base.replace(/([?&])_ts=[^&]*/g, "").replace(/[?&]$/, "");
   return base + (base.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
@@ -71,7 +72,7 @@ export default function ProductPage() {
         });
         
         if (res.redirected) {
-          console.log('✅ Request redirected to:', res.url);
+          logger.log('✅ Request redirected to:', res.url);
         }
         
         if (!res.ok) {
@@ -106,7 +107,7 @@ export default function ProductPage() {
         const found = list.find((p) => (p.id || "").toLowerCase() === safeSlug);
         setProduct(found || null);
       } catch (e: any) {
-        console.error("Erreur chargement produit:", e);
+        logger.error("Erreur chargement produit:", e);
         const errMsg = e instanceof Error ? e.message : String(e);
         setErrorMsg(`Impossible de charger ce produit. ${errMsg.includes("HTTP") ? errMsg : "Vérifiez la configuration."}`);
         setProduct(null);
