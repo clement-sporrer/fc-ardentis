@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { MapPin, Calendar, Users, Heart, Trophy, Handshake, Star, Zap } from "lucide-react";
 import { useEffect, useState, useRef, useMemo } from "react";
 import { useTeamPlayers } from "@/hooks/useTeamPlayers";
+import { Seo } from "@/seo/Seo";
+import { seoIndex } from "@/seo/seo.config";
 
 const GOOGLE_PHOTOS_ALBUM_SHARE_URL = import.meta.env.VITE_GOOGLE_PHOTOS_ALBUM_SHARE_URL || "";
 
@@ -66,6 +68,7 @@ const Index = () => {
 
   return (
     <>
+      <Seo {...seoIndex()} />
       {/* Hero Section - Full Viewport */}
       <section data-hero="true" className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background with gradient mesh */}
@@ -139,6 +142,12 @@ const Index = () => {
             className="text-sm sm:text-base text-white/60 font-sport max-w-xl mx-auto animate-rise-up"
             style={{ animationDelay: "400ms" }}
           >
+            Club de foot amateur adulte (+18 ans) • Colombes (92) • Hauts-de-Seine
+          </p>
+          <p 
+            className="text-xs sm:text-sm text-white/50 font-sport max-w-xl mx-auto mt-2 animate-rise-up"
+            style={{ animationDelay: "500ms" }}
+          >
             Membres de la{" "}
             <a
               href="https://www.cflparis.fr/"
@@ -146,9 +155,12 @@ const Index = () => {
               rel="noopener noreferrer"
               className="text-magenta hover:text-white font-semibold underline underline-offset-2 transition-colors"
             >
-              Commission de Football Loisir
+              CFL Paris
             </a>
-            {" "}— Compétition parisienne
+            {" "}·{" "}
+            <Link to="/cfl" className="text-white/70 hover:text-white underline underline-offset-2 transition-colors">
+              Infos compétition
+            </Link>
           </p>
         </div>
 
@@ -211,9 +223,9 @@ const Index = () => {
                 <h3 className="font-display font-bold text-xl text-foreground">Notre ADN</h3>
               </div>
               <p className="text-muted-foreground font-sport text-base sm:text-lg leading-relaxed">
-                Né de la passion commune pour le football, le FC Ardentis rassemble des
-                joueurs de tous niveaux autour des valeurs de respect et d'excellence.
-                Notre club offre un environnement bienveillant pour progresser.
+                Le FC Ardentis est un <strong>club de football amateur loisir</strong> pour adultes (+18 ans),
+                basé à <strong>Colombes (92)</strong> dans les Hauts-de-Seine. Nous rassemblons des joueurs
+                de tous niveaux autour de valeurs fortes : cohésion, respect et performance.
               </p>
             </div>
             
@@ -225,9 +237,9 @@ const Index = () => {
                 <h3 className="font-display font-bold text-xl text-foreground">Rejoignez-nous</h3>
               </div>
               <p className="text-muted-foreground font-sport text-base sm:text-lg leading-relaxed">
-                Que vous soyez débutant ou expérimenté, notre équipe vous accueille avec
-                enthousiasme. Rejoignez notre famille sportive et vivez l'aventure
-                collective du football en région parisienne.
+                Que vous soyez débutant ou expérimenté, le FC Ardentis vous accueille.
+                Nous cherchons des joueurs motivés (18 ans et plus) pour notre équipe
+                amateur en Île-de-France. Matchs CFL + entraînements à Colombes (92).
               </p>
             </div>
           </div>
@@ -292,8 +304,9 @@ const Index = () => {
                 </h3>
               </div>
               <div className="text-white/80 font-sport mb-6 text-base sm:text-lg space-y-2">
-                <p>Entraînement à <span className="text-magenta font-semibold">Colombes</span></p>
-                <p>Matchs en <span className="text-magenta font-semibold">région parisienne</span></p>
+                <p>Entraînements à <span className="text-magenta font-semibold">Colombes (92)</span></p>
+                <p>Hauts-de-Seine, <span className="text-magenta font-semibold">Île-de-France</span></p>
+                <p>Matchs CFL en <span className="text-magenta font-semibold">région parisienne</span></p>
               </div>
               <div className="rounded-2xl overflow-hidden shadow-elevated border border-white/10">
                 <iframe

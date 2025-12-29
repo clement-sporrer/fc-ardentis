@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Home, AlertTriangle } from "lucide-react";
+import { Seo } from "@/seo/Seo";
+import { seoNotFound } from "@/seo/seo.config";
 
 const NotFound = () => {
   return (
     <div className="min-h-screen">
+      <Seo {...seoNotFound()} />
       {/* Hero Section with data-hero for navbar detection */}
       <section 
         data-hero="true"

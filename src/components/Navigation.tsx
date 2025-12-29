@@ -100,6 +100,7 @@ export default function Navigation() {
     { path: "/", label: "Accueil" },
     { path: "/equipe", label: "Équipe" },
     { path: "/calendrier", label: "Calendrier" },
+    { path: "/cfl", label: "CFL" },
     { path: "/shop", label: "Boutique" },
     { path: "/contacts", label: "Contacts" },
   ];

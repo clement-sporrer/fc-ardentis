@@ -19,6 +19,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { parseCSVLine, stripBOM } from "@/lib/utils";
 import { logger } from "@/lib/logger";
+import { Seo } from "@/seo/Seo";
+import { seoCalendrier } from "@/seo/seo.config";
 
 // ENV
 const GOOGLE_SHEET_EVENTS_CSV_URL = import.meta.env.VITE_GOOGLE_SHEET_EVENTS_CSV_URL || "";
@@ -337,6 +339,7 @@ const Calendrier = () => {
 
   return (
     <div className="min-h-screen">
+      <Seo {...seoCalendrier()} />
       {/* Hero Section */}
       <section data-hero="true" className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero" />
@@ -364,6 +367,11 @@ const Calendrier = () => {
       {/* Calendar + Lists */}
       <section className="py-12 sm:py-20 px-4 sm:px-6 bg-gradient-section">
         <div className="container max-w-7xl mx-auto">
+          <p className="text-muted-foreground font-sport mb-8 max-w-3xl">
+            Consultez le calendrier du <span className="font-semibold text-foreground">FC Ardentis</span> : matchs CFL,
+            entraînements à <span className="font-semibold text-foreground">Colombes</span>, lieux et horaires.
+            Idéal pour organiser votre semaine et suivre les résultats.
+          </p>
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Calendar Grid */}
             <div className="lg:col-span-2">

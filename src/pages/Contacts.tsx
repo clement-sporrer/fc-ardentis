@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Instagram, ExternalLink, Mail, MapPin, Calendar, Music, Youtube, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Seo } from "@/seo/Seo";
+import { seoContacts } from "@/seo/seo.config";
 
 const Contacts = () => {
   const socialLinks = [
@@ -29,6 +31,7 @@ const Contacts = () => {
 
   return (
     <div className="min-h-screen">
+      <Seo {...seoContacts()} />
       {/* Hero Section */}
       <section data-hero="true" className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero" />
@@ -56,6 +59,52 @@ const Contacts = () => {
       {/* Content */}
       <section className="py-16 sm:py-24 px-4 sm:px-6 bg-gradient-section">
         <div className="container max-w-6xl mx-auto">
+          <p className="text-muted-foreground font-sport mb-10 max-w-3xl">
+            Pour un essai, une question ou un partenariat, contactez le <span className="font-semibold text-foreground">FC Ardentis</span>.
+            Club de football amateur loisir pour <span className="font-semibold text-foreground">adultes (+18 ans)</span>,
+            basé à <span className="font-semibold text-foreground">Colombes (92)</span>, Hauts-de-Seine, Île-de-France.
+          </p>
+
+          {/* FAQ (content mirrors FAQPage JSON-LD for better UX + relevance) */}
+          <div className="premium-card p-6 sm:p-8 mb-12">
+            <h2 className="font-display font-bold text-xl sm:text-2xl text-foreground mb-4">
+              Questions fréquentes
+            </h2>
+            <div className="space-y-4 text-muted-foreground font-sport">
+              <div>
+                <h3 className="font-display font-bold text-foreground">Comment contacter le FC Ardentis ?</h3>
+                <p className="mt-1">
+                  Écrivez à{" "}
+                  <a className="text-primary underline underline-offset-2" href="mailto:fcardentis@gmail.com">
+                    fcardentis@gmail.com
+                  </a>{" "}
+                  ou contactez-nous via Instagram (@fc_ardentis). Réponse généralement sous 48h.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-foreground">Où se trouve le FC Ardentis ?</h3>
+                <p className="mt-1">
+                  Le club est basé à <strong>Colombes (92)</strong>, dans les Hauts-de-Seine, en Île-de-France.
+                  Entraînements au Stade Yves-du-Manoir, matchs CFL en région parisienne.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-foreground">Peut-on venir faire un essai ?</h3>
+                <p className="mt-1">
+                  Oui ! Contactez-nous avec votre profil (poste, expérience, disponibilités) et nous proposerons un créneau.
+                  Le club est ouvert aux adultes de 18 ans et plus.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-foreground">Quel est le public visé ?</h3>
+                <p className="mt-1">
+                  Le FC Ardentis est un club de football amateur loisir réservé aux <strong>adultes (18 ans et plus)</strong>.
+                  Tous niveaux bienvenus, du débutant au confirmé.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
             
             {/* Social Networks */}
@@ -137,8 +186,9 @@ const Contacts = () => {
                       Localisation
                     </h3>
                     <div className="text-foreground/80 font-sport space-y-1">
-                      <p>Entraînement à <span className="font-semibold text-foreground">Colombes</span></p>
-                      <p>Matchs en <span className="font-semibold text-foreground">région parisienne</span></p>
+                      <p>Entraînements à <span className="font-semibold text-foreground">Colombes (92)</span></p>
+                      <p>Hauts-de-Seine, Île-de-France</p>
+                      <p>Matchs CFL en <span className="font-semibold text-foreground">région parisienne</span></p>
                     </div>
                   </div>
                 </div>

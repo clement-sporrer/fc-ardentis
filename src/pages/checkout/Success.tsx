@@ -3,6 +3,8 @@ import { useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Package, ShoppingBag } from "lucide-react";
+import { Seo } from "@/seo/Seo";
+import { seoCheckout } from "@/seo/seo.config";
 
 export default function CheckoutSuccess() {
   const [params] = useSearchParams();
@@ -16,6 +18,7 @@ export default function CheckoutSuccess() {
 
   return (
     <div className="min-h-screen">
+      <Seo {...seoCheckout("Paiement réussi | FC Ardentis", "/checkout/success")} />
       {/* Hero Section */}
       <section 
         data-hero="true"

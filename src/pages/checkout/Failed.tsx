@@ -1,6 +1,8 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, ShoppingBag, RefreshCw } from "lucide-react";
+import { Seo } from "@/seo/Seo";
+import { seoCheckout } from "@/seo/seo.config";
 
 export default function CheckoutFailed() {
   const [params] = useSearchParams();
@@ -8,6 +10,7 @@ export default function CheckoutFailed() {
 
   return (
     <div className="min-h-screen">
+      <Seo {...seoCheckout("Erreur de paiement | FC Ardentis", "/checkout/failed")} />
       {/* Hero Section */}
       <section 
         data-hero="true"

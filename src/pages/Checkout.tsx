@@ -5,6 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate, Link } from "react-router-dom";
 import { ShoppingCart, Trash2, Package } from "lucide-react";
 import { toNumberSafe } from "@/lib/utils";
+import { Seo } from "@/seo/Seo";
+import { seoCheckout } from "@/seo/seo.config";
 
 export default function Checkout() {
   const { state, dispatch } = useCart();
@@ -32,6 +34,7 @@ export default function Checkout() {
   if (!items.length) {
     return (
       <div className="min-h-screen">
+        <Seo {...seoCheckout("Panier | FC Ardentis", "/checkout")} />
         {/* Hero Section */}
         <section 
           data-hero="true"
@@ -66,6 +69,7 @@ export default function Checkout() {
 
   return (
     <div className="min-h-screen">
+      <Seo {...seoCheckout("Panier | FC Ardentis", "/checkout")} />
       {/* Hero Section */}
       <section 
         data-hero="true"

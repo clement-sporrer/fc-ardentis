@@ -8,6 +8,7 @@ const Footer = () => {
     { path: "/", label: "Accueil" },
     { path: "/equipe", label: "Notre équipe" },
     { path: "/calendrier", label: "Calendrier" },
+    { path: "/cfl", label: "Compétition CFL" },
     { path: "/shop", label: "Boutique" },
   ];
 
@@ -39,8 +40,9 @@ const Footer = () => {
               </span>
             </Link>
             <p className="text-white/70 font-sport text-sm leading-relaxed mb-6 max-w-xs">
-              Club de football fondé en 2025 en région parisienne. 
-              Passion, cohésion et excellence sur le terrain.
+              Club de football amateur loisir pour adultes (+18 ans).
+              Basé à Colombes (92), Hauts-de-Seine.
+              Cohésion, respect et performance.
             </p>
             
             {/* CFL Badge */}
@@ -110,7 +112,22 @@ const Footer = () => {
                 </div>
                 <div>
                   <p className="text-white/90 font-sport text-sm font-medium">Localisation</p>
-                  <p className="text-white/60 font-sport text-xs">Colombes, Île-de-France</p>
+                  <p className="text-white/60 font-sport text-xs">Colombes (92), Hauts-de-Seine</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-white/5">
+                  <Mail className="h-4 w-4 text-magenta" />
+                </div>
+                <div>
+                  <p className="text-white/90 font-sport text-sm font-medium">Contact</p>
+                  <a
+                    href="mailto:fcardentis@gmail.com"
+                    className="text-white/60 hover:text-white font-sport text-xs transition-colors"
+                  >
+                    fcardentis@gmail.com
+                  </a>
                 </div>
               </div>
               

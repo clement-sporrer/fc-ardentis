@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { AlertCircle, Users, Star, Trophy, Target, Filter, ArrowUpDown } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { logger } from "@/lib/logger";
+import { Seo } from "@/seo/Seo";
+import { seoEquipe } from "@/seo/seo.config";
 
 /** ====== URL CSV publié ====== */
 const TEAM_CSV_URL =
@@ -251,6 +253,7 @@ const Equipe = () => {
 
   return (
     <div className="min-h-screen">
+      <Seo {...seoEquipe()} />
       {/* Hero Section */}
       <section data-hero="true" className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero" />
@@ -278,6 +281,11 @@ const Equipe = () => {
       {/* Players Section */}
       <section className="py-16 sm:py-24 px-4 sm:px-6 bg-gradient-section">
         <div className="container max-w-7xl mx-auto">
+          <p className="text-muted-foreground font-sport mb-10 max-w-3xl">
+            Retrouvez l’effectif du <span className="font-semibold text-foreground">FC Ardentis</span>, club de football basé à
+            <span className="font-semibold text-foreground"> Colombes</span> (Île-de-France) : postes, profils et statistiques
+            pour suivre l’équipe tout au long de la saison.
+          </p>
           {loading ? (
             <div className="space-y-12">
               {ORDER_SECTIONS.map((section) => (

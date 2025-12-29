@@ -1,51 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- Homepage -->
   <url>
-    <loc>https://fc-ardentis.vercel.app/</loc>
-    <lastmod>2025-01-01</lastmod>
+    <loc>https://fcardentis.fr/</loc>
+    <lastmod>2025-12-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
-  
-  <!-- Team Page -->
   <url>
-    <loc>https://fc-ardentis.vercel.app/equipe</loc>
-    <lastmod>2025-01-01</lastmod>
+    <loc>https://fcardentis.fr/equipe</loc>
+    <lastmod>2025-12-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-  
-  <!-- Calendar Page -->
   <url>
-    <loc>https://fc-ardentis.vercel.app/calendrier</loc>
-    <lastmod>2025-01-01</lastmod>
+    <loc>https://fcardentis.fr/calendrier</loc>
+    <lastmod>2025-12-29</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
-  
-  <!-- Shop Page -->
   <url>
-    <loc>https://fc-ardentis.vercel.app/shop</loc>
-    <lastmod>2025-01-01</lastmod>
+    <loc>https://fcardentis.fr/cfl</loc>
+    <lastmod>2025-12-29</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://fcardentis.fr/shop</loc>
+    <lastmod>2025-12-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-  
-  <!-- Join Page -->
   <url>
-    <loc>https://fc-ardentis.vercel.app/rejoindre</loc>
-    <lastmod>2025-01-01</lastmod>
+    <loc>https://fcardentis.fr/rejoindre</loc>
+    <lastmod>2025-12-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  
-  <!-- Contact Page -->
   <url>
-    <loc>https://fc-ardentis.vercel.app/contacts</loc>
-    <lastmod>2025-01-01</lastmod>
+    <loc>https://fcardentis.fr/contacts</loc>
+    <lastmod>2025-12-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 </urlset>
-

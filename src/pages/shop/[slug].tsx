@@ -10,6 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ShoppingBag, Check, Ruler, Package, AlertCircle } from "lucide-react";
 import { toNumberSafe, stripBOM } from "@/lib/utils";
 import { logger } from "@/lib/logger";
+import { Seo } from "@/seo/Seo";
+import { seoProduct } from "@/seo/seo.config";
 
 type ProductType = "maillot" | "short";
 
@@ -146,6 +148,7 @@ export default function ProductPage() {
   if (loading) {
     return (
       <div className="min-h-screen">
+        <Seo {...seoProduct({ id: safeSlug, name: "Produit" })} />
         <section data-hero="true" className="relative pt-24 sm:pt-28 pb-12 sm:pb-16 overflow-hidden bg-gradient-hero">
           <div className="container max-w-6xl mx-auto px-4 relative z-10">
             <Skeleton className="h-8 w-48 mx-auto bg-white/10" />
@@ -169,6 +172,7 @@ export default function ProductPage() {
   if (errorMsg) {
     return (
       <div className="min-h-screen">
+        <Seo {...seoProduct({ id: safeSlug, name: "Produit" })} />
         <section data-hero="true" className="relative min-h-[50vh] flex items-center justify-center overflow-hidden bg-gradient-hero">
           <div className="container max-w-2xl mx-auto px-4 text-center relative z-10 pt-16">
             <AlertCircle className="h-16 w-16 text-destructive mx-auto mb-4" />
@@ -185,6 +189,7 @@ export default function ProductPage() {
   if (!product) {
     return (
       <div className="min-h-screen">
+        <Seo {...seoProduct({ id: safeSlug, name: "Produit" })} />
         <section data-hero="true" className="relative min-h-[50vh] flex items-center justify-center overflow-hidden bg-gradient-hero">
           <div className="container max-w-2xl mx-auto px-4 text-center relative z-10 pt-16">
             <Package className="h-16 w-16 text-white/50 mx-auto mb-4" />
@@ -200,6 +205,7 @@ export default function ProductPage() {
 
   return (
     <div className="min-h-screen">
+      <Seo {...seoProduct({ id: product.id, name: product.name, price_eur: product.price_eur, image1: product.image1, soldout: product.soldout })} />
       {/* Hero Section */}
       <section data-hero="true" className="relative pt-24 sm:pt-28 pb-8 sm:pb-12 overflow-hidden bg-gradient-hero">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />

@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 import { toNumberSafe, buildCSVUrl, parseCSVLine, stripBOM } from "@/lib/utils";
 import { AlertCircle, ShoppingBag, Sparkles } from "lucide-react";
 import { logger } from "@/lib/logger";
+import { Seo } from "@/seo/Seo";
+import { seoShop } from "@/seo/seo.config";
 
 type ProductType = "maillot" | "short" | "charte";
 
@@ -138,6 +140,7 @@ export default function Shop() {
 
   return (
     <div className="min-h-screen">
+      <Seo {...seoShop()} />
       {/* Hero Section */}
       <section data-hero="true" className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero" />
@@ -165,6 +168,10 @@ export default function Shop() {
       {/* Products Section */}
       <section className="py-12 sm:py-20 px-4 sm:px-6 bg-gradient-section">
         <div className="container max-w-6xl mx-auto">
+          <p className="text-muted-foreground font-sport mb-10 max-w-3xl">
+            Découvrez la boutique officielle du <span className="font-semibold text-foreground">FC Ardentis</span> :
+            maillots et shorts du club, avec personnalisation (taille, flocage, numéro) avant paiement sécurisé via Stripe.
+          </p>
           {/* Loading State */}
           {loading && (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">

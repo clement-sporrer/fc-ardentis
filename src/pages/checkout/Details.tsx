@@ -10,6 +10,8 @@ import { toNumberSafe } from "@/lib/utils";
 import { toast } from "@/components/ui/sonner";
 import { logger } from "@/lib/logger";
 import { isValidEmail, isValidName, isValidText, FIELD_LIMITS, sanitizeString } from "@/lib/validation";
+import { Seo } from "@/seo/Seo";
+import { seoCheckout } from "@/seo/seo.config";
 
 function formatEUR(n: number): string {
   return (Math.round(n * 100) / 100).toFixed(2).replace(".", ",") + " €";
@@ -103,6 +105,7 @@ export default function CheckoutDetails() {
   if (!items.length) {
     return (
       <div className="min-h-screen">
+        <Seo {...seoCheckout("Informations de paiement | FC Ardentis", "/checkout/details")} />
         <section data-hero="true" className="relative min-h-[50vh] flex items-center justify-center overflow-hidden bg-gradient-hero">
           <div className="container max-w-4xl mx-auto px-4 text-center relative z-10 pt-24 sm:pt-28 pb-16">
             <h1 className="font-display font-bold text-3xl text-white mb-4">Aucun article</h1>
@@ -120,6 +123,7 @@ export default function CheckoutDetails() {
 
   return (
     <div className="min-h-screen">
+      <Seo {...seoCheckout("Informations de paiement | FC Ardentis", "/checkout/details")} />
       {/* Hero Section */}
       <section data-hero="true" className="relative pt-24 sm:pt-28 pb-12 sm:pb-16 overflow-hidden bg-gradient-hero">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />

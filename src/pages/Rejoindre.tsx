@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PhoneField } from "@/components/PhoneField";
 import { CheckCircle2, Loader2, AlertCircle, Users, Handshake, Sparkles } from "lucide-react";
+import { Seo } from "@/seo/Seo";
+import { seoRejoindre } from "@/seo/seo.config";
+import { logger } from "@/lib/logger";
 
 type TypeProfil = "joueur" | "partenaire";
 
@@ -141,6 +144,7 @@ export default function Rejoindre() {
 
   return (
     <div className="min-h-screen">
+      <Seo {...seoRejoindre()} />
       {/* Hero Section */}
       <section data-hero="true" className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero" />
@@ -168,6 +172,53 @@ export default function Rejoindre() {
       {/* Form Section */}
       <section className="py-12 sm:py-20 px-4 sm:px-6 bg-gradient-section">
         <div className="container max-w-3xl mx-auto">
+          <p className="text-muted-foreground font-sport mb-10 max-w-3xl">
+            Candidatez pour rejoindre le <span className="font-semibold text-foreground">FC Ardentis</span>, 
+            club de football amateur loisir pour <span className="font-semibold text-foreground">adultes (+18 ans)</span>.
+            Basé à <span className="font-semibold text-foreground">Colombes (92)</span>, Hauts-de-Seine.
+            Tous niveaux bienvenus — du débutant au confirmé.
+          </p>
+
+          {/* FAQ (content mirrors FAQPage JSON-LD for better UX + relevance) */}
+          <div className="premium-card p-6 sm:p-8 mb-10">
+            <h2 className="font-display font-bold text-xl sm:text-2xl text-foreground mb-4">
+              Questions fréquentes
+            </h2>
+            <div className="space-y-4 text-muted-foreground font-sport">
+              <div>
+                <h3 className="font-display font-bold text-foreground">Qui peut rejoindre le FC Ardentis ?</h3>
+                <p className="mt-1">
+                  Le FC Ardentis accueille les <strong>adultes de 18 ans et plus</strong>, tous niveaux confondus (débutant à confirmé).
+                  L'essentiel : motivation, cohésion et respect.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-foreground">Comment s'inscrire au club ?</h3>
+                <p className="mt-1">
+                  Remplissez le formulaire ci-dessous (joueur ou partenaire). Nous vous recontactons pour organiser un essai ou discuter du partenariat.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-foreground">Où est situé le club ?</h3>
+                <p className="mt-1">
+                  Le FC Ardentis est basé à <strong>Colombes (92)</strong>, dans les Hauts-de-Seine, en Île-de-France.
+                  Club de football amateur loisir participant à la CFL Paris.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-foreground">Rythme entraînements et matchs ?</h3>
+                <p className="mt-1">
+                  Entraînements le dimanche à Colombes. Matchs CFL en semaine (lundi ou mercredi) en région parisienne. Le calendrier peut évoluer selon la saison.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-foreground">Le club accepte-t-il les débutants ?</h3>
+                <p className="mt-1">
+                  Oui ! Que vous soyez débutant ou expérimenté, le FC Ardentis vous accueille. L'important : l'état d'esprit et l'envie de progresser ensemble.
+                </p>
+              </div>
+            </div>
+          </div>
           {/* Profile Selector */}
           <div className="mb-10">
             <h2 className="font-display font-bold text-xl sm:text-2xl text-foreground mb-4">

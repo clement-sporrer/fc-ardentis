@@ -6,7 +6,7 @@
   "description": "Official website for FC Ardentis football club - Paris region",
   "author": "Clément Sporrer",
   "license": "UNLICENSED",
-  "homepage": "https://fc-ardentis.vercel.app",
+  "homepage": "https://fcardentis.fr",
   "repository": {
     "type": "git",
     "url": "https://github.com/clement-sporrer/fc-ardentis.git"
@@ -16,8 +16,12 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run build:seo",
     "build:dev": "vite build --mode development",
+    "build:ssr": "vite build --ssr src/entry-server.tsx --outDir dist-ssr",
+    "prerender": "node scripts/prerender.mjs",
+    "generate:sitemap": "node scripts/generate-sitemap.mjs",
+    "build:seo": "npm run generate:sitemap && vite build && npm run build:ssr && npm run prerender && node -e \"require('node:fs').rmSync('dist-ssr',{recursive:true,force:true})\"",
     "preview": "vite preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

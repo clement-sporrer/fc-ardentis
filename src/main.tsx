@@ -3,6 +3,8 @@ import App from './App.tsx'
 import './index.css'
 import { logger } from './lib/logger'
 import { renderBootstrapError } from './components/BootstrapError'
+import { HeadProvider } from './seo/HeadProvider'
+import { BrowserRouter } from "react-router-dom"
 
 // Capture toutes les erreurs avant le rendu
 window.addEventListener('error', (event) => {
@@ -25,7 +27,13 @@ if (!rootEl) {
     logger.log('✅ Root element found, creating React root...');
     const root = createRoot(rootEl);
     logger.log('✅ React root created, rendering App...');
-    root.render(<App />);
+    root.render(
+      <HeadProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </HeadProvider>
+    );
     logger.log('✅ App rendered successfully');
   } catch (error) {
     logger.error('❌ Failed to render app:', error);

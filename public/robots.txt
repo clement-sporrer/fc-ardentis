@@ -1,15 +1,14 @@
 # FC Ardentis - robots.txt
-# https://fc-ardentis.vercel.app
+# https://fcardentis.fr
 
 User-agent: *
 Allow: /
 
 # Disallow admin/api routes
 Disallow: /api/
-Disallow: /checkout/
 
 # Sitemap location
-Sitemap: https://fc-ardentis.vercel.app/sitemap.xml
+Sitemap: https://fcardentis.fr/sitemap.xml
 
 # Crawl-delay (optional, respected by some bots)
 Crawl-delay: 1

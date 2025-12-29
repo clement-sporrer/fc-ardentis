@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { XCircle, ShoppingBag } from "lucide-react";
+import { Seo } from "@/seo/Seo";
+import { seoCheckout } from "@/seo/seo.config";
 
 export default function CheckoutCancel() {
   return (
     <div className="min-h-screen">
+      <Seo {...seoCheckout("Paiement annulé | FC Ardentis", "/checkout/cancel")} />
       {/* Hero Section */}
       <section 
         data-hero="true"
