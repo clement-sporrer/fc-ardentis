@@ -79,15 +79,6 @@ const posteToFr = (p?: RawPoste) => {
   return (p as string) || "Poste";
 };
 
-const posteIcon = (p?: RawPoste) => {
-  const k = norm(p || "");
-  if (k === "goalkeeper") return "🧤";
-  if (k === "defender") return "🛡️";
-  if (k === "midfielder") return "⚡";
-  if (k === "forward") return "⚽";
-  return "🏃";
-};
-
 const ORDER_SECTIONS = ["Gardien de but", "Défenseur", "Milieu de terrain", "Attaquant"];
 
 function PlayerCardSkeleton() {
@@ -316,7 +307,6 @@ const Equipe = () => {
                 return (
                   <div key={section} className="mb-16">
                     <div className="flex items-center gap-4 mb-8">
-                      <span className="text-3xl">{posteIcon(section)}</span>
                       <h2 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl text-foreground">
                         {section}
                       </h2>
