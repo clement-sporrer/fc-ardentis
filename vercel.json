@@ -2,13 +2,17 @@
   "redirects": [
     {
       "source": "/(.*)",
-      "has": [{ "type": "host", "value": "www.fcardentis.fr" }],
+      "has": [
+        { "type": "host", "value": "www.fcardentis.fr" }
+      ],
       "destination": "https://fcardentis.fr/$1",
       "permanent": true
     },
     {
       "source": "/(.*)",
-      "has": [{ "type": "host", "value": "fc-ardentis.vercel.app" }],
+      "has": [
+        { "type": "host", "value": "fc-ardentis.vercel.app" }
+      ],
       "destination": "https://fcardentis.fr/$1",
       "permanent": true
     }

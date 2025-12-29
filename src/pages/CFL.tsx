@@ -47,10 +47,9 @@ export default function CFL() {
 
                 <p className="text-muted-foreground font-sport leading-relaxed">
                   Vous cherchez un <span className="font-semibold text-foreground">club de football amateur</span> en région parisienne ?
-                  La CFL (Commission de Football Loisir) est une compétition structurée pour les adultes qui veulent jouer régulièrement
-                  dans un cadre sérieux mais convivial. Le <span className="font-semibold text-foreground">FC Ardentis</span>, basé à 
-                  <span className="font-semibold text-foreground"> Colombes (92)</span> dans les Hauts-de-Seine, y participe avec 
-                  une philosophie claire : <span className="font-semibold text-foreground">cohésion, respect et performance</span>.
+                  La CFL (Commission de Football Loisir) est une compétition structurée, idéale pour jouer régulièrement
+                  dans un bon esprit. Le <span className="font-semibold text-foreground">FC Ardentis</span> s'y inscrit dans une démarche de 
+                  <span className="font-semibold text-foreground"> cohésion, respect et performance</span>.
                 </p>
 
                 {/* Key info */}
@@ -60,8 +59,8 @@ export default function CFL() {
                       <MapPin className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <p className="font-display font-bold text-foreground">Localisation</p>
-                      <p className="text-muted-foreground font-sport text-sm">Colombes (92), Hauts-de-Seine</p>
+                      <p className="font-display font-bold text-foreground">Base</p>
+                      <p className="text-muted-foreground font-sport text-sm">Colombes, Île-de-France</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -79,7 +78,7 @@ export default function CFL() {
                     </div>
                     <div>
                       <p className="font-display font-bold text-foreground">Public</p>
-                      <p className="text-muted-foreground font-sport text-sm">Adultes (18 ans et plus)</p>
+                      <p className="text-muted-foreground font-sport text-sm">Joueurs adultes</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -110,10 +109,9 @@ export default function CFL() {
             {/* Sidebar */}
             <Card className="premium-card">
               <CardContent className="p-6 sm:p-8 space-y-4">
-                <h3 className="font-display font-bold text-xl text-foreground">Rejoindre un club foot amateur à Paris ?</h3>
+                <h3 className="font-display font-bold text-xl text-foreground">Vous cherchez un club ?</h3>
                 <p className="text-muted-foreground font-sport text-sm">
-                  Le FC Ardentis recrute ! Club de foot amateur loisir pour adultes (+18 ans) à Colombes (92).
-                  Tous niveaux bienvenus.
+                  Rejoignez le FC Ardentis : profil joueur ou partenaire, réponse rapide et onboarding simple.
                 </p>
                 <ul className="text-muted-foreground font-sport text-sm space-y-2">
                   <li className="flex items-center gap-2">
@@ -163,10 +161,10 @@ export default function CFL() {
                     Comment rejoindre un club CFL comme le FC Ardentis ?
                   </h3>
                   <p className="text-muted-foreground font-sport text-sm">
-                    C'est simple : rendez-vous sur notre page{" "}
+                    Rendez-vous sur la page{" "}
                     <Link to="/rejoindre" className="text-primary hover:underline">"Nous rejoindre"</Link>{" "}
                     et remplissez le formulaire joueur. Nous vous recontacterons pour organiser un essai.
-                    Le club est ouvert aux adultes (18+) de tous niveaux.
+                    Tous niveaux bienvenus.
                   </p>
                 </CardContent>
               </Card>
@@ -176,9 +174,8 @@ export default function CFL() {
                     Où joue le FC Ardentis ?
                   </h3>
                   <p className="text-muted-foreground font-sport text-sm">
-                    Le FC Ardentis est basé à <strong>Colombes (92)</strong>, dans les Hauts-de-Seine.
-                    Les entraînements ont lieu au Stade Yves-du-Manoir le dimanche. Les matchs CFL se déroulent
-                    en semaine dans différents stades de Paris et d'Île-de-France.
+                    Les entraînements ont lieu au Stade Yves-du-Manoir à <strong>Colombes</strong> le dimanche.
+                    Les matchs CFL se déroulent en semaine dans différents stades de la région parisienne.
                   </p>
                 </CardContent>
               </Card>

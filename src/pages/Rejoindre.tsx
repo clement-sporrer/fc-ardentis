@@ -173,10 +173,8 @@ export default function Rejoindre() {
       <section className="py-12 sm:py-20 px-4 sm:px-6 bg-gradient-section">
         <div className="container max-w-3xl mx-auto">
           <p className="text-muted-foreground font-sport mb-10 max-w-3xl">
-            Candidatez pour rejoindre le <span className="font-semibold text-foreground">FC Ardentis</span>, 
-            club de football amateur loisir pour <span className="font-semibold text-foreground">adultes (+18 ans)</span>.
-            Basé à <span className="font-semibold text-foreground">Colombes (92)</span>, Hauts-de-Seine.
-            Tous niveaux bienvenus — du débutant au confirmé.
+            Candidatez pour rejoindre le <span className="font-semibold text-foreground">FC Ardentis</span> en tant que joueur,
+            ou proposez un partenariat. Tous niveaux bienvenus — du débutant au confirmé.
           </p>
 
           {/* FAQ (content mirrors FAQPage JSON-LD for better UX + relevance) */}
@@ -201,8 +199,7 @@ export default function Rejoindre() {
               <div>
                 <h3 className="font-display font-bold text-foreground">Où est situé le club ?</h3>
                 <p className="mt-1">
-                  Le FC Ardentis est basé à <strong>Colombes (92)</strong>, dans les Hauts-de-Seine, en Île-de-France.
-                  Club de football amateur loisir participant à la CFL Paris.
+                  Le FC Ardentis est basé en région parisienne. Entraînements à Colombes, compétition CFL.
                 </p>
               </div>
               <div>

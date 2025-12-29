@@ -61,8 +61,7 @@ const Contacts = () => {
         <div className="container max-w-6xl mx-auto">
           <p className="text-muted-foreground font-sport mb-10 max-w-3xl">
             Pour un essai, une question ou un partenariat, contactez le <span className="font-semibold text-foreground">FC Ardentis</span>.
-            Club de football amateur loisir pour <span className="font-semibold text-foreground">adultes (+18 ans)</span>,
-            basé à <span className="font-semibold text-foreground">Colombes (92)</span>, Hauts-de-Seine, Île-de-France.
+            Club de football basé en région parisienne.
           </p>
 
           {/* FAQ (content mirrors FAQPage JSON-LD for better UX + relevance) */}
@@ -84,22 +83,13 @@ const Contacts = () => {
               <div>
                 <h3 className="font-display font-bold text-foreground">Où se trouve le FC Ardentis ?</h3>
                 <p className="mt-1">
-                  Le club est basé à <strong>Colombes (92)</strong>, dans les Hauts-de-Seine, en Île-de-France.
-                  Entraînements au Stade Yves-du-Manoir, matchs CFL en région parisienne.
+                  Les entraînements ont lieu à <strong>Colombes</strong>. Les détails sont indiqués sur le site et peuvent varier selon la période.
                 </p>
               </div>
               <div>
                 <h3 className="font-display font-bold text-foreground">Peut-on venir faire un essai ?</h3>
                 <p className="mt-1">
-                  Oui ! Contactez-nous avec votre profil (poste, expérience, disponibilités) et nous proposerons un créneau.
-                  Le club est ouvert aux adultes de 18 ans et plus.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-display font-bold text-foreground">Quel est le public visé ?</h3>
-                <p className="mt-1">
-                  Le FC Ardentis est un club de football amateur loisir réservé aux <strong>adultes (18 ans et plus)</strong>.
-                  Tous niveaux bienvenus, du débutant au confirmé.
+                  Oui. Contactez-nous avec votre profil (poste, expérience, disponibilités) et nous proposerons un créneau.
                 </p>
               </div>
             </div>
@@ -186,9 +176,8 @@ const Contacts = () => {
                       Localisation
                     </h3>
                     <div className="text-foreground/80 font-sport space-y-1">
-                      <p>Entraînements à <span className="font-semibold text-foreground">Colombes (92)</span></p>
-                      <p>Hauts-de-Seine, Île-de-France</p>
-                      <p>Matchs CFL en <span className="font-semibold text-foreground">région parisienne</span></p>
+                      <p>Entraînement à <span className="font-semibold text-foreground">Colombes</span></p>
+                      <p>Matchs en <span className="font-semibold text-foreground">région parisienne</span></p>
                     </div>
                   </div>
                 </div>

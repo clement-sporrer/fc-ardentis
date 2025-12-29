@@ -40,9 +40,8 @@ const Footer = () => {
               </span>
             </Link>
             <p className="text-white/70 font-sport text-sm leading-relaxed mb-6 max-w-xs">
-              Club de football amateur loisir pour adultes (+18 ans).
-              Basé à Colombes (92), Hauts-de-Seine.
-              Cohésion, respect et performance.
+              Club de football fondé en 2025 en région parisienne. 
+              Passion, cohésion et excellence sur le terrain.
             </p>
             
             {/* CFL Badge */}
@@ -112,7 +111,7 @@ const Footer = () => {
                 </div>
                 <div>
                   <p className="text-white/90 font-sport text-sm font-medium">Localisation</p>
-                  <p className="text-white/60 font-sport text-xs">Colombes (92), Hauts-de-Seine</p>
+                  <p className="text-white/60 font-sport text-xs">Colombes, Île-de-France</p>
                 </div>
               </div>
 

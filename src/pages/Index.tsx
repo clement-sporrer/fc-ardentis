@@ -142,7 +142,7 @@ const Index = () => {
             className="text-sm sm:text-base text-white/60 font-sport max-w-xl mx-auto animate-rise-up"
             style={{ animationDelay: "400ms" }}
           >
-            Club de foot amateur adulte (+18 ans) • Colombes (92) • Hauts-de-Seine
+            Football loisir • Île-de-France
           </p>
           <p 
             className="text-xs sm:text-sm text-white/50 font-sport max-w-xl mx-auto mt-2 animate-rise-up"
@@ -223,9 +223,8 @@ const Index = () => {
                 <h3 className="font-display font-bold text-xl text-foreground">Notre ADN</h3>
               </div>
               <p className="text-muted-foreground font-sport text-base sm:text-lg leading-relaxed">
-                Le FC Ardentis est un <strong>club de football amateur loisir</strong> pour adultes (+18 ans),
-                basé à <strong>Colombes (92)</strong> dans les Hauts-de-Seine. Nous rassemblons des joueurs
-                de tous niveaux autour de valeurs fortes : cohésion, respect et performance.
+                Le FC Ardentis est un <strong>club de football amateur loisir</strong> en région parisienne.
+                Nous rassemblons des joueurs de tous niveaux autour de valeurs fortes : cohésion, respect et performance.
               </p>
             </div>
             
@@ -237,9 +236,9 @@ const Index = () => {
                 <h3 className="font-display font-bold text-xl text-foreground">Rejoignez-nous</h3>
               </div>
               <p className="text-muted-foreground font-sport text-base sm:text-lg leading-relaxed">
-                Que vous soyez débutant ou expérimenté, le FC Ardentis vous accueille.
-                Nous cherchons des joueurs motivés (18 ans et plus) pour notre équipe
-                amateur en Île-de-France. Matchs CFL + entraînements à Colombes (92).
+                Que vous soyez débutant ou expérimenté, notre équipe vous accueille avec
+                enthousiasme. Rejoignez notre famille sportive et vivez l'aventure
+                collective du football en région parisienne.
               </p>
             </div>
           </div>
@@ -304,9 +303,8 @@ const Index = () => {
                 </h3>
               </div>
               <div className="text-white/80 font-sport mb-6 text-base sm:text-lg space-y-2">
-                <p>Entraînements à <span className="text-magenta font-semibold">Colombes (92)</span></p>
-                <p>Hauts-de-Seine, <span className="text-magenta font-semibold">Île-de-France</span></p>
-                <p>Matchs CFL en <span className="text-magenta font-semibold">région parisienne</span></p>
+                <p>Entraînements à <span className="text-magenta font-semibold">Colombes</span></p>
+                <p>Matchs en <span className="text-magenta font-semibold">région parisienne</span></p>
               </div>
               <div className="rounded-2xl overflow-hidden shadow-elevated border border-white/10">
                 <iframe
