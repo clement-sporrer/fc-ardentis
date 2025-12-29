@@ -137,7 +137,7 @@ const Contacts = () => {
                       Localisation
                     </h3>
                     <div className="text-foreground/80 font-sport space-y-1">
-                      <p>Entraînement à <span className="font-semibold text-foreground">Gennevilliers</span></p>
+                      <p>Entraînement à <span className="font-semibold text-foreground">Colombes</span></p>
                       <p>Matchs en <span className="font-semibold text-foreground">région parisienne</span></p>
                     </div>
                   </div>
@@ -145,8 +145,8 @@ const Contacts = () => {
 
                 <div className="rounded-2xl overflow-hidden shadow-elevated border border-border/20">
                   <iframe
-                    title="Carte — Gennevilliers"
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d84044.0441929625!2d2.221!3d48.935!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66f5c8c8c8c8b%3A0x0000000000000000!2sGennevilliers!5e0!3m2!1sfr!2sfr!4v1757100498113!5m2!1sfr!2sfr"
+                    title="Carte — Stade Yves-du-Manoir, Colombes"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2621.270964990178!2d2.2453925762012723!3d48.9292805957155!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e665da9e08e561%3A0x65455f9e577c366!2sStade%20Yves-du-Manoir!5e0!3m2!1sfr!2sfr!4v1766965804730!5m2!1sfr!2sfr"
                     width="100%"
                     height="200"
                     style={{ border: 0 }}
@@ -176,7 +176,7 @@ const Contacts = () => {
                 <div className="space-y-3 mb-6">
                   <div className="p-4 rounded-xl bg-primary/10 border border-primary/20">
                     <p className="text-primary font-display font-bold mb-0.5">Dimanche 11h</p>
-                    <p className="text-muted-foreground font-sport text-sm">Entraînements • Gennevilliers</p>
+                    <p className="text-muted-foreground font-sport text-sm">Entraînements • Colombes</p>
                   </div>
                   <div className="p-4 rounded-xl bg-accent/10 border border-accent/20">
                     <p className="text-accent font-display font-bold mb-0.5">Lundi ou mercredi</p>

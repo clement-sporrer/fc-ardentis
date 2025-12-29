@@ -9,6 +9,9 @@ import {
   Trophy,
   Dumbbell,
   Star,
+  Check,
+  X,
+  Minus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -488,18 +491,18 @@ const Calendrier = () => {
                         key={`up-${i}`}
                         className="p-4 rounded-xl bg-gradient-to-r from-primary/5 to-accent/5 border border-primary/10 hover:border-primary/30 transition-all"
                       >
-                        <div className="flex items-center justify-center gap-2 text-center">
+                        <div className="flex items-center justify-center gap-3">
                           {e.home_logo && (
-                            <img src={e.home_logo} alt="" loading="lazy" className="h-6 w-6 object-contain" />
+                            <img src={e.home_logo} alt="" loading="lazy" className="h-6 w-6 object-contain flex-shrink-0" />
                           )}
                           <span className="font-display font-bold text-sm">{e.team_home || "Domicile"}</span>
-                          <span className="text-muted-foreground text-xs">VS</span>
+                          <span className="text-muted-foreground text-xs font-medium">VS</span>
                           <span className="font-display font-bold text-sm">{e.team_away || "Extérieur"}</span>
                           {e.away_logo && (
-                            <img src={e.away_logo} alt="" loading="lazy" className="h-6 w-6 object-contain" />
+                            <img src={e.away_logo} alt="" loading="lazy" className="h-6 w-6 object-contain flex-shrink-0" />
                           )}
                         </div>
-                        <div className="mt-2 text-center text-xs text-muted-foreground font-sport">
+                        <div className="mt-2.5 text-center text-xs text-muted-foreground font-sport">
                           {e.date}{e.start_time ? ` • ${e.start_time}` : ""}
                         </div>
                       </div>
@@ -534,19 +537,25 @@ const Calendrier = () => {
                           key={`past-${i}`}
                           className="p-4 rounded-xl bg-muted/50 border border-border/50"
                         >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              {e.home_logo && <img src={e.home_logo} alt="" loading="lazy" className="h-5 w-5 object-contain" />}
-                              <span className="font-sport text-sm font-medium">{e.team_home}</span>
-                              <span className="font-display font-bold text-primary">{e.score_home}</span>
-                              <span className="text-muted-foreground">-</span>
-                              <span className="font-display font-bold text-primary">{e.score_away}</span>
-                              <span className="font-sport text-sm font-medium">{e.team_away}</span>
-                              {e.away_logo && <img src={e.away_logo} alt="" loading="lazy" className="h-5 w-5 object-contain" />}
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                              {e.home_logo && (
+                                <img src={e.home_logo} alt="" loading="lazy" className="h-6 w-6 object-contain flex-shrink-0" />
+                              )}
+                              <span className="font-sport text-sm font-medium truncate">{e.team_home}</span>
+                              <span className="font-display font-bold text-primary text-base flex-shrink-0">{e.score_home}</span>
+                              <span className="text-muted-foreground flex-shrink-0">-</span>
+                              <span className="font-display font-bold text-primary text-base flex-shrink-0">{e.score_away}</span>
+                              <span className="font-sport text-sm font-medium truncate">{e.team_away}</span>
+                              {e.away_logo && (
+                                <img src={e.away_logo} alt="" loading="lazy" className="h-6 w-6 object-contain flex-shrink-0" />
+                              )}
                             </div>
-                            <ResultBadge r={res} />
+                            <div className="flex items-center gap-2.5 flex-shrink-0">
+                              <ResultBadge r={res} />
+                            </div>
                           </div>
-                          <div className="mt-1 text-xs text-muted-foreground font-sport">{e.date}</div>
+                          <div className="mt-2.5 text-xs text-muted-foreground font-sport">{e.date}</div>
                         </div>
                       );
                     })}

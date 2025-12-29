@@ -116,7 +116,9 @@ export default function Navigation() {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        showTransparent
+        open
+          ? "bg-secondary"
+          : showTransparent
           ? "bg-transparent"
           : "bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-sm"
       }`}

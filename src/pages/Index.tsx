@@ -292,13 +292,13 @@ const Index = () => {
                 </h3>
               </div>
               <div className="text-white/80 font-sport mb-6 text-base sm:text-lg space-y-2">
-                <p>Entraînement à <span className="text-magenta font-semibold">Gennevilliers</span></p>
+                <p>Entraînement à <span className="text-magenta font-semibold">Colombes</span></p>
                 <p>Matchs en <span className="text-magenta font-semibold">région parisienne</span></p>
               </div>
               <div className="rounded-2xl overflow-hidden shadow-elevated border border-white/10">
                 <iframe
-                  title="Carte — Gennevilliers"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d84044.0441929625!2d2.221!3d48.935!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66f5c8c8c8c8b%3A0x0000000000000000!2sGennevilliers!5e0!3m2!1sfr!2sfr!4v1757100498113!5m2!1sfr!2sfr"
+                  title="Carte — Stade Yves-du-Manoir, Colombes"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2621.270964990178!2d2.2453925762012723!3d48.9292805957155!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e665da9e08e561%3A0x65455f9e577c366!2sStade%20Yves-du-Manoir!5e0!3m2!1sfr!2sfr!4v1766965804730!5m2!1sfr!2sfr"
                   width="100%"
                   height="200"
                   className="sm:h-[250px]"
@@ -326,7 +326,7 @@ const Index = () => {
                     Entraînements
                   </p>
                   <p className="text-white/90 font-sport text-base">
-                    Dimanche à 11h • Gennevilliers
+                    Dimanche à 11h • Colombes
                   </p>
                 </div>
                 <div className="p-5 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-sm">

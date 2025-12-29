@@ -248,7 +248,7 @@ return "D";
 
 ### Schedule
 
-- **Training**: Sunday 11h @ Gennevilliers
+- **Training**: Sunday 11h @ Colombes
 - **Matches**: Monday or Wednesday @ Paris region
 
 ---
