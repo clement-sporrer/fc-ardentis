@@ -107,3 +107,31 @@ export function buildCSVUrl(baseUrl: string): string {
   // Add new timestamp
   return url + (url.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
 }
+
+/**
+ * Parses YouTube ISO 8601 duration to readable format
+ * @param iso - e.g. PT1H23M45S, PT15M30S, PT45S
+ * @returns e.g. 1:23:45, 15:30, 0:45
+ */
+export function parseDuration(iso: string): string {
+  if (!iso || typeof iso !== "string") return "";
+  const match = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if (!match) return "";
+  const h = match[1] ? parseInt(match[1], 10) : 0;
+  const m = match[2] ? parseInt(match[2], 10) : 0;
+  const s = match[3] ? parseInt(match[3], 10) : 0;
+  if (h > 0) return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
+/**
+ * Formats an ISO date string to French month + year
+ * @param iso - e.g. 2025-01-15T12:00:00Z
+ * @returns e.g. janvier 2025
+ */
+export function formatMonth(iso: string): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+}

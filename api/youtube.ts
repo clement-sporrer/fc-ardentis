@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 const CACHE_VIDEOS_MS = 5 * 60 * 1000; // 5 min
 const CACHE_LIVE_MS = 2 * 60 * 1000; // 2 min
-const MAX_VIDEOS = 12;
+const MAX_VIDEOS = 24;
 
 type Cached<T> = { data: T; expires: number };
 
@@ -15,6 +15,8 @@ export interface YouTubeVideo {
   publishedAt: string;
   thumbnail: string;
   channelTitle: string;
+  /** ISO 8601 duration from YouTube API (e.g. PT1H23M45S) */
+  duration?: string;
 }
 
 export interface LiveInfo {
@@ -59,6 +61,22 @@ async function getUploadsPlaylistId(apiKey: string, channelId: string): Promise<
   return uploads;
 }
 
+async function fetchVideoDurations(apiKey: string, videoIds: string[]): Promise<Record<string, string>> {
+  if (videoIds.length === 0) return {};
+  const ids = videoIds.slice(0, 50).join(",");
+  const url = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${encodeURIComponent(ids)}&key=${encodeURIComponent(apiKey)}`;
+  const data = await fetchJson<{
+    items?: Array<{ id?: string; contentDetails?: { duration?: string } }>;
+  }>(url);
+  const out: Record<string, string> = {};
+  for (const item of data.items ?? []) {
+    const id = item.id;
+    const dur = item.contentDetails?.duration;
+    if (id && dur) out[id] = dur;
+  }
+  return out;
+}
+
 async function fetchVideos(apiKey: string, channelId: string): Promise<YouTubeVideo[]> {
   const playlistId = await getUploadsPlaylistId(apiKey, channelId);
   const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${encodeURIComponent(playlistId)}&maxResults=${MAX_VIDEOS}&key=${encodeURIComponent(apiKey)}`;
@@ -72,12 +90,14 @@ async function fetchVideos(apiKey: string, channelId: string): Promise<YouTubeVi
         channelTitle?: string;
       };
     }>;
-  };
+  }>(url);
   const videos: YouTubeVideo[] = [];
+  const videoIds: string[] = [];
   for (const item of data.items ?? []) {
     const sn = item.snippet;
     const videoId = sn?.resourceId?.videoId;
     if (!videoId) continue;
+    videoIds.push(videoId);
     const thumb = sn?.thumbnails?.high?.url ?? sn?.thumbnails?.medium?.url ?? sn?.thumbnails?.default?.url ?? "";
     videos.push({
       id: videoId,
@@ -86,6 +106,10 @@ async function fetchVideos(apiKey: string, channelId: string): Promise<YouTubeVi
       thumbnail: thumb,
       channelTitle: sn?.channelTitle ?? "",
     });
+  }
+  const durations = await fetchVideoDurations(apiKey, videoIds);
+  for (const v of videos) {
+    if (durations[v.id]) v.duration = durations[v.id];
   }
   return videos;
 }
