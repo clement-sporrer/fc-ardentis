@@ -30,6 +30,7 @@ let CheckoutSuccessSSR: PageComponent | null = null;
 let CheckoutCancelSSR: PageComponent | null = null;
 let CheckoutFailedSSR: PageComponent | null = null;
 let CFLSSR: PageComponent | null = null;
+let VideosSSR: PageComponent | null = null;
 
 // SSR-only eager loading (tree-shaken from client build).
 if (import.meta.env.SSR) {
@@ -45,6 +46,7 @@ if (import.meta.env.SSR) {
   CheckoutCancelSSR = (await import("./pages/checkout/Cancel")).default;
   CheckoutFailedSSR = (await import("./pages/checkout/Failed")).default;
   CFLSSR = (await import("./pages/CFL")).default;
+  VideosSSR = (await import("./pages/Videos")).default;
 }
 
 const EquipeCSR = lazy(() => import("./pages/Equipe"));
@@ -59,6 +61,7 @@ const CheckoutSuccessCSR = lazy(() => import("./pages/checkout/Success"));
 const CheckoutCancelCSR = lazy(() => import("./pages/checkout/Cancel"));
 const CheckoutFailedCSR = lazy(() => import("./pages/checkout/Failed"));
 const CFLCSR = lazy(() => import("./pages/CFL"));
+const VideosCSR = lazy(() => import("./pages/Videos"));
 
 function PageLoader() {
   return (
@@ -86,6 +89,7 @@ function AppRoutes() {
     const CheckoutCancel = CheckoutCancelSSR!;
     const CheckoutFailed = CheckoutFailedSSR!;
     const CFL = CFLSSR!;
+    const Videos = VideosSSR!;
 
     return (
       <Routes>
@@ -93,6 +97,7 @@ function AppRoutes() {
         <Route path="/" element={<Index />} />
         <Route path="/equipe" element={<Equipe />} />
         <Route path="/calendrier" element={<Calendrier />} />
+        <Route path="/videos" element={<Videos />} />
         <Route path="/contacts" element={<Contacts />} />
         <Route path="/rejoindre" element={<Rejoindre />} />
         <Route path="/cfl" element={<CFL />} />
@@ -121,6 +126,7 @@ function AppRoutes() {
         <Route path="/" element={<Index />} />
         <Route path="/equipe" element={<EquipeCSR />} />
         <Route path="/calendrier" element={<CalendrierCSR />} />
+        <Route path="/videos" element={<VideosCSR />} />
         <Route path="/contacts" element={<ContactsCSR />} />
         <Route path="/rejoindre" element={<RejoindreCSR />} />
         <Route path="/cfl" element={<CFLCSR />} />

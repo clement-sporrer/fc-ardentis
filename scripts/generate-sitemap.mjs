@@ -100,6 +100,7 @@ async function main() {
     { path: "/", changefreq: "weekly", priority: "1.0" },
     { path: "/equipe", changefreq: "weekly", priority: "0.9" },
     { path: "/calendrier", changefreq: "daily", priority: "0.9" },
+    { path: "/videos", changefreq: "daily", priority: "0.9" },
     { path: "/cfl", changefreq: "weekly", priority: "0.8" },
     { path: "/shop", changefreq: "weekly", priority: "0.9" },
     { path: "/rejoindre", changefreq: "monthly", priority: "0.8" },

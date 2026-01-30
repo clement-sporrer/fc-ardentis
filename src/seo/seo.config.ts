@@ -159,6 +159,17 @@ export function seoCalendrier() {
   };
 }
 
+export function seoVideos() {
+  return {
+    title: "Vidéos — Replays et matchs en direct | FC Ardentis",
+    description:
+      "Regardez les replays des matchs et les directs du FC Ardentis. Club de football amateur à Colombes (92), Hauts-de-Seine.",
+    canonicalPath: "/videos",
+    ogImagePath: OG_IMAGE,
+    jsonLd: [breadcrumbJsonLd([{ name: "Accueil", path: "/" }, { name: "Vidéos", path: "/videos" }])],
+  };
+}
+
 export function seoContacts() {
   return {
     title: "Contact — FC Ardentis | Club foot amateur Colombes 92 Paris",
