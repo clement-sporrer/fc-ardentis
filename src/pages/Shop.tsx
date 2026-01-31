@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
-import { toNumberSafe, buildCSVUrl, parseCSVLine, stripBOM } from "@/lib/utils";
+import { toNumberSafe, buildCSVUrl, parseCSVLine, stripBOM, detectCSVDelimiter } from "@/lib/utils";
 import { AlertCircle, ShoppingBag, Sparkles } from "lucide-react";
 import { logger } from "@/lib/logger";
 import { Seo } from "@/seo/Seo";
@@ -20,6 +20,12 @@ interface Product {
   image2: string;
   image3: string;
   image4: string;
+  image5: string;
+  image6: string;
+  image7: string;
+  image8: string;
+  image9: string;
+  image10: string;
   size_guide_url: string;
   active: boolean;
   soldout: boolean;
@@ -84,9 +90,10 @@ export default function Shop() {
           return;
         }
 
+        const delim = detectCSVDelimiter(lines[0]);
         const items: Product[] = lines.slice(1).map((line) => {
-          const v = parseCSVLine(line, ",");
-          if (v.length < 11) return null;
+          const v = parseCSVLine(line, delim);
+          if (v.length < 17) return null;
 
           return {
             id: (v[0] || "").trim().toLowerCase(),
@@ -97,9 +104,15 @@ export default function Shop() {
             image2: v[5] || "",
             image3: v[6] || "",
             image4: v[7] || "",
-            size_guide_url: v[8] || "",
-            active: (v[9] || "").toLowerCase() === "true",
-            soldout: (v[10] || "").toLowerCase() === "true",
+            image5: v[8] || "",
+            image6: v[9] || "",
+            image7: v[10] || "",
+            image8: v[11] || "",
+            image9: v[12] || "",
+            image10: v[13] || "",
+            size_guide_url: v[14] || "",
+            active: (v[15] || "").toLowerCase() === "true",
+            soldout: (v[16] || "").toLowerCase() === "true",
           } as Product;
         }).filter((p): p is Product => p !== null && p.active && !!p.id);
 

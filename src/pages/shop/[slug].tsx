@@ -7,8 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useCart } from "@/contexts/CartContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ShoppingBag, Check, Ruler, Package, AlertCircle } from "lucide-react";
-import { toNumberSafe, stripBOM } from "@/lib/utils";
+import { ShoppingBag, Check, Ruler, Package, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { toNumberSafe, stripBOM, parseCSVLine, detectCSVDelimiter } from "@/lib/utils";
 import { logger } from "@/lib/logger";
 import { Seo } from "@/seo/Seo";
 import { seoProduct } from "@/seo/seo.config";
@@ -24,6 +24,12 @@ interface Product {
   image2: string;
   image3: string;
   image4: string;
+  image5: string;
+  image6: string;
+  image7: string;
+  image8: string;
+  image9: string;
+  image10: string;
   size_guide_url: string;
   active: boolean;
   soldout: boolean;
@@ -41,7 +47,6 @@ function buildCsvUrl() {
   return base + (base.includes("?") ? "&" : "?") + `_ts=${Date.now()}`;
 }
 
-const SPLIT = (s: string) => s.split(/\t|,/).map((x) => x.trim());
 const SIZES = ["3XS", "2XS", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL"];
 
 export default function ProductPage() {
@@ -87,9 +92,10 @@ export default function ProductPage() {
         }
         const lines = raw.replace(/\r/g, "").split("\n").filter(Boolean);
 
+        const delim = detectCSVDelimiter(lines[0]);
         const list: Product[] = lines.slice(1).map((line) => {
-          const v = SPLIT(line);
-          if (v.length < 11) return null;
+          const v = parseCSVLine(line, delim);
+          if (v.length < 17) return null;
 
           return {
             id: (v[0] || "").trim().toLowerCase(),
@@ -100,9 +106,15 @@ export default function ProductPage() {
             image2: v[5] || "",
             image3: v[6] || "",
             image4: v[7] || "",
-            size_guide_url: v[8] || "",
-            active: (v[9] || "").toLowerCase() === "true",
-            soldout: (v[10] || "").toLowerCase() === "true",
+            image5: v[8] || "",
+            image6: v[9] || "",
+            image7: v[10] || "",
+            image8: v[11] || "",
+            image9: v[12] || "",
+            image10: v[13] || "",
+            size_guide_url: v[14] || "",
+            active: (v[15] || "").toLowerCase() === "true",
+            soldout: (v[16] || "").toLowerCase() === "true",
           } as Product;
         }).filter(Boolean) as Product[];
 
@@ -142,7 +154,18 @@ export default function ProductPage() {
   };
 
   const images = product
-    ? [product.image1, product.image2, product.image3, product.image4].filter(Boolean)
+    ? [
+        product.image1,
+        product.image2,
+        product.image3,
+        product.image4,
+        product.image5,
+        product.image6,
+        product.image7,
+        product.image8,
+        product.image9,
+        product.image10,
+      ].filter(Boolean)
     : [];
 
   if (loading) {
@@ -228,32 +251,59 @@ export default function ProductPage() {
         <div className="container max-w-5xl mx-auto grid md:grid-cols-2 gap-8 lg:gap-12">
           {/* Gallery */}
           <div className="space-y-4">
-            {/* Main Image */}
-            <div className="aspect-square rounded-2xl overflow-hidden bg-muted/30">
-              <img 
-                src={images[selectedImage] || images[0]} 
-                alt={product.name} 
+            {/* Main Image + Arrows */}
+            <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted/30 group">
+              <img
+                key={selectedImage}
+                src={images[selectedImage] || images[0]}
+                alt={product.name}
                 loading="eager"
                 className="w-full h-full object-cover"
               />
-            </div>
-            
-            {/* Thumbnails */}
-            {images.length > 1 && (
-              <div className="flex gap-3">
-                {images.map((img, i) => (
+              {images.length > 1 && (
+                <>
                   <button
-                    key={i}
-                    onClick={() => setSelectedImage(i)}
-                    className={`w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
-                      selectedImage === i 
-                        ? "border-primary shadow-lg scale-105" 
-                        : "border-transparent hover:border-primary/50"
-                    }`}
+                    type="button"
+                    onClick={() => setSelectedImage((i) => (i <= 0 ? images.length - 1 : i - 1))}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-background/90 hover:bg-background shadow-lg border border-border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary"
+                    aria-label="Image précédente"
                   >
-                    <img src={img} alt={`${product.name} ${i + 1}`} loading="lazy" className="w-full h-full object-cover" />
+                    <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
                   </button>
-                ))}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedImage((i) => (i >= images.length - 1 ? 0 : i + 1))}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-background/90 hover:bg-background shadow-lg border border-border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary"
+                    aria-label="Image suivante"
+                  >
+                    <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
+                  </button>
+                  <span className="absolute bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-full bg-background/90 text-xs font-sport text-muted-foreground">
+                    {selectedImage + 1} / {images.length}
+                  </span>
+                </>
+              )}
+            </div>
+
+            {/* Thumbnails (scrollable) */}
+            {images.length > 1 && (
+              <div className="overflow-x-auto pb-1 -mx-1 px-1">
+                <div className="flex gap-3 min-w-0" style={{ minHeight: "80px" }}>
+                  {images.map((img, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setSelectedImage(i)}
+                      className={`shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                        selectedImage === i
+                          ? "border-primary shadow-lg scale-105"
+                          : "border-transparent hover:border-primary/50"
+                      }`}
+                    >
+                      <img src={img} alt={`${product.name} ${i + 1}`} loading="lazy" className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>

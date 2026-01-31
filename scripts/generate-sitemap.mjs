@@ -26,7 +26,13 @@ function escXml(s) {
     .replace(/'/g, "&apos;");
 }
 
-function parseCSVLine(line) {
+function detectDelimiter(headerLine) {
+  const commas = (headerLine.match(/,/g) || []).length;
+  const semicolons = (headerLine.match(/;/g) || []).length;
+  return semicolons > commas ? ";" : ",";
+}
+
+function parseCSVLine(line, delim = ",") {
   const out = [];
   let cur = "";
   let inQuotes = false;
@@ -39,7 +45,7 @@ function parseCSVLine(line) {
       } else {
         inQuotes = !inQuotes;
       }
-    } else if (c === "," && !inQuotes) {
+    } else if (c === delim && !inQuotes) {
       out.push(cur);
       cur = "";
     } else {
@@ -69,11 +75,13 @@ async function getProductSlugsFromCsv() {
   const lines = raw.split("\n").filter(Boolean);
   if (lines.length < 2) return [];
 
+  const delim = detectDelimiter(lines[0]);
   const slugs = [];
   for (const line of lines.slice(1)) {
-    const v = parseCSVLine(line);
+    const v = parseCSVLine(line, delim);
+    if (v.length < 17) continue;
     const id = (v[0] || "").trim().toLowerCase();
-    const active = (v[9] || "").trim().toLowerCase() === "true";
+    const active = (v[15] || "").trim().toLowerCase() === "true";
     if (!id || !active) continue;
     slugs.push(id);
   }

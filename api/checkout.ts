@@ -38,20 +38,48 @@ type Product = {
   soldout: boolean;
 };
 
-// Parse CSV (tab ou virgule), en ignorant les lignes vides
+function detectDelimiter(headerLine: string): string {
+  const commas = (headerLine.match(/,/g) || []).length;
+  const semicolons = (headerLine.match(/;/g) || []).length;
+  return semicolons > commas ? ";" : ",";
+}
+
+function parseLine(line: string, delim: string): string[] {
+  const out: string[] = [];
+  let cur = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        cur += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (c === delim && !inQuotes) {
+      out.push(cur.trim());
+      cur = "";
+    } else {
+      cur += c;
+    }
+  }
+  out.push(cur.trim());
+  return out;
+}
+
+// Parse CSV (virgule ou point-virgule selon en-tête)
 function parseCsv(text: string): Product[] {
   const lines = text.replace(/\r/g, "").split("\n").filter(Boolean);
   if (lines.length < 2) return [];
+  const delim = detectDelimiter(lines[0]);
   const items: Product[] = [];
 
   for (const line of lines.slice(1)) {
-    // coupe sur TAB ou virgule, puis trim
-    const v = line.split(/\t|,/).map((s) => s.trim());
-    // On s'attend à 11 colonnes dans ton schéma produits
-    // id, name, type, price_eur, image1..4, size_guide_url, active, soldout
-    if (v.length < 11) continue;
+    const v = parseLine(line, delim);
+    // 17 colonnes: id, name, type, price_eur, image1..image10, size_guide_url, active, soldout
+    if (v.length < 17) continue;
 
-    // prix tolérant avec "€" et virgules
     const price = toNumberSafe((v[3] || "").replace("€", ""), 0);
 
     items.push({
@@ -60,8 +88,8 @@ function parseCsv(text: string): Product[] {
       type: (v[2] || "").toLowerCase(),
       price_eur: price,
       image1: v[4] || "",
-      active: (v[9] || "").toLowerCase() === "true",
-      soldout: (v[10] || "").toLowerCase() === "true",
+      active: (v[15] || "").toLowerCase() === "true",
+      soldout: (v[16] || "").toLowerCase() === "true",
     });
   }
   return items;
