@@ -1,11 +1,13 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
+import { useOrderTotal } from "@/hooks/useOrderTotal";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { PhoneField, isValidIntlPhone } from "@/components/PhoneField";
-import { CreditCard, Loader2, ShieldCheck } from "lucide-react";
+import { DeliverySelector } from "@/components/DeliverySelector";
+import { CreditCard, Loader2, ShieldCheck, MapPin } from "lucide-react";
 import { toNumberSafe } from "@/lib/utils";
 import { toast } from "@/components/ui/sonner";
 import { logger } from "@/lib/logger";
@@ -19,6 +21,7 @@ function formatEUR(n: number): string {
 
 export default function CheckoutDetails() {
   const { state } = useCart();
+  const { subtotal, deliveryCost, total } = useOrderTotal();
   const navigate = useNavigate();
 
   // Form state
@@ -32,14 +35,6 @@ export default function CheckoutDetails() {
   const [submitted, setSubmitted] = useState(false);
   const items = Array.isArray(state.items) ? state.items : [];
 
-  const total = useMemo(() => {
-    return items.reduce((sum, it: any) => {
-      const p = toNumberSafe(it?.price_eur, 0);
-      const q = Math.max(1, toNumberSafe(it?.quantity, 1));
-      return sum + p * q;
-    }, 0);
-  }, [items]);
-
   // Validation with length limits
   const firstNameValid = isValidName(firstName);
   const lastNameValid = isValidName(lastName);
@@ -47,7 +42,19 @@ export default function CheckoutDetails() {
   const phoneValid = isValidIntlPhone(phone);
   const noteValid = !note || isValidText(note, FIELD_LIMITS.note);
 
-  const canSubmit = firstNameValid && lastNameValid && emailValid && phoneValid && noteValid && items.length > 0 && !submitting;
+  const deliveryValid =
+    state.delivery != null &&
+    (state.delivery.method !== "relay" || (state.delivery.relay_point?.id ?? "").length > 0);
+
+  const canSubmit =
+    firstNameValid &&
+    lastNameValid &&
+    emailValid &&
+    phoneValid &&
+    noteValid &&
+    deliveryValid &&
+    items.length > 0 &&
+    !submitting;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -74,6 +81,7 @@ export default function CheckoutDetails() {
           flocage: String(it.flocage || ""),
           image_url: String(it.image_url || ""),
         })),
+        delivery: state.delivery ?? undefined,
       };
 
       const res = await fetch("/api/checkout", {
@@ -140,7 +148,12 @@ export default function CheckoutDetails() {
           </h1>
           
           <p className="text-white/70 font-sport animate-rise-up" style={{ animationDelay: "200ms" }}>
-            Livraison sous 2 mois • Retrait en main propre
+            Livraison sous 2 mois
+            {state.delivery?.method === "relay"
+              ? " • Point Relais"
+              : state.delivery?.method === "hand"
+                ? " • Retrait en main propre"
+                : ""}
           </p>
         </div>
       </section>
@@ -242,6 +255,10 @@ export default function CheckoutDetails() {
                     </div>
                   </div>
 
+                  <div className="pt-8 mt-8 border-t border-border">
+                    <DeliverySelector submitted={submitted} />
+                  </div>
+
                   <div className="pt-6 flex flex-wrap gap-3">
                     <Button
                       type="submit"
@@ -311,7 +328,41 @@ export default function CheckoutDetails() {
                   </div>
 
                   <div className="border-t border-border/20 pt-4 space-y-2">
-                    <div className="flex items-center justify-between">
+                    <div className="flex justify-between text-sm font-sport">
+                      <span className="text-muted-foreground">Sous-total</span>
+                      <span>{formatEUR(subtotal)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm font-sport">
+                      <span className="text-muted-foreground">Livraison</span>
+                      <span>
+                        {state.delivery == null
+                          ? "À choisir"
+                          : state.delivery.method === "relay"
+                            ? "5,99 €"
+                            : "0 €"}
+                      </span>
+                    </div>
+                    {state.delivery?.method === "relay" && state.delivery?.relay_point && (
+                      <div className="flex items-start gap-2 rounded-lg border border-border/50 bg-muted/20 p-2 text-xs font-sport">
+                        <MapPin className="h-4 w-4 shrink-0 text-primary mt-0.5" />
+                        <div className="min-w-0">
+                          <div className="font-display font-bold text-foreground truncate">
+                            {state.delivery.relay_point.name}
+                          </div>
+                          <div className="text-muted-foreground truncate">
+                            {state.delivery.relay_point.address1}
+                            {state.delivery.relay_point.address2
+                              ? ` ${state.delivery.relay_point.address2}`
+                              : ""}
+                          </div>
+                          <div className="text-muted-foreground">
+                            {state.delivery.relay_point.postcode} {state.delivery.relay_point.city}{" "}
+                            {state.delivery.relay_point.country}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between pt-2 border-t border-border/20">
                       <span className="font-display font-bold text-lg">Total</span>
                       <span className="font-display font-bold text-2xl text-primary">
                         {formatEUR(total)}

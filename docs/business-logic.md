@@ -98,7 +98,15 @@ interface CartItem {
 | `ADD_ITEM` | Add new line item to cart |
 | `REMOVE_ITEM` | Remove specific line item |
 | `CLEAR` | Empty entire cart |
+| `SET_DELIVERY` | Set delivery method and optional relay point |
 | `HYDRATE` | Load cart from localStorage |
+
+### Delivery State
+
+The cart stores delivery choice (persisted in localStorage):
+
+- **Remise en main propre** (`hand`) – 0 €
+- **Point Relais** (`relay`) – 5,99 €, with selected relay point (id, name, address, postcode, city, country)
 
 ---
 
@@ -111,17 +119,30 @@ flowchart TD
     A[View Cart] --> B{Cart Empty?}
     B -->|Yes| C[Show Empty Message]
     B -->|No| D[Enter Customer Details]
-    D --> E[Submit Order]
-    E --> F{Validation}
-    F -->|Fail| G[Show Error]
-    F -->|Pass| H[Create Order in Sheets]
-    H --> I[Redirect to Stripe]
-    I --> J{Payment}
-    J -->|Success| K[Success Page]
-    J -->|Cancel| L[Cancel Page]
-    J -->|Fail| M[Failed Page]
-    K --> N[Clear Cart]
+    D --> E[Choose Delivery]
+    E --> F{Point Relais?}
+    F -->|Yes| G[Select Relay Point via Widget]
+    F -->|No| H[Submit Order]
+    G --> H
+    H --> I{Validation}
+    I -->|Fail| J[Show Error]
+    I -->|Pass| K[Create Order in Sheets]
+    K --> L[Redirect to Stripe]
+    L --> M{Payment}
+    M -->|Success| N[Success Page]
+    M -->|Cancel| O[Cancel Page]
+    M -->|Fail| P[Failed Page]
+    N --> Q[Clear Cart]
 ```
+
+### Delivery Methods
+
+| Method | Price | Description |
+|--------|-------|-------------|
+| `hand` | 0 € | Remise en main propre – retrait au club |
+| `relay` | 5,99 € | Livraison en Point Relais (Mondial Relay / Inpost) – client chooses point via widget |
+
+If the client selects Point Relais, they must choose a relay point (by postcode) before submitting. The selected point (id, name, address, postcode, city, country) is stored with the order. The club handles shipping manually (no Mondial Relay label API).
 
 ### Customer Data Required
 
@@ -137,15 +158,16 @@ flowchart TD
 
 At checkout, the server:
 
-1. **Validates customer data** - Name and email required
-2. **Loads product catalog** - Fresh data from Google Sheets
-3. **Validates each item**:
+1. **Validates customer data** – Name and email required
+2. **Validates delivery** – Method must be `hand` or `relay`; if `relay`, relay point id and name required (id format: `XX-000000`)
+3. **Loads product catalog** – Fresh data from Google Sheets
+4. **Validates each item**:
    - Product exists
    - Product is active
    - Product is in stock
-4. **Recalculates prices** - Uses server-side prices (ignores client prices)
-5. **Creates pending order** - In Google Sheets
-6. **Creates Stripe session** - With validated line items
+5. **Recalculates total** – Subtotal (server prices) + delivery (0 or 5,99 €)
+6. **Creates pending order** – In Google Sheets (with delivery and relay point fields)
+7. **Creates Stripe session** – Line items for products + one line for “Livraison Point Relais” (5,99 €) when method is `relay`
 
 ---
 
@@ -170,17 +192,22 @@ stateDiagram-v2
 
 ### Order Data
 
-Stored in Google Sheets:
+Stored in Google Sheets (see [data-sources.md](data-sources.md) for full schema):
 
 ```
-order_id | created_at | customer_name | customer_email | customer_phone | items | total_eur | payment_status | stripe_session_id | notes
+order_id | created_at | customer_name | customer_email | customer_phone | items | total_eur | payment_status | stripe_session_id | delivery_method | delivery_cost_eur | relay_point_id | relay_point_name | relay_point_address | relay_point_postcode | relay_point_city | relay_point_country | notes
 ```
+
+- `delivery_method`: `hand` or `relay`
+- `delivery_cost_eur`: 0 or 5.99
+- Relay point columns populated only when `delivery_method` = `relay`
 
 ### Fulfillment
 
-- **Delivery Method**: Hand delivery at club
-- **Delivery Time**: ~2 months (custom production)
-- **No shipping**: Items collected in person
+- **Delivery methods**: Remise en main propre (0 €) or Point Relais (5,99 €)
+- **Delivery time**: ~2 months (custom production)
+- **Hand delivery**: Items collected in person at the club
+- **Point Relais**: Club ships to the selected relay point; customer picks up there (shipping handled manually by the club)
 
 ---
 

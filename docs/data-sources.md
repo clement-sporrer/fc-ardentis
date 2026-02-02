@@ -63,20 +63,17 @@ Sheet name: `Products`
 | B | name | string | Yes | Display name |
 | C | type | string | Yes | `maillot` or `short` |
 | D | price_eur | number | Yes | Price in euros (e.g., `55.99`) |
-| E | image1 | URL | Yes | Primary product image |
-| F | image2 | URL | No | Secondary image |
-| G | image3 | URL | No | Tertiary image |
-| H | image4 | URL | No | Fourth image |
-| I | size_guide_url | URL | No | Size chart image |
-| J | active | boolean | Yes | `TRUE` or `FALSE` |
-| K | soldout | boolean | Yes | `TRUE` or `FALSE` |
+| E–N | image1 … image10 | URL | image1: Yes; others: No | Product images (up to 10, no minimum) |
+| O | size_guide_url | URL | No | Size chart image |
+| P | active | boolean | Yes | `TRUE` or `FALSE` |
+| Q | soldout | boolean | Yes | `TRUE` or `FALSE` |
 
 **Example:**
 
-| id | name | type | price_eur | image1 | ... | active | soldout |
-|----|------|------|-----------|--------|-----|--------|---------|
-| maillot-domicile | Maillot Domicile 24/25 | maillot | 55.00 | https://... | ... | TRUE | FALSE |
-| short-domicile | Short Domicile 24/25 | short | 35.00 | https://... | ... | TRUE | FALSE |
+| id | name | type | price_eur | image1 | … | image10 | size_guide_url | active | soldout |
+|----|------|------|-----------|--------|---|---------|----------------|--------|---------|
+| maillot-domicile | Maillot Domicile 24/25 | maillot | 55.00 | https://... | … | | https://... | TRUE | FALSE |
+| short-domicile | Short Domicile 24/25 | short | 35.00 | https://... | … | | | TRUE | FALSE |
 
 ---
 
@@ -160,10 +157,18 @@ Sheet name: `Orders` (managed by Apps Script)
 | D | customer_email | Email address |
 | E | customer_phone | Phone number |
 | F | items | JSON array of items |
-| G | total_eur | Order total |
+| G | total_eur | Order total (includes delivery if Point Relais) |
 | H | payment_status | `pending` or `paid` |
 | I | stripe_session_id | Stripe payment reference |
-| J | notes | Customer notes |
+| J | delivery_method | `hand` or `relay` |
+| K | delivery_cost_eur | 0 or 5.99 |
+| L | relay_point_id | Mondial Relay point ID (e.g. FR-066974) |
+| M | relay_point_name | Point name |
+| N | relay_point_address | Full address line |
+| O | relay_point_postcode | Postcode |
+| P | relay_point_city | City |
+| Q | relay_point_country | Country code |
+| R | notes | Customer notes |
 
 ---
 
@@ -209,33 +214,43 @@ For order management, you need a Google Apps Script web app.
 
 ### 2. Web App Configuration
 
+Ensure the Orders sheet has a header row with columns A–R (order_id through notes). The API sends `data.delivery`, `data.delivery_cost_eur`, and `data.total_eur` (subtotal + delivery).
+
 ```javascript
 // Code.gs
 function doPost(e) {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Orders');
   const data = JSON.parse(e.postData.contents);
-  
+
   if (data.action === 'create_order') {
-    // Create new order
+    const d = data.data;
+    const delivery = d.delivery || {};
     const orderId = Utilities.getUuid();
     sheet.appendRow([
       orderId,
-      data.data.created_at,
-      data.data.customer.name,
-      data.data.customer.email,
-      data.data.customer.phone,
-      JSON.stringify(data.data.items),
-      data.data.total_eur,
+      d.created_at,
+      d.customer.name,
+      d.customer.email,
+      d.customer.phone,
+      JSON.stringify(d.items),
+      d.total_eur,
       'pending',
       '',
-      data.data.notes
+      delivery.method || 'hand',
+      d.delivery_cost_eur != null ? d.delivery_cost_eur : 0,
+      delivery.relay_point_id || '',
+      delivery.relay_point_name || '',
+      delivery.relay_point_address || '',
+      delivery.relay_point_postcode || '',
+      delivery.relay_point_city || '',
+      delivery.relay_point_country || '',
+      d.notes || ''
     ]);
     return ContentService.createTextOutput(JSON.stringify({ order_id: orderId }))
       .setMimeType(ContentService.MimeType.JSON);
   }
-  
+
   if (data.action === 'update_status') {
-    // Update order status
     const orders = sheet.getDataRange().getValues();
     for (let i = 1; i < orders.length; i++) {
       if (orders[i][0] === data.data.order_id) {

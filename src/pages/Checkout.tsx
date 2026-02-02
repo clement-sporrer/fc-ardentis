@@ -1,5 +1,5 @@
-import { useMemo } from "react";
 import { useCart } from "@/contexts/CartContext";
+import { useOrderTotal } from "@/hooks/useOrderTotal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate, Link } from "react-router-dom";
@@ -10,17 +10,10 @@ import { seoCheckout } from "@/seo/seo.config";
 
 export default function Checkout() {
   const { state, dispatch } = useCart();
+  const { subtotal, deliveryCost, total } = useOrderTotal();
   const navigate = useNavigate();
 
   const items = Array.isArray(state.items) ? state.items : [];
-
-  const total = useMemo(() => {
-    return items.reduce((sum, it: any) => {
-      const price = toNumberSafe(it?.price_eur, 0);
-      const qty = Math.max(1, toNumberSafe(it?.quantity, 1));
-      return sum + price * qty;
-    }, 0);
-  }, [items]);
 
   const removeLine = (lineItemId: string) => {
     if (!lineItemId) return;
@@ -89,7 +82,7 @@ export default function Checkout() {
           </h1>
           
           <p className="text-white/70 font-sport animate-rise-up" style={{ animationDelay: "200ms" }}>
-            {items.length} article{items.length > 1 ? "s" : ""} • Total: {toNumberSafe(total, 0).toFixed(2)}€
+            {items.length} article{items.length > 1 ? "s" : ""} • Total: {total.toFixed(2)}€
           </p>
         </div>
       </section>
@@ -158,17 +151,37 @@ export default function Checkout() {
           {/* Summary */}
           <Card className="premium-card mt-8">
             <CardContent className="p-6">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div>
-                  <p className="font-display font-bold text-2xl text-foreground">
-                    Total: {toNumberSafe(total, 0).toFixed(2)}€
-                  </p>
-                  <p className="text-sm text-muted-foreground font-sport mt-1">
-                    Livraison sous 2 mois • Retrait en main propre
-                  </p>
+              <div className="space-y-3 mb-4">
+                <div className="flex justify-between text-sm font-sport">
+                  <span className="text-muted-foreground">Sous-total</span>
+                  <span>{subtotal.toFixed(2)} €</span>
                 </div>
-                <Button 
-                  onClick={goToDetails} 
+                <div className="flex justify-between text-sm font-sport">
+                  <span className="text-muted-foreground">Livraison</span>
+                  <span>
+                    {state.delivery
+                      ? state.delivery.method === "relay"
+                        ? "5,99 €"
+                        : "0 €"
+                      : "À choisir à l'étape suivante"}
+                  </span>
+                </div>
+                <div className="flex justify-between font-display font-bold text-lg pt-2 border-t border-border">
+                  <span>Total</span>
+                  <span className="text-primary">{total.toFixed(2)} €</span>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p className="text-sm text-muted-foreground font-sport">
+                  Livraison sous 2 mois
+                  {state.delivery?.method === "relay"
+                    ? " • Point Relais"
+                    : state.delivery?.method === "hand"
+                      ? " • Retrait en main propre"
+                      : ""}
+                </p>
+                <Button
+                  onClick={goToDetails}
                   variant="magenta"
                   size="xl"
                   className="w-full sm:w-auto rounded-full font-display"

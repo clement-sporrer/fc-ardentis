@@ -151,6 +151,23 @@ function validateCustomer(c: any) {
   return null;
 }
 
+const RELAY_DELIVERY_COST_EUR = 5.99;
+
+function validateDelivery(d: any): string | null {
+  if (!d || typeof d !== "object") return "Missing delivery";
+  const method = d.method;
+  if (method !== "hand" && method !== "relay") return "Invalid delivery method";
+  if (method === "relay") {
+    const rp = d.relay_point;
+    if (!rp || typeof rp !== "object") return "Missing relay point information";
+    const id = String(rp.id ?? "").trim();
+    const name = String(rp.name ?? "").trim();
+    if (!id || !name) return "Missing relay point information";
+    if (!/^[A-Z]{2}-\d{6}$/.test(id)) return "Invalid relay point ID format";
+  }
+  return null;
+}
+
 // --- Handler ---
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
@@ -169,11 +186,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { customer, items } = req.body || {};
+    const { customer, items, delivery } = req.body || {};
 
     // 0) Validation payload
     const customerErr = validateCustomer(customer);
     if (customerErr) return res.status(400).json({ error: customerErr });
+
+    const deliveryErr = validateDelivery(delivery);
+    if (deliveryErr) return res.status(400).json({ error: deliveryErr });
 
     if (!Array.isArray(items) || !items.length) {
       return res.status(400).json({ error: "Cart empty" });
@@ -204,22 +224,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       };
     });
 
-    const total_eur = sanitized.reduce((s, it) => s + it.price_eur * it.quantity, 0);
+    const subtotal_eur = sanitized.reduce((s, it) => s + it.price_eur * it.quantity, 0);
+    const deliveryCost_eur = delivery?.method === "relay" ? RELAY_DELIVERY_COST_EUR : 0;
+    const total_eur = Math.round((subtotal_eur + deliveryCost_eur) * 100) / 100;
 
     // 3) Créer la commande "pending" dans Google Sheet (Apps Script)
     const sheetUrl = process.env.SHEET_ORDERS_WEBAPP_URL as string;
     if (!sheetUrl) return res.status(500).json({ error: "Missing SHEET_ORDERS_WEBAPP_URL" });
 
+    const rp = delivery?.relay_point;
     const orderPayload = {
-      // modèle aligné sur l'Apps Script
       customer: {
         name: `${String(customer.first_name).trim()} ${String(customer.last_name).trim()}`.trim(),
         email: String(customer.email).trim(),
         phone: String(customer.phone || "").trim(),
-        address: "", // pas collecté pour l'instant
+        address: "",
       },
       notes: String(customer.note || "").trim(),
       items: sanitized,
+      delivery: {
+        method: delivery.method,
+        relay_point_id: rp?.id ?? "",
+        relay_point_name: rp?.name ?? "",
+        relay_point_address: rp
+          ? `${String(rp.address1 ?? "").trim()} ${String(rp.address2 ?? "").trim()}`.trim()
+          : "",
+        relay_point_postcode: rp?.postcode ?? "",
+        relay_point_city: rp?.city ?? "",
+        relay_point_country: rp?.country ?? "",
+      },
+      delivery_cost_eur: deliveryCost_eur,
       total_eur,
       created_at: new Date().toISOString(),
     };
@@ -319,6 +353,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         },
       };
     });
+
+    if (delivery?.method === "relay") {
+      line_items.push({
+        quantity: 1,
+        price_data: {
+          currency: "eur",
+          unit_amount: 599, // 5.99 €
+          product_data: {
+            name: "Livraison Point Relais",
+            description: rp
+              ? `${String(rp.name).slice(0, 80)} - ${String(rp.city)}`
+              : "Mondial Relay / Inpost",
+          },
+        },
+      });
+    }
 
     const baseUrl = pickBaseUrl(req);
     const session = await getStripe().checkout.sessions.create({

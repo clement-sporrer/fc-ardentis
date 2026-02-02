@@ -153,6 +153,13 @@ PRODUCTS_CSV_URL=                   # Products catalog (same as VITE_)
 SHEET_ORDERS_WEBAPP_URL=            # Apps Script Web App URL
 ```
 
+### Optional – Livraison Point Relais
+
+```env
+# Mondial Relay widget (choix du point relais par le client)
+VITE_MONDIAL_RELAY_BRAND=BDTEST     # Code test ; remplacer en production
+```
+
 See [docs/deployment.md](docs/deployment.md) for complete variable reference.
 
 ---
@@ -221,6 +228,17 @@ vercel --prod
 ```
 
 See [docs/deployment.md](docs/deployment.md) for detailed deployment guide.
+
+---
+
+## Livraison
+
+Deux modes de livraison sont proposés au checkout :
+
+- **Remise en main propre** – 0 € (retrait au club)
+- **Point Relais** – 5,99 € (Points Relais® / Lockers Mondial Relay ou Inpost)
+
+Le client choisit son mode de livraison sur la page « Finaliser la commande ». S’il choisit Point Relais, un widget Mondial Relay s’affiche pour sélectionner un point par code postal. Les envois sont gérés manuellement par le club (pas d’intégration étiquettes Mondial Relay). Voir [docs/data-sources.md](docs/data-sources.md) pour les colonnes livraison dans la feuille Orders.
 
 ---
 
