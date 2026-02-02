@@ -148,7 +148,7 @@ export default function CheckoutDetails() {
           </h1>
           
           <p className="text-white/70 font-sport animate-rise-up" style={{ animationDelay: "200ms" }}>
-            Livraison sous 2 mois
+            Retrait en main propre ou livraison en point relais sous 60 jours
             {state.delivery?.method === "relay"
               ? " • Point Relais"
               : state.delivery?.method === "hand"

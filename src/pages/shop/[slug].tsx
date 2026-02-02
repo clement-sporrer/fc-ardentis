@@ -396,7 +396,7 @@ export default function ProductPage() {
                 <div className="p-4 rounded-xl bg-muted/50 border border-border/50">
                   <p className="text-sm font-sport text-muted-foreground">
                     <Package className="h-4 w-4 inline mr-2" />
-                    Livraison sous 2 mois • Retrait en main propre
+                    Retrait en main propre ou livraison en point relais sous 60 jours
                   </p>
                 </div>
 

@@ -64,7 +64,7 @@ export default function CheckoutSuccess() {
             style={{ animationDelay: "300ms" }}
           >
             Tu recevras un reçu de Stripe par email. Le club te contactera pour la remise 
-            (sous 2 mois, retrait au club).
+            (sous 60 jours, retrait au club ou livraison en point relais).
           </p>
 
           {/* CTAs */}

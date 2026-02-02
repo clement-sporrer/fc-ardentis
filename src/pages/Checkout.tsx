@@ -173,7 +173,7 @@ export default function Checkout() {
               </div>
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <p className="text-sm text-muted-foreground font-sport">
-                  Livraison sous 2 mois
+                  Retrait en main propre ou livraison en point relais sous 60 jours
                   {state.delivery?.method === "relay"
                     ? " • Point Relais"
                     : state.delivery?.method === "hand"
