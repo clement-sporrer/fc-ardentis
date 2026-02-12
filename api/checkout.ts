@@ -1,7 +1,7 @@
 // api/checkout.ts
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import Stripe from "stripe";
-import { checkRateLimit } from "./rate-limit";
+import { checkRateLimit } from "./rate-limit.js";
 
 // Lazy Stripe init after env checks
 let stripeSingleton: Stripe | null = null;
@@ -182,6 +182,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       error: "Too many requests",
       message: "Vous avez effectué trop de requêtes. Veuillez réessayer dans quelques instants.",
       retryAfter: Math.ceil((rateLimit.resetAt - Date.now()) / 1000),
+    });
+  }
+
+  // Check required env vars early for better error messages
+  const missingEnvVars: string[] = [];
+  if (!process.env.STRIPE_SECRET_KEY) missingEnvVars.push("STRIPE_SECRET_KEY");
+  if (!process.env.PRODUCTS_CSV_URL) missingEnvVars.push("PRODUCTS_CSV_URL");
+  if (!process.env.SHEET_ORDERS_WEBAPP_URL) missingEnvVars.push("SHEET_ORDERS_WEBAPP_URL");
+  
+  if (missingEnvVars.length > 0) {
+    console.error("Checkout: Missing environment variables:", missingEnvVars.join(", "));
+    return res.status(500).json({ 
+      error: "Configuration error",
+      message: "Le serveur n'est pas correctement configuré. Veuillez contacter l'administrateur.",
+      debug: process.env.NODE_ENV === "development" ? `Missing: ${missingEnvVars.join(", ")}` : undefined,
     });
   }
 

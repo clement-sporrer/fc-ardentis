@@ -162,7 +162,7 @@ Sheet name: `Orders` (managed by Apps Script)
 | I | stripe_session_id | Stripe payment reference |
 | J | delivery_method | `hand` or `relay` |
 | K | delivery_cost_eur | 0 or 5.99 |
-| L | relay_point_id | Mondial Relay point ID (e.g. FR-066974) |
+| L | <relay_point_id> | Mondial Relay point ID (e.g. FR-066974) |
 | M | relay_point_name | Point name |
 | N | relay_point_address | Full address line |
 | O | relay_point_postcode | Postcode |

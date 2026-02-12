@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Seo } from "@/seo/Seo";
 import { seoVideos } from "@/seo/seo.config";
@@ -400,6 +400,9 @@ const Videos = () => {
         <DialogContent className="max-w-5xl p-0 gap-0 overflow-hidden">
           <DialogHeader className="px-6 pt-4 pb-2">
             <DialogTitle className="font-display font-bold text-lg pr-8">{selectedVideo?.title}</DialogTitle>
+            <DialogDescription className="sr-only">
+              Lecteur vidéo YouTube embarqué.
+            </DialogDescription>
             {selectedVideo && (
               <p className="text-muted-foreground font-sport text-sm mt-1">{formatDate(selectedVideo.publishedAt)}</p>
             )}

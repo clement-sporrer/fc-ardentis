@@ -14,7 +14,7 @@ import {
   Minus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { parseCSVLine, stripBOM } from "@/lib/utils";
@@ -653,6 +653,9 @@ const Calendrier = () => {
             <DialogTitle className="font-display font-bold text-xl text-foreground">
               {selectedEvent && formatLongDate(selectedEvent.date)}
             </DialogTitle>
+            <DialogDescription className="sr-only">
+              Détails des événements de cette date.
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 mt-2">

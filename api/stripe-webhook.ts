@@ -1,7 +1,7 @@
 // api/stripe-webhook.ts
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import Stripe from "stripe";
-import { checkRateLimit } from "./rate-limit";
+import { checkRateLimit } from "./rate-limit.js";
 
 export const config = { api: { bodyParser: false } };
 

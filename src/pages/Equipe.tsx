@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Users, Star, Trophy, Target, Filter, ArrowUpDown } from "lucide-react";
@@ -477,6 +477,9 @@ const Equipe = () => {
                 </>
               )}
             </DialogTitle>
+            <DialogDescription className="sr-only">
+              Fiche détaillée du joueur.
+            </DialogDescription>
           </DialogHeader>
 
           {selected && (

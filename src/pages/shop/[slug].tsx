@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCart } from "@/contexts/CartContext";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ShoppingBag, Check, Ruler, Package, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { toNumberSafe, stripBOM, parseCSVLine, detectCSVDelimiter } from "@/lib/utils";
@@ -426,6 +426,9 @@ export default function ProductPage() {
         <DialogContent className="max-w-3xl bg-card">
           <DialogHeader>
             <DialogTitle className="font-display">Guide des tailles</DialogTitle>
+            <DialogDescription className="sr-only">
+              Consultez le guide des tailles pour choisir la bonne taille.
+            </DialogDescription>
           </DialogHeader>
           <div className="max-h-[70vh] overflow-auto flex justify-center">
             {product.size_guide_url ? (
@@ -452,6 +455,9 @@ export default function ProductPage() {
               <Check className="h-5 w-5 text-green-500" />
               Ajouté au panier
             </DialogTitle>
+            <DialogDescription className="sr-only">
+              L'article a été ajouté à votre panier avec succès.
+            </DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <p className="font-sport">
