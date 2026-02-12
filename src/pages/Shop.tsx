@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
 import { toNumberSafe, buildCSVUrl, parseCSVLine, stripBOM, detectCSVDelimiter } from "@/lib/utils";
-import { AlertCircle, ShoppingBag, Sparkles } from "lucide-react";
+import { AlertCircle, ShoppingBag, Sparkles, ArrowRight } from "lucide-react";
 import { logger } from "@/lib/logger";
 import { Seo } from "@/seo/Seo";
 import { seoShop } from "@/seo/seo.config";
+import { motion } from "framer-motion";
 
 type ProductType = "maillot" | "short" | "charte";
 
@@ -35,18 +35,37 @@ const PRODUCTS_CSV_URL = import.meta.env.VITE_SHEET_PRODUCTS_CSV_URL || "";
 
 function ProductCardSkeleton() {
   return (
-    <Card className="premium-card overflow-hidden">
-      <CardContent className="p-4 sm:p-5 space-y-4">
-        <Skeleton className="w-full aspect-square rounded-2xl" />
-        <div className="space-y-2">
-          <Skeleton className="h-6 w-3/4" />
-          <Skeleton className="h-5 w-1/4" />
-        </div>
-        <Skeleton className="h-12 w-full rounded-xl" />
-      </CardContent>
-    </Card>
+    <div className="group">
+      <Skeleton className="w-full aspect-[2/3] rounded-2xl mb-4" />
+      <div className="space-y-2">
+        <Skeleton className="h-5 w-3/4" />
+        <Skeleton className="h-6 w-1/3" />
+      </div>
+    </div>
   );
 }
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.25, 0.46, 0.45, 0.94],
+    },
+  },
+};
 
 export default function Shop() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -67,17 +86,16 @@ export default function Shop() {
           return;
         }
 
-      // Fetch avec gestion explicite des redirections et cache
-      const res = await fetch(url, { 
-        redirect: 'follow',
-        cache: 'no-store',
-        credentials: 'omit'
-      });
-      
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-      }
-      
+        const res = await fetch(url, { 
+          redirect: 'follow',
+          cache: 'no-store',
+          credentials: 'omit'
+        });
+        
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
+        
         const raw = stripBOM(await res.text());
         if (!raw || raw.trim().length === 0) {
           throw new Error("Réponse vide du serveur");
@@ -129,66 +147,53 @@ export default function Shop() {
     fetchProducts();
   }, []);
 
-  // IntersectionObserver pour révéler les produits au scroll
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("revealed");
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
-    );
-
-    document.querySelectorAll(".reveal-on-scroll").forEach((el) => observer.observe(el));
-
-    return () => observer.disconnect();
-  }, [products]); // Déclencher après le chargement des produits
-
   const handleImageLoad = (id: string) => {
     setImageLoaded((prev) => ({ ...prev, [id]: true }));
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       <Seo {...seoShop()} />
-      {/* Hero Section */}
-      <section data-hero="true" className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
+      
+      {/* Hero Section - Minimal & Clean */}
+      <section data-hero="true" className="relative pt-32 sm:pt-40 pb-16 sm:pb-24 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-magenta/15 via-transparent to-transparent" />
-        <div className="absolute top-1/4 right-1/4 w-80 h-80 bg-magenta/10 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-magenta/10 via-transparent to-transparent" />
         
-        <div className="container max-w-5xl mx-auto px-4 sm:px-6 relative z-10 text-center pt-24 sm:pt-28 pb-16 sm:pb-20">
-          <div className="flex items-center justify-center gap-4 mb-6 animate-rise-up">
-            <span className="h-px w-12 bg-gradient-to-r from-transparent to-magenta" />
-            <ShoppingBag className="h-8 w-8 text-magenta" />
-            <span className="h-px w-12 bg-gradient-to-l from-transparent to-magenta" />
-          </div>
-          
-          <h1 className="font-display font-bold text-white leading-tight mb-4 animate-rise-up" style={{ animationDelay: "100ms" }}>
-            <span className="block text-display-sm sm:text-display-md md:text-display-lg">Notre</span>
-            <span className="block text-display-sm sm:text-display-md md:text-display-lg text-gradient-magenta">Boutique</span>
-          </h1>
-          
-          <p className="text-lg sm:text-xl text-white/70 font-sport max-w-2xl mx-auto animate-rise-up" style={{ animationDelay: "200ms" }}>
-            Maillots et shorts officiels du FC Ardentis
-          </p>
+        <div className="container max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="max-w-3xl"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-magenta/10 border border-magenta/20 text-magenta text-sm font-medium">
+                <Sparkles className="h-4 w-4" />
+                Collection 2025
+              </span>
+            </div>
+            
+            <h1 className="font-display font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white leading-[1.1] tracking-tight mb-6">
+              Équipement
+              <br />
+              <span className="text-gradient-magenta">Officiel</span>
+            </h1>
+            
+            <p className="text-lg sm:text-xl text-white/60 font-sport max-w-xl leading-relaxed">
+              Maillots et shorts du FC Ardentis. Personnalisez votre tenue avec flocage et numéro.
+            </p>
+          </motion.div>
         </div>
       </section>
 
       {/* Products Section */}
-      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-gradient-section">
-        <div className="container max-w-6xl mx-auto">
-          <p className="text-muted-foreground font-sport mb-10 max-w-3xl">
-            Découvrez la boutique officielle du <span className="font-semibold text-foreground">FC Ardentis</span> :
-            maillots et shorts du club, avec personnalisation (taille, flocage, numéro) avant paiement sécurisé via Stripe.
-          </p>
+      <section className="py-16 sm:py-24 px-4 sm:px-6">
+        <div className="container max-w-7xl mx-auto">
           {/* Loading State */}
           {loading && (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-              {[1, 2, 3].map((i) => (
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+              {[1, 2, 3, 4].map((i) => (
                 <ProductCardSkeleton key={i} />
               ))}
             </div>
@@ -196,116 +201,158 @@ export default function Shop() {
 
           {/* Error State */}
           {!loading && errorMsg && (
-            <div className="text-center py-20">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center py-20"
+            >
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10 mb-6">
                 <AlertCircle className="h-10 w-10 text-destructive" />
               </div>
-              <p className="text-destructive font-sport text-lg mb-4">{errorMsg}</p>
+              <p className="text-destructive font-sport text-lg mb-6">{errorMsg}</p>
               <Button
                 onClick={() => window.location.reload()}
                 variant="outline"
-                className="rounded-xl"
+                className="rounded-full px-8"
               >
                 Réessayer
               </Button>
-            </div>
+            </motion.div>
           )}
 
           {/* Empty State */}
           {!loading && !errorMsg && products.length === 0 && (
-            <div className="text-center py-20">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-20"
+            >
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-muted mb-6">
                 <ShoppingBag className="h-10 w-10 text-muted-foreground" />
               </div>
               <p className="text-muted-foreground font-sport text-lg">
                 Aucun produit disponible pour le moment
               </p>
-            </div>
+            </motion.div>
           )}
 
           {/* Products Grid */}
           {!loading && !errorMsg && products.length > 0 && (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-              {products.map((product, index) => (
-                <Card
+            <motion.div 
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8"
+            >
+              {products.map((product) => (
+                <motion.div
                   key={product.id}
-                  className="premium-card overflow-hidden group reveal-on-scroll"
-                  style={{ transitionDelay: `${index * 100}ms` }}
+                  variants={itemVariants}
+                  className="group"
                   onMouseEnter={() => setHoveredProduct(product.id)}
                   onMouseLeave={() => setHoveredProduct(null)}
                 >
-                  <CardContent className="p-4 sm:p-5 flex flex-col h-full">
-                    {/* Product Image */}
-                    <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-muted/30 mb-4">
+                  <Link 
+                    to={product.soldout ? "#" : `/shop/${encodeURIComponent(product.id)}`}
+                    className={`block ${product.soldout ? "cursor-not-allowed" : ""}`}
+                    onClick={(e) => product.soldout && e.preventDefault()}
+                  >
+                    {/* Image Container - 2:3 Aspect Ratio */}
+                    <div className="relative aspect-[2/3] rounded-2xl overflow-hidden bg-muted/30 mb-4">
+                      {/* Skeleton while loading */}
                       {!imageLoaded[product.id] && (
-                        <Skeleton className="absolute inset-0 rounded-2xl" />
+                        <div className="absolute inset-0 bg-muted animate-pulse" />
                       )}
+                      
+                      {/* Main Image */}
                       <img
-                        src={hoveredProduct === product.id && product.image2 ? product.image2 : product.image1}
+                        src={product.image1}
                         alt={product.name}
                         loading="lazy"
                         onLoad={() => handleImageLoad(product.id)}
-                        className={`w-full h-full object-cover transition-all duration-500 ${
-                          product.soldout ? "opacity-50 grayscale" : "group-hover:scale-110"
-                        } ${imageLoaded[product.id] ? "opacity-100" : "opacity-0"}`}
+                        className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out ${
+                          product.soldout ? "opacity-40 grayscale" : ""
+                        } ${imageLoaded[product.id] ? "opacity-100" : "opacity-0"} ${
+                          hoveredProduct === product.id && product.image2 ? "opacity-0" : ""
+                        }`}
                       />
                       
+                      {/* Hover Image */}
+                      {product.image2 && (
+                        <img
+                          src={product.image2}
+                          alt={product.name}
+                          loading="lazy"
+                          className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out ${
+                            hoveredProduct === product.id ? "opacity-100 scale-105" : "opacity-0 scale-100"
+                          }`}
+                        />
+                      )}
+
                       {/* Badges */}
-                      <div className="absolute top-3 right-3 flex flex-col gap-2">
+                      <div className="absolute top-3 left-3 flex flex-col gap-2">
                         {product.soldout ? (
-                          <span className="bg-destructive text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                            Rupture
+                          <span className="bg-black/80 backdrop-blur-sm text-white text-[10px] sm:text-xs font-medium px-2.5 py-1 rounded-full">
+                            Épuisé
                           </span>
                         ) : (
-                          <span className="bg-magenta text-magenta-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1">
+                          <span className="bg-white/90 backdrop-blur-sm text-black text-[10px] sm:text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1">
                             <Sparkles className="h-3 w-3" />
                             Officiel
                           </span>
                         )}
                       </div>
 
-                      {/* Hover overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-6">
-                        <span className="text-white font-sport text-sm flex items-center gap-2">
-                          Voir le produit
-                        </span>
-                      </div>
+                      {/* Quick View on Hover */}
+                      {!product.soldout && (
+                        <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out">
+                          <div className="bg-white text-black rounded-full py-3 px-4 text-center text-sm font-medium flex items-center justify-center gap-2 shadow-xl">
+                            Voir le produit
+                            <ArrowRight className="h-4 w-4" />
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Product Info */}
-                    <div className="flex-1 mb-4">
-                      <h3 className="font-display font-bold text-lg sm:text-xl text-foreground line-clamp-2 mb-2">
+                    <div className="space-y-1">
+                      <h3 className="font-display font-semibold text-sm sm:text-base text-foreground line-clamp-2 group-hover:text-primary transition-colors">
                         {product.name}
                       </h3>
-                      <p className="text-2xl font-display font-bold text-primary">
-                        {toNumberSafe(product.price_eur, 0).toFixed(2)}€
+                      <p className="font-display font-bold text-lg sm:text-xl text-foreground">
+                        {toNumberSafe(product.price_eur, 0).toFixed(2)} €
                       </p>
                     </div>
-
-                    {/* CTA Button */}
-                    <Button
-                      asChild={!product.soldout}
-                      variant={product.soldout ? "outline" : "magenta"}
-                      disabled={product.soldout}
-                      className={`w-full rounded-xl text-base py-3 ${
-                        product.soldout ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
-                    >
-                      {product.soldout ? (
-                        <span>Rupture de stock</span>
-                      ) : (
-                        <Link to={`/shop/${encodeURIComponent(product.id)}`}>
-                          Voir le produit
-                        </Link>
-                      )}
-                    </Button>
-                  </CardContent>
-                </Card>
+                  </Link>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           )}
         </div>
       </section>
+
+      {/* Bottom CTA Section */}
+      {!loading && !errorMsg && products.length > 0 && (
+        <section className="py-16 sm:py-24 px-4 sm:px-6 bg-muted/30">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="container max-w-4xl mx-auto text-center"
+          >
+            <h2 className="font-display font-bold text-2xl sm:text-3xl text-foreground mb-4">
+              Besoin d'aide pour choisir ?
+            </h2>
+            <p className="text-muted-foreground font-sport mb-8 max-w-xl mx-auto">
+              Consultez notre guide des tailles sur chaque page produit ou contactez-nous pour des conseils personnalisés.
+            </p>
+            <Button asChild variant="outline" className="rounded-full px-8">
+              <Link to="/contacts">Nous contacter</Link>
+            </Button>
+          </motion.div>
+        </section>
+      )}
     </div>
   );
 }

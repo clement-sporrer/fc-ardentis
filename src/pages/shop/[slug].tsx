@@ -1,17 +1,17 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCart } from "@/contexts/CartContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ShoppingBag, Check, Ruler, Package, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { ShoppingBag, Check, Ruler, Package, AlertCircle, ChevronLeft, ChevronRight, ArrowLeft, Minus, Plus, Truck } from "lucide-react";
 import { toNumberSafe, stripBOM, parseCSVLine, detectCSVDelimiter } from "@/lib/utils";
 import { logger } from "@/lib/logger";
 import { Seo } from "@/seo/Seo";
 import { seoProduct } from "@/seo/seo.config";
+import { motion, AnimatePresence } from "framer-motion";
 
 type ProductType = "maillot" | "short";
 
@@ -62,10 +62,12 @@ export default function ProductPage() {
   const [size, setSize] = useState("");
   const [number, setNumber] = useState("");
   const [flocage, setFlocage] = useState("");
+  const [quantity, setQuantity] = useState(1);
 
   const [openAdded, setOpenAdded] = useState(false);
   const [openGuide, setOpenGuide] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [imageDirection, setImageDirection] = useState(0);
 
   useEffect(() => {
     async function fetchProduct() {
@@ -77,10 +79,6 @@ export default function ProductPage() {
           cache: 'no-store',
           credentials: 'omit'
         });
-        
-        if (res.redirected) {
-          logger.log('✅ Request redirected to:', res.url);
-        }
         
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}: ${res.statusText}`);
@@ -136,19 +134,21 @@ export default function ProductPage() {
     if (!product) return;
     if (!size) return alert("Choisis ta taille !");
 
-    dispatch({
-      type: "ADD_ITEM",
-      payload: {
-        id: product.id,
-        name: product.name,
-        price_eur: toNumberSafe(product.price_eur, 0),
-        quantity: 1,
-        image_url: product.image1,
-        size,
-        number,
-        flocage,
-      },
-    });
+    for (let i = 0; i < quantity; i++) {
+      dispatch({
+        type: "ADD_ITEM",
+        payload: {
+          id: product.id,
+          name: product.name,
+          price_eur: toNumberSafe(product.price_eur, 0),
+          quantity: 1,
+          image_url: product.image1,
+          size,
+          number,
+          flocage,
+        },
+      });
+    }
 
     setOpenAdded(true);
   };
@@ -168,275 +168,373 @@ export default function ProductPage() {
       ].filter(Boolean)
     : [];
 
+  const nextImage = () => {
+    setImageDirection(1);
+    setSelectedImage((i) => (i >= images.length - 1 ? 0 : i + 1));
+  };
+
+  const prevImage = () => {
+    setImageDirection(-1);
+    setSelectedImage((i) => (i <= 0 ? images.length - 1 : i - 1));
+  };
+
+  // Loading State
   if (loading) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-background">
         <Seo {...seoProduct({ id: safeSlug, name: "Produit" })} />
-        <section data-hero="true" className="relative pt-24 sm:pt-28 pb-12 sm:pb-16 overflow-hidden bg-gradient-hero">
-          <div className="container max-w-6xl mx-auto px-4 relative z-10">
-            <Skeleton className="h-8 w-48 mx-auto bg-white/10" />
-          </div>
-        </section>
-        <section className="py-12 px-4 sm:px-6 bg-gradient-section">
-          <div className="container max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
-            <Skeleton className="aspect-square rounded-2xl" />
-            <div className="space-y-4">
+        <div className="container max-w-7xl mx-auto px-4 sm:px-6 pt-24 sm:pt-32 pb-16">
+          <Skeleton className="h-6 w-32 mb-8" />
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
+            <Skeleton className="aspect-[2/3] rounded-3xl" />
+            <div className="space-y-6 py-8">
               <Skeleton className="h-10 w-3/4" />
               <Skeleton className="h-8 w-1/4" />
               <Skeleton className="h-12 w-full" />
               <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-14 w-full" />
             </div>
           </div>
-        </section>
+        </div>
       </div>
     );
   }
 
+  // Error State
   if (errorMsg) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-background">
         <Seo {...seoProduct({ id: safeSlug, name: "Produit" })} />
-        <section data-hero="true" className="relative min-h-[50vh] flex items-center justify-center overflow-hidden bg-gradient-hero">
-          <div className="container max-w-2xl mx-auto px-4 text-center relative z-10 pt-16">
-            <AlertCircle className="h-16 w-16 text-destructive mx-auto mb-4" />
-            <h1 className="font-display font-bold text-2xl text-white mb-4">{errorMsg}</h1>
-            <Button asChild variant="magenta" className="rounded-full">
-              <Link to="/shop">Retour à la boutique</Link>
+        <div className="container max-w-2xl mx-auto px-4 text-center pt-32 pb-16">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4 }}
+          >
+            <AlertCircle className="h-16 w-16 text-destructive mx-auto mb-6" />
+            <h1 className="font-display font-bold text-2xl text-foreground mb-4">{errorMsg}</h1>
+            <Button asChild variant="outline" className="rounded-full px-8">
+              <Link to="/shop">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Retour à la boutique
+              </Link>
             </Button>
-          </div>
-        </section>
+          </motion.div>
+        </div>
       </div>
     );
   }
 
+  // Not Found State
   if (!product) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-background">
         <Seo {...seoProduct({ id: safeSlug, name: "Produit" })} />
-        <section data-hero="true" className="relative min-h-[50vh] flex items-center justify-center overflow-hidden bg-gradient-hero">
-          <div className="container max-w-2xl mx-auto px-4 text-center relative z-10 pt-16">
-            <Package className="h-16 w-16 text-white/50 mx-auto mb-4" />
-            <h1 className="font-display font-bold text-2xl text-white mb-4">Produit introuvable</h1>
-            <Button asChild variant="magenta" className="rounded-full">
-              <Link to="/shop">Retour à la boutique</Link>
+        <div className="container max-w-2xl mx-auto px-4 text-center pt-32 pb-16">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4 }}
+          >
+            <Package className="h-16 w-16 text-muted-foreground mx-auto mb-6" />
+            <h1 className="font-display font-bold text-2xl text-foreground mb-4">Produit introuvable</h1>
+            <Button asChild variant="outline" className="rounded-full px-8">
+              <Link to="/shop">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Retour à la boutique
+              </Link>
             </Button>
-          </div>
-        </section>
+          </motion.div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       <Seo {...seoProduct({ id: product.id, name: product.name, price_eur: product.price_eur, image1: product.image1, soldout: product.soldout })} />
-      {/* Hero Section */}
-      <section data-hero="true" className="relative pt-24 sm:pt-28 pb-8 sm:pb-12 overflow-hidden bg-gradient-hero">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
-        
-        <div className="container max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
+      
+      <div className="container max-w-7xl mx-auto px-4 sm:px-6 pt-24 sm:pt-32 pb-16 sm:pb-24">
+        {/* Back Link */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4 }}
+        >
           <Link 
             to="/shop" 
-            className="inline-flex items-center gap-2 text-white/70 hover:text-white font-sport text-sm transition-colors mb-4"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground font-sport text-sm transition-colors mb-8 group"
           >
+            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
             Retour à la boutique
           </Link>
-          <h1 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl text-white">
-            {product.name}
-          </h1>
-        </div>
-      </section>
+        </motion.div>
 
-      {/* Product Content */}
-      <section className="py-12 px-4 sm:px-6 bg-gradient-section">
-        <div className="container max-w-5xl mx-auto grid md:grid-cols-2 gap-8 lg:gap-12">
-          {/* Gallery */}
-          <div className="space-y-4">
-            {/* Main Image + Arrows */}
-            <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted/30 group">
-              <img
-                key={selectedImage}
-                src={images[selectedImage] || images[0]}
-                alt={product.name}
-                loading="eager"
-                className="w-full h-full object-cover"
-              />
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
+          {/* Gallery Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="space-y-4"
+          >
+            {/* Main Image - 2:3 Aspect Ratio */}
+            <div className="relative aspect-[2/3] rounded-3xl overflow-hidden bg-muted/30 group">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.img
+                  key={selectedImage}
+                  src={images[selectedImage] || images[0]}
+                  alt={product.name}
+                  initial={{ opacity: 0, x: imageDirection * 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: imageDirection * -50 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full h-full object-cover"
+                />
+              </AnimatePresence>
+
+              {/* Navigation Arrows */}
               {images.length > 1 && (
                 <>
                   <button
                     type="button"
-                    onClick={() => setSelectedImage((i) => (i <= 0 ? images.length - 1 : i - 1))}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-background/90 hover:bg-background shadow-lg border border-border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary"
+                    onClick={prevImage}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 focus:opacity-100 focus:outline-none"
                     aria-label="Image précédente"
                   >
-                    <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
+                    <ChevronLeft className="h-6 w-6 text-black" />
                   </button>
                   <button
                     type="button"
-                    onClick={() => setSelectedImage((i) => (i >= images.length - 1 ? 0 : i + 1))}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-background/90 hover:bg-background shadow-lg border border-border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary"
+                    onClick={nextImage}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 focus:opacity-100 focus:outline-none"
                     aria-label="Image suivante"
                   >
-                    <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />
+                    <ChevronRight className="h-6 w-6 text-black" />
                   </button>
-                  <span className="absolute bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-full bg-background/90 text-xs font-sport text-muted-foreground">
-                    {selectedImage + 1} / {images.length}
-                  </span>
+
+                  {/* Image Counter */}
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
+                    {images.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => {
+                          setImageDirection(i > selectedImage ? 1 : -1);
+                          setSelectedImage(i);
+                        }}
+                        className={`h-2 rounded-full transition-all duration-300 ${
+                          selectedImage === i 
+                            ? "w-8 bg-white" 
+                            : "w-2 bg-white/50 hover:bg-white/70"
+                        }`}
+                        aria-label={`Image ${i + 1}`}
+                      />
+                    ))}
+                  </div>
                 </>
+              )}
+
+              {/* Soldout Overlay */}
+              {product.soldout && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                  <span className="bg-white text-black font-display font-bold text-lg px-6 py-3 rounded-full">
+                    Épuisé
+                  </span>
+                </div>
               )}
             </div>
 
-            {/* Thumbnails (scrollable) */}
+            {/* Thumbnails */}
             {images.length > 1 && (
-              <div className="overflow-x-auto pb-1 -mx-1 px-1">
-                <div className="flex gap-3 min-w-0" style={{ minHeight: "80px" }}>
-                  {images.map((img, i) => (
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                {images.map((img, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => {
+                      setImageDirection(i > selectedImage ? 1 : -1);
+                      setSelectedImage(i);
+                    }}
+                    className={`shrink-0 w-20 h-28 rounded-xl overflow-hidden transition-all duration-300 ${
+                      selectedImage === i
+                        ? "ring-2 ring-foreground ring-offset-2 ring-offset-background"
+                        : "opacity-60 hover:opacity-100"
+                    }`}
+                  >
+                    <img src={img} alt={`${product.name} ${i + 1}`} loading="lazy" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </motion.div>
+
+          {/* Product Details */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="lg:py-8"
+          >
+            <div className="sticky top-28 space-y-8">
+              {/* Title & Price */}
+              <div>
+                <h1 className="font-display font-bold text-3xl sm:text-4xl lg:text-5xl text-foreground leading-tight mb-4">
+                  {product.name}
+                </h1>
+                <p className="font-display font-bold text-2xl sm:text-3xl text-foreground">
+                  {Number(toNumberSafe(product.price_eur, 0)).toFixed(2)} €
+                </p>
+              </div>
+
+              {/* Size Selection */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="font-sport font-medium text-foreground">Taille</label>
+                  <button
+                    type="button"
+                    onClick={() => setOpenGuide(true)}
+                    className="text-muted-foreground text-sm font-sport hover:text-foreground transition-colors flex items-center gap-1.5 underline underline-offset-4"
+                  >
+                    <Ruler className="h-4 w-4" />
+                    Guide des tailles
+                  </button>
+                </div>
+                <p className="text-xs text-amber-600 dark:text-amber-400 font-sport">⚠️ Nos articles taillent petit, prenez une taille au-dessus</p>
+                <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                  {SIZES.map((s) => (
                     <button
-                      key={i}
+                      key={s}
                       type="button"
-                      onClick={() => setSelectedImage(i)}
-                      className={`shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
-                        selectedImage === i
-                          ? "border-primary shadow-lg scale-105"
-                          : "border-transparent hover:border-primary/50"
+                      onClick={() => setSize(s)}
+                      className={`py-3 px-2 rounded-xl font-sport text-sm transition-all duration-200 ${
+                        size === s
+                          ? "bg-foreground text-background ring-2 ring-foreground ring-offset-2 ring-offset-background"
+                          : "bg-muted hover:bg-muted/80 text-foreground"
                       }`}
                     >
-                      <img src={img} alt={`${product.name} ${i + 1}`} loading="lazy" className="w-full h-full object-cover" />
+                      {s}
                     </button>
                   ))}
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* Product Details */}
-          <div>
-            <Card className="premium-card">
-              <CardContent className="p-6 sm:p-8 space-y-6">
-                {/* Price */}
-                <div className="flex items-center justify-between">
-                  <p className="font-display font-bold text-3xl text-primary">
-                    {Number(toNumberSafe(product.price_eur, 0)).toFixed(2)}€
-                  </p>
-                  {product.soldout && (
-                    <span className="px-3 py-1 rounded-full bg-destructive/10 text-destructive text-sm font-bold">
-                      Rupture
-                    </span>
-                  )}
-                </div>
-
-                {/* Size */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="font-sport text-sm text-muted-foreground">Taille *</label>
-                    <button
-                      type="button"
-                      onClick={() => setOpenGuide(true)}
-                      className="text-primary text-sm font-sport hover:underline flex items-center gap-1"
-                    >
-                      <Ruler className="h-4 w-4" />
-                      Guide des tailles
-                    </button>
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-2">⚠️ Ça taille petit</p>
-                  <Select onValueChange={setSize}>
-                    <SelectTrigger className="w-full rounded-xl">
-                      <SelectValue placeholder="Choisir une taille" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {SIZES.map((t) => (
-                        <SelectItem key={t} value={t}>{t}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Custom Fields */}
-                {product.type === "maillot" && (
-                  <>
-                    <div>
-                      <label className="font-sport text-sm text-muted-foreground mb-2 block">
-                        Numéro de maillot (optionnel)
-                      </label>
-                      <Input
-                        placeholder="Ex: 10"
-                        value={number}
-                        onChange={(e) => setNumber(e.target.value)}
-                        className="rounded-xl"
-                      />
-                    </div>
-                    <div>
-                      <label className="font-sport text-sm text-muted-foreground mb-2 block">
-                        Nom flocage (optionnel)
-                      </label>
-                      <Input
-                        placeholder="Ex: MBAPPÉ"
-                        value={flocage}
-                        onChange={(e) => setFlocage(e.target.value)}
-                        className="rounded-xl"
-                      />
-                    </div>
-                  </>
-                )}
-
-                {product.type === "short" && (
-                  <div>
-                    <label className="font-sport text-sm text-muted-foreground mb-2 block">
-                      Numéro (optionnel)
+              {/* Custom Fields */}
+              {product.type === "maillot" && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="font-sport font-medium text-foreground block">
+                      Numéro de maillot <span className="text-muted-foreground font-normal">(optionnel)</span>
                     </label>
                     <Input
-                      placeholder="Ex: 7"
+                      placeholder="Ex: 10"
                       value={number}
                       onChange={(e) => setNumber(e.target.value)}
-                      className="rounded-xl"
+                      className="rounded-xl h-12 text-base"
                     />
                   </div>
-                )}
-
-                {/* Delivery Info */}
-                <div className="p-4 rounded-xl bg-muted/50 border border-border/50">
-                  <p className="text-sm font-sport text-muted-foreground">
-                    <Package className="h-4 w-4 inline mr-2" />
-                    Retrait en main propre ou livraison en point relais sous 60 jours
-                  </p>
+                  <div className="space-y-2">
+                    <label className="font-sport font-medium text-foreground block">
+                      Flocage <span className="text-muted-foreground font-normal">(optionnel)</span>
+                    </label>
+                    <Input
+                      placeholder="Ex: MBAPPÉ"
+                      value={flocage}
+                      onChange={(e) => setFlocage(e.target.value)}
+                      className="rounded-xl h-12 text-base"
+                    />
+                  </div>
                 </div>
+              )}
 
-                {/* Add to Cart */}
-                <Button
-                  onClick={handleAddToCart}
-                  disabled={product.soldout || !size}
-                  variant="magenta"
-                  size="xl"
-                  className="w-full rounded-xl font-display"
-                >
-                  {product.soldout ? "Rupture de stock" : (
-                    <>
-                      <ShoppingBag className="h-5 w-5 mr-2" />
-                      Ajouter au panier
-                    </>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+              {product.type === "short" && (
+                <div className="space-y-2">
+                  <label className="font-sport font-medium text-foreground block">
+                    Numéro <span className="text-muted-foreground font-normal">(optionnel)</span>
+                  </label>
+                  <Input
+                    placeholder="Ex: 7"
+                    value={number}
+                    onChange={(e) => setNumber(e.target.value)}
+                    className="rounded-xl h-12 text-base"
+                  />
+                </div>
+              )}
+
+              {/* Quantity */}
+              <div className="space-y-2">
+                <label className="font-sport font-medium text-foreground block">Quantité</label>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center rounded-xl border border-border overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                      className="h-12 w-12 flex items-center justify-center hover:bg-muted transition-colors"
+                      aria-label="Diminuer la quantité"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                    <span className="h-12 w-12 flex items-center justify-center font-display font-bold text-lg border-x border-border">
+                      {quantity}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setQuantity((q) => q + 1)}
+                      className="h-12 w-12 flex items-center justify-center hover:bg-muted transition-colors"
+                      aria-label="Augmenter la quantité"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Add to Cart Button */}
+              <Button
+                onClick={handleAddToCart}
+                disabled={product.soldout || !size}
+                variant="magenta"
+                size="xl"
+                className="w-full rounded-xl h-14 text-lg font-display"
+              >
+                {product.soldout ? (
+                  "Épuisé"
+                ) : (
+                  <>
+                    <ShoppingBag className="h-5 w-5 mr-2" />
+                    Ajouter au panier — {(Number(toNumberSafe(product.price_eur, 0)) * quantity).toFixed(2)} €
+                  </>
+                )}
+              </Button>
+
+              {/* Delivery Info */}
+              <div className="flex items-start gap-4 p-4 rounded-2xl bg-muted/50">
+                <Truck className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+                <div className="text-sm font-sport text-muted-foreground">
+                  <p className="font-medium text-foreground mb-1">Livraison</p>
+                  <p>Retrait en main propre ou livraison en point relais sous 60 jours après la commande.</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
-      </section>
+      </div>
 
       {/* Size Guide Modal */}
       <Dialog open={openGuide} onOpenChange={setOpenGuide}>
-        <DialogContent className="max-w-3xl bg-card">
+        <DialogContent className="max-w-3xl bg-background border-border">
           <DialogHeader>
-            <DialogTitle className="font-display">Guide des tailles</DialogTitle>
-            <DialogDescription className="sr-only">
-              Consultez le guide des tailles pour choisir la bonne taille.
+            <DialogTitle className="font-display text-xl">Guide des tailles</DialogTitle>
+            <DialogDescription className="text-muted-foreground font-sport">
+              Consultez le guide pour choisir la bonne taille. Nos articles taillent petit.
             </DialogDescription>
           </DialogHeader>
-          <div className="max-h-[70vh] overflow-auto flex justify-center">
+          <div className="max-h-[70vh] overflow-auto flex justify-center py-4">
             {product.size_guide_url ? (
               <img
                 src={product.size_guide_url}
                 alt="Guide des tailles"
                 loading="lazy"
-                className="max-w-full h-auto rounded-lg"
+                className="max-w-full h-auto rounded-xl"
               />
             ) : (
               <p className="text-sm text-muted-foreground py-8">
@@ -449,41 +547,51 @@ export default function ProductPage() {
 
       {/* Added to Cart Modal */}
       <Dialog open={openAdded} onOpenChange={setOpenAdded}>
-        <DialogContent className="bg-card">
+        <DialogContent className="bg-background border-border sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="font-display flex items-center gap-2">
-              <Check className="h-5 w-5 text-green-500" />
+            <div className="mx-auto w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mb-4">
+              <Check className="h-8 w-8 text-green-500" />
+            </div>
+            <DialogTitle className="font-display text-xl text-center">
               Ajouté au panier
             </DialogTitle>
-            <DialogDescription className="sr-only">
-              L'article a été ajouté à votre panier avec succès.
+            <DialogDescription className="text-center font-sport">
+              {quantity > 1 ? `${quantity}x ` : ""}<span className="font-medium text-foreground">{product.name}</span> a été ajouté à votre panier.
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
-            <p className="font-sport">
-              <b>{product.name}</b> a été ajouté à votre panier.
-            </p>
-            <p className="text-sm text-muted-foreground font-sport mt-2">
-              Taille: {size}
-              {number && <> • N°{number}</>}
-              {product.type === "maillot" && flocage && <> • {flocage}</>}
-            </p>
+          <div className="py-4 space-y-2">
+            <div className="flex items-center justify-between py-2 text-sm font-sport">
+              <span className="text-muted-foreground">Taille</span>
+              <span className="font-medium">{size}</span>
+            </div>
+            {number && (
+              <div className="flex items-center justify-between py-2 text-sm font-sport">
+                <span className="text-muted-foreground">Numéro</span>
+                <span className="font-medium">{number}</span>
+              </div>
+            )}
+            {product.type === "maillot" && flocage && (
+              <div className="flex items-center justify-between py-2 text-sm font-sport">
+                <span className="text-muted-foreground">Flocage</span>
+                <span className="font-medium">{flocage}</span>
+              </div>
+            )}
           </div>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button 
-              variant="outline" 
-              className="rounded-full"
-              onClick={() => { setOpenAdded(false); navigate("/shop"); }}
-            >
-              Continuer mes achats
-            </Button>
+          <DialogFooter className="flex-col gap-3 sm:flex-col">
             <Button 
               variant="magenta"
-              className="rounded-full"
+              className="w-full rounded-xl h-12"
               onClick={() => { setOpenAdded(false); navigate("/checkout"); }}
             >
               <ShoppingBag className="h-4 w-4 mr-2" />
               Voir mon panier
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full rounded-xl h-12"
+              onClick={() => { setOpenAdded(false); navigate("/shop"); }}
+            >
+              Continuer mes achats
             </Button>
           </DialogFooter>
         </DialogContent>
