@@ -251,10 +251,10 @@ export default function ProductPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <Seo {...seoProduct({ id: product.id, name: product.name, price_eur: product.price_eur, image1: product.image1, soldout: product.soldout })} />
       
-      <div className="container max-w-7xl mx-auto pt-24 sm:pt-32 pb-16 sm:pb-24">
+      <div className="container max-w-7xl mx-auto pt-24 sm:pt-32 pb-16 sm:pb-24 min-w-0">
         {/* Back Link */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -270,13 +270,13 @@ export default function ProductPage() {
           </Link>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 min-w-0">
           {/* Gallery Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="space-y-4 flex flex-col items-center lg:items-start"
+            className="space-y-4 flex flex-col items-center lg:items-start min-w-0"
           >
             {/* Main Image - Responsive Aspect Ratio */}
             <div className="relative w-full max-w-md lg:max-w-none aspect-[4/5] lg:aspect-[2/3] max-h-[60vh] lg:max-h-none rounded-3xl overflow-hidden bg-muted/30 group">
@@ -373,7 +373,7 @@ export default function ProductPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="lg:py-8 flex flex-col items-center lg:items-start"
+            className="lg:py-8 flex flex-col items-center lg:items-start min-w-0"
           >
             <div className="sticky top-28 space-y-8 w-full max-w-md lg:max-w-none">
               {/* Title & Price */}

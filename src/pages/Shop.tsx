@@ -152,7 +152,7 @@ export default function Shop() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <Seo {...seoShop()} />
       
       {/* Hero Section - Minimal & Clean */}
@@ -188,11 +188,11 @@ export default function Shop() {
       </section>
 
       {/* Products Section */}
-      <section className="py-16 sm:py-24">
-        <div className="container max-w-7xl mx-auto">
+      <section className="py-16 sm:py-24 overflow-x-hidden">
+        <div className="container max-w-7xl mx-auto min-w-0">
           {/* Loading State */}
           {loading && (
-            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 min-w-0">
               {[1, 2, 3, 4].map((i) => (
                 <ProductCardSkeleton key={i} />
               ))}
@@ -242,13 +242,13 @@ export default function Shop() {
               variants={containerVariants}
               initial="hidden"
               animate="visible"
-              className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8"
+              className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 min-w-0"
             >
               {products.map((product) => (
                 <motion.div
                   key={product.id}
                   variants={itemVariants}
-                  className="group"
+                  className="group min-w-0"
                   onMouseEnter={() => setHoveredProduct(product.id)}
                   onMouseLeave={() => setHoveredProduct(null)}
                 >

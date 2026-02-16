@@ -338,7 +338,7 @@ const Calendrier = () => {
     });
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
       <Seo {...seoCalendrier()} />
       {/* Hero Section */}
       <section data-hero="true" className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
@@ -372,9 +372,9 @@ const Calendrier = () => {
             entraînements à <span className="font-semibold text-foreground">Colombes</span>, lieux et horaires.
             Idéal pour organiser votre semaine et suivre les résultats.
           </p>
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid lg:grid-cols-3 gap-8 min-w-0">
             {/* Calendar Grid */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 min-w-0">
               {loading ? (
                 <Card className="premium-card">
                   <CardContent className="p-6">
@@ -398,8 +398,8 @@ const Calendrier = () => {
                   </CardContent>
                 </Card>
               ) : (
-                <Card className="premium-card overflow-hidden">
-                  <CardContent className="p-4 sm:p-6">
+                <Card className="premium-card overflow-hidden min-w-0">
+                  <CardContent className="p-4 sm:p-6 min-w-0">
                     {/* Header */}
                     <div className="flex items-center justify-between mb-6">
                       <Button
@@ -486,10 +486,10 @@ const Calendrier = () => {
             </div>
 
             {/* Right Column */}
-            <div className="space-y-6">
+            <div className="space-y-6 min-w-0">
               {/* Upcoming Matches */}
-              <Card className="premium-card">
-                <CardContent className="p-5 sm:p-6">
+              <Card className="premium-card min-w-0">
+                <CardContent className="p-5 sm:p-6 min-w-0">
                   <h3 className="font-display font-bold text-lg sm:text-xl text-foreground mb-4 flex items-center gap-2">
                     <Trophy className="h-5 w-5 text-primary" />
                     Matchs à venir
@@ -498,15 +498,15 @@ const Calendrier = () => {
                     {upcomingMatches.slice(0, 5).map((e, i) => (
                       <div
                         key={`up-${i}`}
-                        className="p-4 rounded-xl bg-gradient-to-r from-primary/5 to-accent/5 border border-primary/10 hover:border-primary/30 transition-all"
+                        className="p-4 rounded-xl bg-gradient-to-r from-primary/5 to-accent/5 border border-primary/10 hover:border-primary/30 transition-all min-w-0"
                       >
-                        <div className="flex items-center justify-center gap-3">
+                        <div className="flex items-center justify-center gap-2 sm:gap-3 min-w-0">
                           {e.home_logo && (
                             <img src={e.home_logo} alt="" loading="lazy" className="h-6 w-6 object-contain flex-shrink-0" />
                           )}
-                          <span className="font-display font-bold text-sm">{e.team_home || "Domicile"}</span>
-                          <span className="text-muted-foreground text-xs font-medium">VS</span>
-                          <span className="font-display font-bold text-sm">{e.team_away || "Extérieur"}</span>
+                          <span className="font-display font-bold text-sm truncate min-w-0">{e.team_home || "Domicile"}</span>
+                          <span className="text-muted-foreground text-xs font-medium flex-shrink-0">VS</span>
+                          <span className="font-display font-bold text-sm truncate min-w-0">{e.team_away || "Extérieur"}</span>
                           {e.away_logo && (
                             <img src={e.away_logo} alt="" loading="lazy" className="h-6 w-6 object-contain flex-shrink-0" />
                           )}
@@ -524,8 +524,8 @@ const Calendrier = () => {
               </Card>
 
               {/* Past Matches */}
-              <Card className="premium-card">
-                <CardContent className="p-5 sm:p-6">
+              <Card className="premium-card min-w-0">
+                <CardContent className="p-5 sm:p-6 min-w-0">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-display font-bold text-lg sm:text-xl text-foreground flex items-center gap-2">
                       <Star className="h-5 w-5 text-magenta" />
@@ -579,8 +579,8 @@ const Calendrier = () => {
 
           {/* Standings */}
           {GOOGLE_SHEET_STANDINGS_CSV_URL && (
-            <div className="mt-12">
-              <Card className="premium-card overflow-hidden">
+            <div className="mt-12 min-w-0">
+              <Card className="premium-card overflow-hidden min-w-0">
                 <CardContent className="p-6 sm:p-8">
                   <h3 className="font-display font-bold text-xl sm:text-2xl text-foreground mb-6 flex items-center gap-3">
                     <Trophy className="h-6 w-6 text-magenta" />
