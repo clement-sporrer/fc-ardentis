@@ -19,7 +19,7 @@ export default function CheckoutFailed() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-red-500/20 via-transparent to-transparent" />
         <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-red-500/10 rounded-full blur-3xl" />
 
-        <div className="container max-w-2xl mx-auto px-4 sm:px-6 relative z-10 text-center pt-16">
+        <div className="container max-w-2xl mx-auto relative z-10 text-center pt-16">
           {/* Icon */}
           <div className="mb-8 animate-rise-up">
             <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-red-500/20 backdrop-blur-sm border border-red-500/30">

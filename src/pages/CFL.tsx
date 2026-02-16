@@ -15,7 +15,7 @@ export default function CFL() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-magenta/15 via-transparent to-transparent" />
         <div className="absolute bottom-1/4 left-1/4 w-72 h-72 bg-primary/15 rounded-full blur-3xl" />
 
-        <div className="container max-w-5xl mx-auto px-4 sm:px-6 relative z-10 text-center pt-24 sm:pt-28 pb-16 sm:pb-20">
+        <div className="container max-w-5xl mx-auto relative z-10 text-center pt-24 sm:pt-28 pb-16 sm:pb-20">
           <div className="flex items-center justify-center gap-4 mb-6 animate-rise-up">
             <span className="h-px w-12 bg-gradient-to-r from-transparent to-magenta" />
             <Trophy className="h-8 w-8 text-magenta" />
@@ -35,7 +35,7 @@ export default function CFL() {
       </section>
 
       {/* Content */}
-      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-gradient-section">
+      <section className="py-12 sm:py-20 bg-gradient-section">
         <div className="container max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
             {/* Main content */}

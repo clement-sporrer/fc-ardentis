@@ -36,7 +36,7 @@ const PRODUCTS_CSV_URL = import.meta.env.VITE_SHEET_PRODUCTS_CSV_URL || "";
 function ProductCardSkeleton() {
   return (
     <div className="group">
-      <Skeleton className="w-full aspect-[2/3] rounded-2xl mb-4" />
+      <Skeleton className="w-full aspect-[3/4] lg:aspect-[2/3] rounded-2xl mb-4" />
       <div className="space-y-2">
         <Skeleton className="h-5 w-3/4" />
         <Skeleton className="h-6 w-1/3" />
@@ -160,7 +160,7 @@ export default function Shop() {
         <div className="absolute inset-0 bg-gradient-hero" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-magenta/10 via-transparent to-transparent" />
         
-        <div className="container max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+        <div className="container max-w-7xl mx-auto relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -188,7 +188,7 @@ export default function Shop() {
       </section>
 
       {/* Products Section */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6">
+      <section className="py-16 sm:py-24">
         <div className="container max-w-7xl mx-auto">
           {/* Loading State */}
           {loading && (
@@ -257,8 +257,8 @@ export default function Shop() {
                     className={`block ${product.soldout ? "cursor-not-allowed" : ""}`}
                     onClick={(e) => product.soldout && e.preventDefault()}
                   >
-                    {/* Image Container - 2:3 Aspect Ratio */}
-                    <div className="relative aspect-[2/3] rounded-2xl overflow-hidden bg-muted/30 mb-4">
+                    {/* Image Container - Responsive Aspect Ratio */}
+                    <div className="relative aspect-[3/4] lg:aspect-[2/3] rounded-2xl overflow-hidden bg-muted/30 mb-4">
                       {/* Skeleton while loading */}
                       {!imageLoaded[product.id] && (
                         <div className="absolute inset-0 bg-muted animate-pulse" />
@@ -333,8 +333,8 @@ export default function Shop() {
 
       {/* Bottom CTA Section */}
       {!loading && !errorMsg && products.length > 0 && (
-        <section className="py-16 sm:py-24 px-4 sm:px-6 bg-muted/30">
-          <motion.div 
+        <section className="py-16 sm:py-24 bg-muted/30">
+          <motion.div  
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}

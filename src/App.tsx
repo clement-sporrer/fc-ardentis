@@ -167,9 +167,9 @@ const App = () => (
           <Sonner />
           <ScrollToTop />
           <ErrorBoundary>
-            <div className="min-h-screen flex flex-col bg-background font-sport">
+            <div className="min-h-screen flex flex-col bg-background font-sport antialiased">
               <Navigation />
-              <main className="flex-1">
+              <main className="flex-1 w-full overflow-hidden">
                 <AppRoutes />
               </main>
               <Footer />

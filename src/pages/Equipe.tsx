@@ -260,7 +260,7 @@ const Equipe = () => {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
         <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-primary/15 rounded-full blur-3xl" />
         
-        <div className="container max-w-5xl mx-auto px-4 sm:px-6 relative z-10 text-center pt-24 sm:pt-28 pb-16 sm:pb-20">
+        <div className="container max-w-5xl mx-auto relative z-10 text-center pt-24 sm:pt-28 pb-16 sm:pb-20">
           <div className="flex items-center justify-center gap-4 mb-6 animate-rise-up">
             <span className="h-px w-12 bg-gradient-to-r from-transparent to-magenta" />
             <Users className="h-8 w-8 text-magenta" />
@@ -279,7 +279,7 @@ const Equipe = () => {
       </section>
 
       {/* Players Section */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-gradient-section">
+      <section className="py-16 sm:py-24 bg-gradient-section">
         <div className="container max-w-7xl mx-auto">
           <p className="text-muted-foreground font-sport mb-10 max-w-3xl">
             Retrouvez l’effectif du <span className="font-semibold text-foreground">FC Ardentis</span>, club de football basé à

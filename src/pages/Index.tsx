@@ -81,7 +81,7 @@ const Index = () => {
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-accent/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />
         
         {/* Content */}
-        <div className="container max-w-6xl mx-auto px-4 sm:px-6 relative z-10 text-center pt-20 pb-10">
+        <div className="container max-w-6xl mx-auto relative z-10 text-center pt-20 pb-10">
           {/* Logo with glow effect */}
           <div className="relative inline-block mb-6 sm:mb-8 animate-rise-up">
             <div className="absolute inset-0 bg-magenta/30 blur-3xl rounded-full scale-150 animate-pulse-glow" />
@@ -169,7 +169,7 @@ const Index = () => {
       {/* Stats Section */}
       <section className="py-8 sm:py-12 bg-secondary relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5" />
-        <div className="container max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
+        <div className="container max-w-5xl mx-auto relative z-10">
           <div className="grid grid-cols-3 gap-4 sm:gap-8">
             {stats.map((stat, index) => (
               <div 
@@ -195,7 +195,7 @@ const Index = () => {
       {/* Presentation Section */}
       <section
         ref={presentationRef}
-        className="min-h-screen py-16 sm:py-24 px-4 sm:px-6 bg-gradient-section relative flex items-center"
+        className="min-h-screen py-16 sm:py-24 bg-gradient-section relative flex items-center"
       >
         <div className="container max-w-6xl mx-auto">
           {/* Section Title */}
@@ -270,7 +270,7 @@ const Index = () => {
       {/* Info Section */}
       <section
         ref={infoRef}
-        className="min-h-screen py-16 sm:py-24 px-4 sm:px-6 bg-gradient-hero-alt relative flex items-center overflow-hidden"
+        className="min-h-screen py-16 sm:py-24 bg-gradient-hero-alt relative flex items-center overflow-hidden"
       >
         {/* Background orbs */}
         <div className="absolute top-1/3 right-0 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
@@ -363,7 +363,7 @@ const Index = () => {
       </section>
 
       {/* Photo Gallery Section */}
-      <section ref={photoRef} className="py-16 sm:py-24 px-4 sm:px-6 bg-background">
+      <section ref={photoRef} className="py-16 sm:py-24 bg-background">
         <div className="container max-w-4xl mx-auto text-center">
           <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl text-foreground mb-4 reveal-on-scroll">
             Galerie photos
@@ -398,7 +398,7 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-gradient-hero relative overflow-hidden">
+      <section className="py-16 sm:py-24 bg-gradient-hero relative overflow-hidden">
         {/* Background effects */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-magenta/5 rounded-full blur-3xl" />

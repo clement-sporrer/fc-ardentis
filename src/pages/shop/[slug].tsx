@@ -183,7 +183,7 @@ export default function ProductPage() {
     return (
       <div className="min-h-screen bg-background">
         <Seo {...seoProduct({ id: safeSlug, name: "Produit" })} />
-        <div className="container max-w-7xl mx-auto px-4 sm:px-6 pt-24 sm:pt-32 pb-16">
+        <div className="container max-w-7xl mx-auto pt-24 sm:pt-32 pb-16">
           <Skeleton className="h-6 w-32 mb-8" />
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
             <Skeleton className="aspect-[2/3] rounded-3xl" />
@@ -205,7 +205,7 @@ export default function ProductPage() {
     return (
       <div className="min-h-screen bg-background">
         <Seo {...seoProduct({ id: safeSlug, name: "Produit" })} />
-        <div className="container max-w-2xl mx-auto px-4 text-center pt-32 pb-16">
+        <div className="container max-w-2xl mx-auto text-center pt-32 pb-16">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -230,7 +230,7 @@ export default function ProductPage() {
     return (
       <div className="min-h-screen bg-background">
         <Seo {...seoProduct({ id: safeSlug, name: "Produit" })} />
-        <div className="container max-w-2xl mx-auto px-4 text-center pt-32 pb-16">
+        <div className="container max-w-2xl mx-auto text-center pt-32 pb-16">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -254,7 +254,7 @@ export default function ProductPage() {
     <div className="min-h-screen bg-background">
       <Seo {...seoProduct({ id: product.id, name: product.name, price_eur: product.price_eur, image1: product.image1, soldout: product.soldout })} />
       
-      <div className="container max-w-7xl mx-auto px-4 sm:px-6 pt-24 sm:pt-32 pb-16 sm:pb-24">
+      <div className="container max-w-7xl mx-auto pt-24 sm:pt-32 pb-16 sm:pb-24">
         {/* Back Link */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -276,10 +276,10 @@ export default function ProductPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="space-y-4"
+            className="space-y-4 flex flex-col items-center lg:items-start"
           >
-            {/* Main Image - 2:3 Aspect Ratio */}
-            <div className="relative aspect-[2/3] rounded-3xl overflow-hidden bg-muted/30 group">
+            {/* Main Image - Responsive Aspect Ratio */}
+            <div className="relative w-full max-w-md lg:max-w-none aspect-[3/4] lg:aspect-[2/3] max-h-[70vh] lg:max-h-none rounded-3xl overflow-hidden bg-muted/30 group">
               <AnimatePresence mode="wait" initial={false}>
                 <motion.img
                   key={selectedImage}
@@ -346,7 +346,7 @@ export default function ProductPage() {
 
             {/* Thumbnails */}
             {images.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide justify-center lg:justify-start w-full max-w-md lg:max-w-none">
                 {images.map((img, i) => (
                   <button
                     key={i}
@@ -373,11 +373,11 @@ export default function ProductPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="lg:py-8"
+            className="lg:py-8 flex flex-col items-center lg:items-start"
           >
-            <div className="sticky top-28 space-y-8">
+            <div className="sticky top-28 space-y-8 w-full max-w-md lg:max-w-none">
               {/* Title & Price */}
-              <div>
+              <div className="text-center lg:text-left">
                 <h1 className="font-display font-bold text-3xl sm:text-4xl lg:text-5xl text-foreground leading-tight mb-4">
                   {product.name}
                 </h1>

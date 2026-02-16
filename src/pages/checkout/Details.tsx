@@ -115,7 +115,7 @@ export default function CheckoutDetails() {
       <div className="min-h-screen">
         <Seo {...seoCheckout("Informations de paiement | FC Ardentis", "/checkout/details")} />
         <section data-hero="true" className="relative min-h-[50vh] flex items-center justify-center overflow-hidden bg-gradient-hero">
-          <div className="container max-w-4xl mx-auto px-4 text-center relative z-10 pt-24 sm:pt-28 pb-16">
+          <div className="container max-w-4xl mx-auto text-center relative z-10 pt-24 sm:pt-28 pb-16">
             <h1 className="font-display font-bold text-3xl text-white mb-4">Aucun article</h1>
             <p className="text-white/70 font-sport mb-6">Ajoutez d'abord des produits à votre panier.</p>
             <Button asChild variant="magenta" size="xl" className="rounded-full">
@@ -136,7 +136,7 @@ export default function CheckoutDetails() {
       <section data-hero="true" className="relative pt-24 sm:pt-28 pb-12 sm:pb-16 overflow-hidden bg-gradient-hero">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
         
-        <div className="container max-w-6xl mx-auto px-4 sm:px-6 relative z-10 text-center">
+        <div className="container max-w-6xl mx-auto relative z-10 text-center">
           <div className="flex items-center justify-center gap-4 mb-4 animate-rise-up">
             <span className="h-px w-12 bg-gradient-to-r from-transparent to-magenta" />
             <CreditCard className="h-6 w-6 text-magenta" />

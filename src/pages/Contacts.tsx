@@ -38,7 +38,7 @@ const Contacts = () => {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-accent/20 via-transparent to-transparent" />
         <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-accent/15 rounded-full blur-3xl" />
         
-        <div className="container max-w-5xl mx-auto px-4 sm:px-6 relative z-10 text-center pt-24 sm:pt-28 pb-16 sm:pb-20">
+        <div className="container max-w-5xl mx-auto relative z-10 text-center pt-24 sm:pt-28 pb-16 sm:pb-20">
           <div className="flex items-center justify-center gap-4 mb-6 animate-rise-up">
             <span className="h-px w-12 bg-gradient-to-r from-transparent to-magenta" />
             <MessageCircle className="h-8 w-8 text-magenta" />
@@ -57,7 +57,7 @@ const Contacts = () => {
       </section>
 
       {/* Content */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-gradient-section">
+      <section className="py-16 sm:py-24 bg-gradient-section">
         <div className="container max-w-6xl mx-auto">
           <p className="text-muted-foreground font-sport mb-10 max-w-3xl">
             Pour un essai, une question ou un partenariat, contactez le <span className="font-semibold text-foreground">FC Ardentis</span>.

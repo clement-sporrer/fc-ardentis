@@ -125,7 +125,7 @@ export default function Navigation() {
           : "bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-sm"
       }`}
     >
-      <div className="container mx-auto flex justify-between items-center h-16 lg:h-18 px-4 sm:px-6">
+      <div className="container mx-auto flex justify-between items-center h-16 lg:h-18">
         {/* Logo */}
         <Link
           to="/"
@@ -271,7 +271,7 @@ export default function Navigation() {
         
         {/* Content */}
         <nav 
-          className="relative container mx-auto px-6 py-8 flex flex-col h-full transition-opacity duration-500 ease-out"
+          className="relative container mx-auto py-8 flex flex-col h-full transition-opacity duration-500 ease-out"
           style={{
             opacity: open ? 1 : 0,
           }}
