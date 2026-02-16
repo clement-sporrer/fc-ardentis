@@ -279,7 +279,7 @@ export default function ProductPage() {
             className="space-y-4 flex flex-col items-center lg:items-start"
           >
             {/* Main Image - Responsive Aspect Ratio */}
-            <div className="relative w-full max-w-md lg:max-w-none aspect-[3/4] lg:aspect-[2/3] max-h-[70vh] lg:max-h-none rounded-3xl overflow-hidden bg-muted/30 group">
+            <div className="relative w-full max-w-md lg:max-w-none aspect-[4/5] lg:aspect-[2/3] max-h-[60vh] lg:max-h-none rounded-3xl overflow-hidden bg-muted/30 group">
               <AnimatePresence mode="wait" initial={false}>
                 <motion.img
                   key={selectedImage}

@@ -36,7 +36,7 @@ const PRODUCTS_CSV_URL = import.meta.env.VITE_SHEET_PRODUCTS_CSV_URL || "";
 function ProductCardSkeleton() {
   return (
     <div className="group">
-      <Skeleton className="w-full aspect-[3/4] lg:aspect-[2/3] rounded-2xl mb-4" />
+      <Skeleton className="w-full aspect-[4/5] lg:aspect-[2/3] rounded-2xl mb-4" />
       <div className="space-y-2">
         <Skeleton className="h-5 w-3/4" />
         <Skeleton className="h-6 w-1/3" />
@@ -258,7 +258,7 @@ export default function Shop() {
                     onClick={(e) => product.soldout && e.preventDefault()}
                   >
                     {/* Image Container - Responsive Aspect Ratio */}
-                    <div className="relative aspect-[3/4] lg:aspect-[2/3] rounded-2xl overflow-hidden bg-muted/30 mb-4">
+                    <div className="relative aspect-[4/5] lg:aspect-[2/3] rounded-2xl overflow-hidden bg-muted/30 mb-4">
                       {/* Skeleton while loading */}
                       {!imageLoaded[product.id] && (
                         <div className="absolute inset-0 bg-muted animate-pulse" />

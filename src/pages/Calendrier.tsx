@@ -436,22 +436,22 @@ const Calendrier = () => {
                     </div>
 
                     {/* Days Header */}
-                    <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
+                    <div className="grid grid-cols-7 gap-0.5 sm:gap-1 lg:gap-2 mb-2">
                       {dayNames.map((d) => (
-                        <div key={d} className="p-2 text-center text-xs sm:text-sm font-display font-bold text-muted-foreground">
+                        <div key={d} className="p-1 sm:p-2 text-center text-xs sm:text-sm font-display font-bold text-muted-foreground">
                           {d}
                         </div>
                       ))}
                     </div>
 
                     {/* Calendar Grid */}
-                    <div className="grid grid-cols-7 gap-1 sm:gap-2">
+                    <div className="grid grid-cols-7 gap-0.5 sm:gap-1 lg:gap-2">
                       {calendarDays.map((day, idx) => (
                         <div
                           key={idx}
                           onClick={() => day.events.length > 0 && setSelectedEvent({ events: day.events, date: day.events[0].date })}
                           className={`
-                            p-1 sm:p-2 min-h-[60px] sm:min-h-[80px] rounded-xl border transition-all
+                            p-0.5 sm:p-1 lg:p-2 min-h-[40px] sm:min-h-[60px] lg:min-h-[80px] rounded-lg sm:rounded-xl border transition-all
                             ${day.isCurrentMonth ? "bg-card" : "bg-muted/30"}
                             ${day.events.length > 0 ? "cursor-pointer hover:border-primary hover:shadow-md" : "border-transparent"}
                             ${isSameDay(day.date, todayMidnight()) ? "ring-2 ring-primary ring-offset-2" : ""}
@@ -461,12 +461,12 @@ const Calendrier = () => {
                             {day.date.getDate()}
                           </div>
                           {day.events.length > 0 && (
-                            <div className="flex gap-1 mt-1 justify-center flex-wrap">
+                            <div className="flex gap-0.5 sm:gap-1 mt-0.5 sm:mt-1 justify-center flex-wrap">
                               {day.events.some((e) => e.type === "match") && (
-                                <Trophy className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
+                                <Trophy className="h-2.5 w-2.5 sm:h-3 sm:w-3 lg:h-4 lg:w-4 text-primary" />
                               )}
                               {day.events.some((e) => e.type === "entrainement") && (
-                                <Dumbbell className="h-3 w-3 sm:h-4 sm:w-4 text-accent" />
+                                <Dumbbell className="h-2.5 w-2.5 sm:h-3 sm:w-3 lg:h-4 lg:w-4 text-accent" />
                               )}
                             </div>
                           )}
@@ -596,48 +596,83 @@ const Calendrier = () => {
                   ) : standings.length === 0 ? (
                     <p className="text-center text-muted-foreground font-sport py-8">Classement non disponible</p>
                   ) : (
-                    <div className="overflow-x-auto -mx-6 px-6">
-                      <table className="w-full text-sm min-w-[600px]">
-                        <thead>
-                          <tr className="border-b-2 border-primary/20">
-                            <th className="text-left py-3 px-2 font-display font-bold text-foreground">#</th>
-                            <th className="text-left py-3 px-2 font-display font-bold text-foreground">Équipe</th>
-                            <th className="text-center py-3 px-2 font-display font-bold text-foreground">J</th>
-                            <th className="text-center py-3 px-2 font-display font-bold text-foreground">V</th>
-                            <th className="text-center py-3 px-2 font-display font-bold text-foreground">N</th>
-                            <th className="text-center py-3 px-2 font-display font-bold text-foreground">D</th>
-                            <th className="text-center py-3 px-2 font-display font-bold text-foreground">+/-</th>
-                            <th className="text-center py-3 px-2 font-display font-bold text-foreground">Pts</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {standings.map((s, idx) => (
-                            <tr 
-                              key={idx} 
-                              className={`border-b border-border/10 hover:bg-muted/50 transition-colors ${
-                                s.team.toLowerCase().includes("ardentis") ? "bg-primary/5" : ""
-                              }`}
-                            >
-                              <td className="py-3 px-2 font-display font-bold">{s.rank}</td>
-                              <td className="py-3 px-2 font-sport font-medium">
-                                <div className="flex items-center gap-2">
-                                  {s.team_logo_url && <img src={s.team_logo_url} alt="" loading="lazy" className="h-5 w-5 object-contain" />}
-                                  <span className={s.team.toLowerCase().includes("ardentis") ? "text-primary font-bold" : ""}>
-                                    {s.team}
-                                  </span>
-                                </div>
-                              </td>
-                              <td className="text-center py-3 px-2 font-sport">{s.played}</td>
-                              <td className="text-center py-3 px-2 font-sport text-green-600">{s.won}</td>
-                              <td className="text-center py-3 px-2 font-sport">{s.draw}</td>
-                              <td className="text-center py-3 px-2 font-sport text-red-500">{s.lost}</td>
-                              <td className="text-center py-3 px-2 font-sport">{s.goals_for - s.goals_against}</td>
-                              <td className="text-center py-3 px-2 font-display font-bold text-primary">{s.points}</td>
+                    <>
+                      {/* Mobile: Cards */}
+                      <div className="sm:hidden space-y-2">
+                        {standings.map((s, idx) => (
+                          <div 
+                            key={idx}
+                            className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
+                              s.team.toLowerCase().includes("ardentis") 
+                                ? "bg-primary/5 border-primary/20" 
+                                : "bg-card border-border/50"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              <span className="font-display font-bold text-lg text-foreground flex-shrink-0">{s.rank}</span>
+                              {s.team_logo_url && (
+                                <img src={s.team_logo_url} alt="" loading="lazy" className="h-6 w-6 object-contain flex-shrink-0" />
+                              )}
+                              <span className={`font-sport font-medium truncate ${
+                                s.team.toLowerCase().includes("ardentis") ? "text-primary font-bold" : "text-foreground"
+                              }`}>
+                                {s.team}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+                              <span className="text-xs sm:text-sm text-muted-foreground font-sport">
+                                {s.goals_for - s.goals_against > 0 ? "+" : ""}{s.goals_for - s.goals_against}
+                              </span>
+                              <span className="font-display font-bold text-lg text-primary">{s.points}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Desktop: Table */}
+                      <div className="hidden sm:block overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b-2 border-primary/20">
+                              <th className="text-left py-3 px-2 font-display font-bold text-foreground">#</th>
+                              <th className="text-left py-3 px-2 font-display font-bold text-foreground">Équipe</th>
+                              <th className="text-center py-3 px-2 font-display font-bold text-foreground">J</th>
+                              <th className="text-center py-3 px-2 font-display font-bold text-foreground">V</th>
+                              <th className="text-center py-3 px-2 font-display font-bold text-foreground">N</th>
+                              <th className="text-center py-3 px-2 font-display font-bold text-foreground">D</th>
+                              <th className="text-center py-3 px-2 font-display font-bold text-foreground">+/-</th>
+                              <th className="text-center py-3 px-2 font-display font-bold text-foreground">Pts</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                          </thead>
+                          <tbody>
+                            {standings.map((s, idx) => (
+                              <tr 
+                                key={idx} 
+                                className={`border-b border-border/10 hover:bg-muted/50 transition-colors ${
+                                  s.team.toLowerCase().includes("ardentis") ? "bg-primary/5" : ""
+                                }`}
+                              >
+                                <td className="py-3 px-2 font-display font-bold">{s.rank}</td>
+                                <td className="py-3 px-2 font-sport font-medium">
+                                  <div className="flex items-center gap-2">
+                                    {s.team_logo_url && <img src={s.team_logo_url} alt="" loading="lazy" className="h-5 w-5 object-contain" />}
+                                    <span className={s.team.toLowerCase().includes("ardentis") ? "text-primary font-bold" : ""}>
+                                      {s.team}
+                                    </span>
+                                  </div>
+                                </td>
+                                <td className="text-center py-3 px-2 font-sport">{s.played}</td>
+                                <td className="text-center py-3 px-2 font-sport text-green-600">{s.won}</td>
+                                <td className="text-center py-3 px-2 font-sport">{s.draw}</td>
+                                <td className="text-center py-3 px-2 font-sport text-red-500">{s.lost}</td>
+                                <td className="text-center py-3 px-2 font-sport">{s.goals_for - s.goals_against}</td>
+                                <td className="text-center py-3 px-2 font-display font-bold text-primary">{s.points}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
                   )}
                 </CardContent>
               </Card>
