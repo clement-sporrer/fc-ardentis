@@ -1,15 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { MapPin, Calendar, Users, Heart, Trophy, Handshake, Star, Zap } from "lucide-react";
-import { useEffect, useState, useRef, useMemo } from "react";
+import { MapPin, Calendar, Users, Heart, Trophy, Handshake, Star, Zap, Images, X, ChevronLeft, ChevronRight, AlertCircle } from "lucide-react";
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useTeamPlayers } from "@/hooks/useTeamPlayers";
 import { Seo } from "@/seo/Seo";
 import { seoIndex } from "@/seo/seo.config";
-
-const GOOGLE_PHOTOS_ALBUM_SHARE_URL = import.meta.env.VITE_GOOGLE_PHOTOS_ALBUM_SHARE_URL || "";
+type DrivePhoto = { id: string; name: string; thumbnailUrl: string; fullUrl: string };
 
 const Index = () => {
-  const [photosLoaded, setPhotosLoaded] = useState(false);
+  const [photos, setPhotos] = useState<DrivePhoto[]>([]);
+  const [photosLoading, setPhotosLoading] = useState(true);
+  const [photosError, setPhotosError] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const valuesRef = useRef<HTMLDivElement>(null);
   const presentationRef = useRef<HTMLDivElement>(null);
   const infoRef = useRef<HTMLDivElement>(null);
@@ -17,11 +19,42 @@ const Index = () => {
   const { count: playerCount, loading: playersLoading } = useTeamPlayers();
 
 
+  // Fetch photos from Google Drive API
   useEffect(() => {
-    if (GOOGLE_PHOTOS_ALBUM_SHARE_URL) {
-      setPhotosLoaded(true);
-    }
+    let cancelled = false;
+    const base = typeof window !== "undefined" ? window.location.origin : "";
+    fetch(`${base}/api/photos`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (!cancelled) {
+          setPhotos(Array.isArray(data?.photos) ? data.photos : []);
+          setPhotosLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) { setPhotosError(true); setPhotosLoading(false); }
+      });
+    return () => { cancelled = true; };
+  }, []);
 
+  const openLightbox = useCallback((idx: number) => setLightboxIndex(idx), []);
+  const closeLightbox = useCallback(() => setLightboxIndex(null), []);
+  const goPrevPhoto = useCallback(() => setLightboxIndex((i) => (i !== null && i > 0 ? i - 1 : i)), []);
+  const goNextPhoto = useCallback(() => setLightboxIndex((i) => (i !== null && i < photos.length - 1 ? i + 1 : i)), [photos.length]);
+
+  // Keyboard navigation for lightbox
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") goPrevPhoto();
+      else if (e.key === "ArrowRight") goNextPhoto();
+      else if (e.key === "Escape") closeLightbox();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightboxIndex, goPrevPhoto, goNextPhoto, closeLightbox]);
+
+  useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -32,10 +65,7 @@ const Index = () => {
       },
       { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
     );
-
-    // Observe all reveal elements
     document.querySelectorAll(".reveal-on-scroll").forEach((el) => observer.observe(el));
-
     return () => observer.disconnect();
   }, []);
 
@@ -88,6 +118,10 @@ const Index = () => {
             <img
               src="/assets/logo.png"
               alt="FC Ardentis Logo"
+              width="240"
+              height="240"
+              fetchPriority="high"
+              decoding="sync"
               className="relative h-32 sm:h-40 md:h-52 lg:h-60 w-auto object-contain mx-auto drop-shadow-2xl"
             />
           </div>
@@ -364,38 +398,116 @@ const Index = () => {
 
       {/* Photo Gallery Section */}
       <section ref={photoRef} className="py-16 sm:py-24 bg-background">
-        <div className="container max-w-4xl mx-auto text-center">
-          <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl text-foreground mb-4 reveal-on-scroll">
-            Galerie photos
-          </h2>
-          <p className="text-muted-foreground font-sport text-lg mb-8 reveal-on-scroll" style={{ transitionDelay: "100ms" }}>
-            Nos meilleurs moments capturés
-          </p>
-
-          {photosLoaded && GOOGLE_PHOTOS_ALBUM_SHARE_URL ? (
-            <div className="premium-card p-8 sm:p-10 reveal-on-scroll" style={{ transitionDelay: "200ms" }}>
-              <p className="text-muted-foreground font-sport mb-4">
-                Intégration Google Photos à venir
-              </p>
-              <p className="text-sm text-muted-foreground/60 font-sport">
-                Album URL configuré
-              </p>
+        <div className="container max-w-6xl mx-auto">
+          <div className="text-center mb-10 sm:mb-14">
+            <div className="flex items-center justify-center gap-4 mb-4 reveal-on-scroll">
+              <span className="h-px w-12 bg-gradient-to-r from-transparent to-primary" />
+              <Images className="h-6 w-6 text-primary" />
+              <span className="h-px w-12 bg-gradient-to-l from-transparent to-primary" />
             </div>
-          ) : (
-            <div className="premium-card p-8 sm:p-12 reveal-on-scroll" style={{ transitionDelay: "200ms" }}>
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mx-auto mb-6">
-                <Heart className="h-10 w-10 text-primary" />
-              </div>
-              <p className="text-muted-foreground font-sport mb-2 text-lg">
-                Galerie photos à venir
-              </p>
-              <p className="text-sm text-muted-foreground/60 font-sport max-w-sm mx-auto">
-                Configurez l'URL de l'album Google Photos pour afficher automatiquement vos souvenirs
-              </p>
+            <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl text-foreground mb-3 reveal-on-scroll">
+              Galerie photos
+            </h2>
+            <p className="text-muted-foreground font-sport text-lg reveal-on-scroll" style={{ transitionDelay: "100ms" }}>
+              Nos meilleurs moments capturés
+            </p>
+          </div>
+
+          {photosLoading && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="aspect-[4/3] rounded-2xl bg-muted animate-pulse" />
+              ))}
+            </div>
+          )}
+
+          {!photosLoading && photosError && (
+            <div className="premium-card p-8 text-center reveal-on-scroll max-w-md mx-auto">
+              <AlertCircle className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground font-sport">Impossible de charger la galerie.</p>
+            </div>
+          )}
+
+          {!photosLoading && !photosError && photos.length === 0 && (
+            <div className="premium-card p-10 text-center reveal-on-scroll max-w-md mx-auto">
+              <Images className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground font-sport">Aucune photo pour le moment.</p>
+            </div>
+          )}
+
+          {!photosLoading && photos.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 reveal-on-scroll" style={{ transitionDelay: "200ms" }}>
+              {photos.map((photo, idx) => (
+                <button
+                  key={photo.id}
+                  type="button"
+                  aria-label={`Voir la photo ${photo.name}`}
+                  onClick={() => openLightbox(idx)}
+                  className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                >
+                  <img
+                    src={photo.thumbnailUrl}
+                    alt={photo.name}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
+                    <Images className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 drop-shadow-lg" />
+                  </div>
+                </button>
+              ))}
             </div>
           )}
         </div>
       </section>
+
+      {/* Lightbox */}
+      {lightboxIndex !== null && photos[lightboxIndex] && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Visionneuse de photos"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+          onClick={closeLightbox}
+        >
+          <button
+            type="button"
+            aria-label="Fermer"
+            onClick={closeLightbox}
+            className="absolute top-4 right-4 z-10 rounded-full bg-white/10 hover:bg-white/20 p-2 text-white transition-colors"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          <button
+            type="button"
+            aria-label="Photo précédente"
+            onClick={(e) => { e.stopPropagation(); goPrevPhoto(); }}
+            disabled={lightboxIndex === 0}
+            className="absolute left-4 rounded-full bg-white/10 hover:bg-white/20 p-3 text-white transition-colors disabled:opacity-30"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </button>
+          <img
+            src={photos[lightboxIndex].fullUrl}
+            alt={photos[lightboxIndex].name}
+            className="max-h-[85vh] max-w-full rounded-xl object-contain shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <button
+            type="button"
+            aria-label="Photo suivante"
+            onClick={(e) => { e.stopPropagation(); goNextPhoto(); }}
+            disabled={lightboxIndex === photos.length - 1}
+            className="absolute right-4 rounded-full bg-white/10 hover:bg-white/20 p-3 text-white transition-colors disabled:opacity-30"
+          >
+            <ChevronRight className="h-6 w-6" />
+          </button>
+          <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 font-sport text-sm">
+            {lightboxIndex + 1} / {photos.length}
+          </p>
+        </div>
+      )}
 
       {/* CTA Section */}
       <section className="py-16 sm:py-24 bg-gradient-hero relative overflow-hidden">

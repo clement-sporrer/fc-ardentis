@@ -159,14 +159,42 @@ export function seoCalendrier() {
   };
 }
 
-export function seoVideos() {
+export function seoVideos(
+  videos?: Array<{
+    id: string;
+    title: string;
+    publishedAt: string;
+    thumbnail: string;
+    duration?: string;
+  }>
+) {
+  const videoJsonLd = (videos ?? []).map((v) => ({
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    name: v.title,
+    description: `${v.title} — FC Ardentis`,
+    thumbnailUrl: [v.thumbnail],
+    uploadDate: v.publishedAt,
+    embedUrl: `https://www.youtube.com/embed/${v.id}`,
+    contentUrl: `https://www.youtube.com/watch?v=${v.id}`,
+    ...(v.duration ? { duration: v.duration } : {}),
+    publisher: {
+      "@type": "Organization",
+      name: "FC Ardentis",
+      logo: { "@type": "ImageObject", url: toAbsoluteUrl(OG_IMAGE) },
+    },
+  }));
+
   return {
     title: "Vidéos — Replays et matchs en direct | FC Ardentis",
     description:
       "Regardez les replays des matchs et les directs du FC Ardentis. Club de football amateur à Colombes (92), Hauts-de-Seine.",
     canonicalPath: "/videos",
     ogImagePath: OG_IMAGE,
-    jsonLd: [breadcrumbJsonLd([{ name: "Accueil", path: "/" }, { name: "Vidéos", path: "/videos" }])],
+    jsonLd: [
+      breadcrumbJsonLd([{ name: "Accueil", path: "/" }, { name: "Vidéos", path: "/videos" }]),
+      ...videoJsonLd,
+    ],
   };
 }
 

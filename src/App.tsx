@@ -168,8 +168,14 @@ const App = () => (
           <ScrollToTop />
           <ErrorBoundary>
             <div className="min-h-screen flex flex-col bg-background font-sport antialiased">
+              <a
+                href="#main-content"
+                className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:rounded-lg focus:bg-primary focus:text-primary-foreground focus:font-sport focus:font-medium focus:shadow-lg"
+              >
+                Aller au contenu principal
+              </a>
               <Navigation />
-              <main className="flex-1 w-full overflow-hidden">
+              <main id="main-content" className="flex-1 w-full overflow-hidden">
                 <AppRoutes />
               </main>
               <Footer />
