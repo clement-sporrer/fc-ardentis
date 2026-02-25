@@ -1,10 +1,88 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Instagram, ExternalLink, Mail, MapPin, Calendar, Music, Youtube, MessageCircle } from "lucide-react";
+import { Instagram, ExternalLink, Mail, MapPin, Calendar, Music, Youtube, MessageCircle, Send, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Seo } from "@/seo/Seo";
 import { seoContacts } from "@/seo/seo.config";
+import { logger } from "@/lib/logger";
+
+const CONTACT_WEBHOOK_URL = (import.meta.env.VITE_JOIN_WEBHOOK_URL as string) || "";
+
+const inputClass =
+  "w-full rounded-xl border border-border bg-background px-4 py-3 font-sport outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all";
 
 const Contacts = () => {
+  // Form state
+  const [sujet, setSujet] = useState("");
+  const [nom, setNom] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [websiteTrap, setWebsiteTrap] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [sent, setSent] = useState<null | "ok" | "ko">(null);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const requiredOK = consent && sujet !== "" && nom.trim() !== "" && email.trim() !== "" && message.trim() !== "";
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSent(null);
+    setErrorMsg("");
+
+    if (!CONTACT_WEBHOOK_URL) {
+      setSent("ko");
+      setErrorMsg("Configuration manquante. Veuillez nous contacter directement par email.");
+      return;
+    }
+    if (websiteTrap.trim() !== "") {
+      setSent("ok");
+      return;
+    }
+    if (!requiredOK) {
+      setSent("ko");
+      setErrorMsg("Merci de compléter les champs requis.");
+      return;
+    }
+
+    const payload = {
+      type: "contact",
+      sujet,
+      nom: nom.trim(),
+      email: email.trim(),
+      message: message.trim(),
+    };
+
+    try {
+      setSubmitting(true);
+      const res = await fetch(CONTACT_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(payload),
+      });
+
+      let json: Record<string, unknown> = {};
+      try {
+        json = await res.json();
+      } catch (err) {
+        logger.warn("Failed to parse contact webhook response:", err);
+      }
+
+      if (res.ok && (json?.ok === true || json?.status === "success" || json?.result === "success")) {
+        setSent("ok");
+        setSujet(""); setNom(""); setEmail(""); setMessage(""); setConsent(false);
+      } else {
+        setSent("ko");
+        setErrorMsg((json?.error as string) || "Erreur lors de l'envoi. Réessayez dans un instant.");
+      }
+    } catch {
+      setSent("ko");
+      setErrorMsg("Impossible de contacter le serveur. Vérifiez votre connexion et réessayez.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const socialLinks = [
     {
       name: "Instagram",
@@ -95,8 +173,124 @@ const Contacts = () => {
             </div>
           </div>
 
+          {/* Contact Form */}
+          <div className="premium-card p-6 sm:p-8 mb-12">
+            <h2 className="font-display font-bold text-xl sm:text-2xl text-foreground mb-6 flex items-center gap-3">
+              <span className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                <Send className="h-5 w-5 text-white" />
+              </span>
+              Envoyer un message
+            </h2>
+
+            {sent === "ok" ? (
+              <div className="flex items-center gap-3 p-5 rounded-xl bg-green-500/10 border border-green-500/20 text-green-600">
+                <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
+                <span className="font-sport">Message envoyé ! Nous vous répondrons sous 48h.</span>
+              </div>
+            ) : (
+              <form onSubmit={onSubmit} className="space-y-4">
+                <div>
+                  <label className="font-sport text-sm text-muted-foreground mb-1.5 block">Sujet *</label>
+                  <select
+                    value={sujet}
+                    onChange={(e) => setSujet(e.target.value)}
+                    className={inputClass}
+                    required
+                  >
+                    <option value="">Sélectionnez un sujet</option>
+                    <option>Question générale</option>
+                    <option>Essai / Rejoindre le club</option>
+                    <option>Partenariat</option>
+                    <option>Autre</option>
+                  </select>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="font-sport text-sm text-muted-foreground mb-1.5 block">Nom *</label>
+                    <input
+                      type="text"
+                      value={nom}
+                      onChange={(e) => setNom(e.target.value)}
+                      className={inputClass}
+                      placeholder="Votre nom"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="font-sport text-sm text-muted-foreground mb-1.5 block">Email *</label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className={inputClass}
+                      placeholder="prenom@exemple.com"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="font-sport text-sm text-muted-foreground mb-1.5 block">Message *</label>
+                  <textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    rows={4}
+                    className={inputClass}
+                    placeholder="Votre message..."
+                    required
+                  />
+                </div>
+
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={consent}
+                    onChange={(e) => setConsent(e.target.checked)}
+                    className="accent-primary mt-1 h-5 w-5"
+                  />
+                  <span className="text-sm font-sport text-foreground/80">
+                    J'accepte que mes données soient utilisées pour traiter ma demande. *
+                  </span>
+                </label>
+
+                {/* Honeypot */}
+                <div className="hidden" aria-hidden="true">
+                  <input type="text" value={websiteTrap} onChange={(e) => setWebsiteTrap(e.target.value)} tabIndex={-1} />
+                </div>
+
+                {sent === "ko" && (
+                  <div className="flex items-center gap-3 p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive">
+                    <AlertCircle className="h-5 w-5 flex-shrink-0" />
+                    <span className="font-sport">{errorMsg}</span>
+                  </div>
+                )}
+
+                <Button
+                  type="submit"
+                  disabled={submitting || !requiredOK}
+                  variant="default"
+                  size="lg"
+                  className="rounded-xl"
+                >
+                  {submitting ? (
+                    <span className="inline-flex items-center gap-2">
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Envoi en cours…
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-2">
+                      <Send className="h-5 w-5" />
+                      Envoyer le message
+                    </span>
+                  )}
+                </Button>
+              </form>
+            )}
+          </div>
+
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
-            
+
             {/* Social Networks */}
             <div>
               <h2 className="font-display font-bold text-2xl sm:text-3xl text-foreground mb-8 flex items-center gap-3">

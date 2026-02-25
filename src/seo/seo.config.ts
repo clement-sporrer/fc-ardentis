@@ -148,14 +148,65 @@ export function seoEquipe() {
   };
 }
 
-export function seoCalendrier() {
+// Converts "DD/MM/YYYY" or ISO string + optional "HH:MM" time to ISO 8601 for schema.org
+function toSchemaDate(dateStr: string, timeStr?: string): string {
+  let d: Date;
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+    const [dd, mm, yyyy] = dateStr.split("/").map(Number);
+    d = new Date(yyyy, mm - 1, dd);
+  } else {
+    d = new Date(dateStr);
+  }
+  if (isNaN(d.getTime())) return "";
+  const y = d.getFullYear();
+  const mo = String(d.getMonth() + 1).padStart(2, "0");
+  const da = String(d.getDate()).padStart(2, "0");
+  if (timeStr && /^\d{2}:\d{2}$/.test(timeStr)) {
+    return `${y}-${mo}-${da}T${timeStr}:00`;
+  }
+  return `${y}-${mo}-${da}`;
+}
+
+export interface CalEventForSeo {
+  title: string;
+  date: string;
+  start_time?: string;
+  location?: string;
+  team_home?: string;
+  team_away?: string;
+}
+
+function eventJsonLd(ev: CalEventForSeo) {
+  const startDate = toSchemaDate(ev.date, ev.start_time);
+  if (!startDate) return null;
+  const name =
+    ev.team_home && ev.team_away
+      ? `${ev.team_home} vs ${ev.team_away}`
+      : ev.title || "Match FC Ardentis";
+  return {
+    "@context": "https://schema.org",
+    "@type": "SportsEvent",
+    name,
+    startDate,
+    ...(ev.location ? { location: { "@type": "Place", name: ev.location } } : {}),
+    ...(ev.team_home ? { homeTeam: { "@type": "SportsTeam", name: ev.team_home } } : {}),
+    ...(ev.team_away ? { awayTeam: { "@type": "SportsTeam", name: ev.team_away } } : {}),
+    organizer: { "@type": "Organization", name: "FC Ardentis", url: toAbsoluteUrl("/") },
+  };
+}
+
+export function seoCalendrier(upcomingMatches?: CalEventForSeo[]) {
+  const eventSchemas = (upcomingMatches ?? []).map(eventJsonLd).filter(Boolean);
   return {
     title: "Calendrier & résultats — Matchs FC Ardentis | CFL Paris 92",
     description:
       "Calendrier des matchs et entraînements du FC Ardentis (CFL Paris). Dates, horaires, résultats. Club foot amateur Colombes (92), Hauts-de-Seine.",
     canonicalPath: "/calendrier",
     ogImagePath: OG_IMAGE,
-    jsonLd: [breadcrumbJsonLd([{ name: "Accueil", path: "/" }, { name: "Calendrier", path: "/calendrier" }])],
+    jsonLd: [
+      breadcrumbJsonLd([{ name: "Accueil", path: "/" }, { name: "Calendrier", path: "/calendrier" }]),
+      ...eventSchemas,
+    ],
   };
 }
 

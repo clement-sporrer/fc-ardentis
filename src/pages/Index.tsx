@@ -1,22 +1,107 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { MapPin, Calendar, Users, Heart, Trophy, Handshake, Star, Zap, Images, X, ChevronLeft, ChevronRight, AlertCircle } from "lucide-react";
+import { MapPin, Calendar, Users, Heart, Trophy, Handshake, Star, Zap, Images, X, ChevronLeft, ChevronRight, AlertCircle, Clock } from "lucide-react";
 import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useTeamPlayers } from "@/hooks/useTeamPlayers";
 import { Seo } from "@/seo/Seo";
 import { seoIndex } from "@/seo/seo.config";
+import { parseCSVLine, stripBOM } from "@/lib/utils";
+
 type DrivePhoto = { id: string; name: string; thumbnailUrl: string; fullUrl: string };
+
+const EVENTS_CSV_URL = import.meta.env.VITE_GOOGLE_SHEET_EVENTS_CSV_URL || "";
+
+type MatchEvent = {
+  date: string;
+  type: "match" | "entrainement";
+  title: string;
+  start_time?: string;
+  location?: string;
+  team_home?: string;
+  team_away?: string;
+  score_home?: number;
+  score_away?: number;
+  resultat?: "V" | "N" | "D";
+};
+
+const parseEventDate = (d: string): Date => {
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(d)) {
+    const [jj, mm, aaaa] = d.split("/").map(Number);
+    return new Date(aaaa, mm - 1, jj);
+  }
+  return new Date(d);
+};
+
+const normalizeResult = (val: string): "V" | "N" | "D" | null => {
+  const v = (val || "").toLowerCase().trim();
+  if (v === "win" || v === "v" || v === "victoire") return "V";
+  if (v === "draw" || v === "n" || v === "nul" || v === "match nul") return "N";
+  if (v === "loose" || v === "lose" || v === "d" || v === "défaite" || v === "defaite") return "D";
+  return null;
+};
+
+const computeMatchResult = (e: MatchEvent): "V" | "N" | "D" | null => {
+  if (e.resultat) return e.resultat;
+  const h = typeof e.score_home === "number" ? e.score_home : NaN;
+  const a = typeof e.score_away === "number" ? e.score_away : NaN;
+  if (isNaN(h) || isNaN(a)) return null;
+  if (h > a) return "V";
+  if (h === a) return "N";
+  return "D";
+};
 
 const Index = () => {
   const [photos, setPhotos] = useState<DrivePhoto[]>([]);
   const [photosLoading, setPhotosLoading] = useState(true);
   const [photosError, setPhotosError] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [matchEvents, setMatchEvents] = useState<MatchEvent[]>([]);
   const valuesRef = useRef<HTMLDivElement>(null);
   const presentationRef = useRef<HTMLDivElement>(null);
   const infoRef = useRef<HTMLDivElement>(null);
   const photoRef = useRef<HTMLDivElement>(null);
   const { count: playerCount, loading: playersLoading } = useTeamPlayers();
+
+  // Fetch events for results/next-match widget
+  useEffect(() => {
+    if (!EVENTS_CSV_URL) return;
+    let cancelled = false;
+    fetch(`${EVENTS_CSV_URL}${EVENTS_CSV_URL.includes("?") ? "&" : "?"}_ts=${Date.now()}`, { cache: "no-store" })
+      .then((r) => r.text())
+      .then((raw) => {
+        if (cancelled) return;
+        const text = stripBOM(raw);
+        if (!text.trim()) return;
+        const lines = text.replace(/\r/g, "").split("\n").filter((l) => l.trim());
+        if (lines.length < 2) return;
+        const header = parseCSVLine(lines[0]).map((h) => h.toLowerCase());
+        const idx = (name: string) => header.indexOf(name);
+        const parsed: MatchEvent[] = [];
+        for (let i = 1; i < lines.length; i++) {
+          const cells = parseCSVLine(lines[i]);
+          const date = cells[idx("date")] || "";
+          const type = (cells[idx("type")] || "").toLowerCase() as MatchEvent["type"];
+          if (!date || (type !== "match" && type !== "entrainement")) continue;
+          const sh = cells[idx("score_home")];
+          const sa = cells[idx("score_away")];
+          parsed.push({
+            date,
+            type,
+            title: cells[idx("title")] || "",
+            start_time: cells[idx("start_time")] || "",
+            location: cells[idx("location")] || "",
+            team_home: cells[idx("team_home")] || "",
+            team_away: cells[idx("team_away")] || "",
+            score_home: sh !== "" ? Number(sh) : undefined,
+            score_away: sa !== "" ? Number(sa) : undefined,
+            resultat: normalizeResult(cells[idx("resultat")] || "") || undefined,
+          });
+        }
+        setMatchEvents(parsed);
+      })
+      .catch(() => { /* silent — widget simply won't render */ });
+    return () => { cancelled = true; };
+  }, []);
 
 
   // Fetch photos from Google Drive API
@@ -95,6 +180,26 @@ const Index = () => {
     { value: playersLoading ? "..." : String(playerCount), label: "Joueurs actifs", icon: Users },
     { value: "CFL", label: "Compétition", icon: Trophy },
   ], [playerCount, playersLoading]);
+
+  const lastResults = useMemo(() => {
+    const t0 = new Date(); t0.setHours(0, 0, 0, 0);
+    return matchEvents
+      .filter((e) => e.type === "match" && parseEventDate(e.date).getTime() < t0.getTime())
+      .sort((a, b) => parseEventDate(b.date).getTime() - parseEventDate(a.date).getTime())
+      .slice(0, 3);
+  }, [matchEvents]);
+
+  const nextMatch = useMemo(() => {
+    const t0 = new Date(); t0.setHours(0, 0, 0, 0);
+    return (
+      matchEvents
+        .filter((e) => e.type === "match" && parseEventDate(e.date).getTime() >= t0.getTime())
+        .sort((a, b) => parseEventDate(a.date).getTime() - parseEventDate(b.date).getTime())[0] || null
+    );
+  }, [matchEvents]);
+
+  const formatMatchDate = (d: string) =>
+    parseEventDate(d).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
 
   return (
     <>
@@ -507,6 +612,117 @@ const Index = () => {
             {lightboxIndex + 1} / {photos.length}
           </p>
         </div>
+      )}
+
+      {/* Results & Next Match Section */}
+      {(lastResults.length > 0 || nextMatch) && (
+        <section className="py-12 sm:py-16 bg-secondary relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5" />
+          <div className="container max-w-6xl mx-auto relative z-10">
+            <div className="flex items-center justify-between mb-8 sm:mb-10">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <Trophy className="h-4 w-4 text-magenta" />
+                  <span className="text-magenta font-sport uppercase tracking-wider text-xs font-semibold">Actualité sportive</span>
+                </div>
+                <h2 className="font-display font-bold text-2xl sm:text-3xl text-white">
+                  Résultats & agenda
+                </h2>
+              </div>
+              <Link
+                to="/calendrier"
+                className="text-sm text-white/50 hover:text-white font-sport transition-colors flex items-center gap-1 group"
+              >
+                Tout voir
+                <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+              </Link>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Last Results */}
+              {lastResults.length > 0 && (
+                <div>
+                  <h3 className="font-display font-semibold text-white/70 text-sm uppercase tracking-wider mb-3">
+                    Derniers résultats
+                  </h3>
+                  <div className="space-y-2.5">
+                    {lastResults.map((e, i) => {
+                      const res = computeMatchResult(e);
+                      return (
+                        <div
+                          key={i}
+                          className="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/5 border border-white/10"
+                        >
+                          <div className="flex items-center gap-2 text-sm font-sport text-white/90 min-w-0 flex-1">
+                            <span className="truncate">{e.team_home || "—"}</span>
+                            {e.score_home !== undefined && e.score_away !== undefined && (
+                              <span className="font-display font-bold text-base text-primary flex-shrink-0">
+                                {e.score_home} – {e.score_away}
+                              </span>
+                            )}
+                            <span className="truncate">{e.team_away || "—"}</span>
+                          </div>
+                          {res && (
+                            <span
+                              className={`ml-3 px-2.5 py-1 rounded-full text-xs font-display font-bold flex-shrink-0 ${
+                                res === "V"
+                                  ? "bg-green-500 text-white"
+                                  : res === "N"
+                                  ? "bg-gray-500 text-white"
+                                  : "bg-red-500 text-white"
+                              }`}
+                            >
+                              {res}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Next Match */}
+              <div>
+                <h3 className="font-display font-semibold text-white/70 text-sm uppercase tracking-wider mb-3">
+                  Prochain match
+                </h3>
+                {nextMatch ? (
+                  <div className="p-6 rounded-2xl bg-primary/10 border border-primary/30">
+                    <div className="flex items-center justify-center gap-3 mb-4">
+                      <span className="font-display font-bold text-white text-lg truncate">
+                        {nextMatch.team_home || "FC Ardentis"}
+                      </span>
+                      <span className="text-primary font-bold text-sm flex-shrink-0">VS</span>
+                      <span className="font-display font-bold text-white text-lg truncate">
+                        {nextMatch.team_away || "?"}
+                      </span>
+                    </div>
+                    <div className="space-y-1.5 text-center text-sm font-sport text-white/60">
+                      <p className="capitalize">{formatMatchDate(nextMatch.date)}</p>
+                      {nextMatch.start_time && (
+                        <p className="flex items-center justify-center gap-1">
+                          <Clock className="h-3.5 w-3.5" />
+                          {nextMatch.start_time}
+                        </p>
+                      )}
+                      {nextMatch.location && (
+                        <p className="flex items-center justify-center gap-1">
+                          <MapPin className="h-3.5 w-3.5" />
+                          {nextMatch.location}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-6 rounded-2xl bg-white/5 border border-white/10 text-center text-white/40 font-sport text-sm">
+                    Aucun match programmé
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
       )}
 
       {/* CTA Section */}
