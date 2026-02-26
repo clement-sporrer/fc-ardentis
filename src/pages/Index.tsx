@@ -1,15 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { MapPin, Calendar, Users, Heart, Trophy, Handshake, Star, Zap } from "lucide-react";
+import { MapPin, Calendar, Users, Heart, Trophy, Handshake, Star, Zap, ZoomIn, X } from "lucide-react";
 import { useEffect, useState, useRef, useMemo } from "react";
+import { useGallery } from "@/hooks/useGallery";
 import { useTeamPlayers } from "@/hooks/useTeamPlayers";
 import { Seo } from "@/seo/Seo";
 import { seoIndex } from "@/seo/seo.config";
 
-const GOOGLE_PHOTOS_ALBUM_SHARE_URL = import.meta.env.VITE_GOOGLE_PHOTOS_ALBUM_SHARE_URL || "";
-
 const Index = () => {
-  const [photosLoaded, setPhotosLoaded] = useState(false);
+  const [lightboxPhoto, setLightboxPhoto] = useState<{ id: string; name: string } | null>(null);
+  const { data: galleryPhotos, isLoading: galleryLoading, isError: galleryError } = useGallery();
   const valuesRef = useRef<HTMLDivElement>(null);
   const presentationRef = useRef<HTMLDivElement>(null);
   const infoRef = useRef<HTMLDivElement>(null);
@@ -18,10 +18,6 @@ const Index = () => {
 
 
   useEffect(() => {
-    if (GOOGLE_PHOTOS_ALBUM_SHARE_URL) {
-      setPhotosLoaded(true);
-    }
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -364,38 +360,91 @@ const Index = () => {
 
       {/* Photo Gallery Section */}
       <section ref={photoRef} className="py-16 sm:py-24 bg-background">
-        <div className="container max-w-4xl mx-auto text-center">
-          <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl text-foreground mb-4 reveal-on-scroll">
-            Galerie photos
-          </h2>
-          <p className="text-muted-foreground font-sport text-lg mb-8 reveal-on-scroll" style={{ transitionDelay: "100ms" }}>
-            Nos meilleurs moments capturés
-          </p>
+        <div className="container max-w-6xl mx-auto">
+          <div className="text-center mb-10 sm:mb-12">
+            <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl text-foreground mb-4 reveal-on-scroll">
+              Galerie photos
+            </h2>
+            <p className="text-muted-foreground font-sport text-lg reveal-on-scroll" style={{ transitionDelay: "100ms" }}>
+              Nos meilleurs moments capturés
+            </p>
+          </div>
 
-          {photosLoaded && GOOGLE_PHOTOS_ALBUM_SHARE_URL ? (
-            <div className="premium-card p-8 sm:p-10 reveal-on-scroll" style={{ transitionDelay: "200ms" }}>
-              <p className="text-muted-foreground font-sport mb-4">
-                Intégration Google Photos à venir
-              </p>
-              <p className="text-sm text-muted-foreground/60 font-sport">
-                Album URL configuré
+          {/* Loading skeletons */}
+          {galleryLoading && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="aspect-square rounded-xl bg-muted animate-pulse" />
+              ))}
+            </div>
+          )}
+
+          {/* Error state */}
+          {galleryError && (
+            <div className="premium-card p-8 text-center reveal-on-scroll" style={{ transitionDelay: "200ms" }}>
+              <p className="text-muted-foreground font-sport">
+                Impossible de charger la galerie pour le moment.
               </p>
             </div>
-          ) : (
-            <div className="premium-card p-8 sm:p-12 reveal-on-scroll" style={{ transitionDelay: "200ms" }}>
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mx-auto mb-6">
-                <Heart className="h-10 w-10 text-primary" />
-              </div>
-              <p className="text-muted-foreground font-sport mb-2 text-lg">
-                Galerie photos à venir
-              </p>
-              <p className="text-sm text-muted-foreground/60 font-sport max-w-sm mx-auto">
-                Configurez l'URL de l'album Google Photos pour afficher automatiquement vos souvenirs
-              </p>
+          )}
+
+          {/* Empty state */}
+          {!galleryLoading && !galleryError && galleryPhotos && galleryPhotos.length === 0 && (
+            <div className="premium-card p-8 text-center reveal-on-scroll" style={{ transitionDelay: "200ms" }}>
+              <p className="text-muted-foreground font-sport">Aucune photo disponible pour le moment.</p>
+            </div>
+          )}
+
+          {/* Photo grid */}
+          {!galleryLoading && !galleryError && galleryPhotos && galleryPhotos.length > 0 && (
+            <div
+              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 reveal-on-scroll"
+              style={{ transitionDelay: "200ms" }}
+            >
+              {galleryPhotos.map((photo) => (
+                <button
+                  key={photo.id}
+                  onClick={() => setLightboxPhoto(photo)}
+                  className="group relative aspect-square overflow-hidden rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  aria-label={`Voir ${photo.name}`}
+                >
+                  <img
+                    src={photo.thumbnailUrl}
+                    alt={photo.name}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
+                    <ZoomIn className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </div>
+                </button>
+              ))}
             </div>
           )}
         </div>
       </section>
+
+      {/* Lightbox */}
+      {lightboxPhoto && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setLightboxPhoto(null)}
+        >
+          <button
+            onClick={() => setLightboxPhoto(null)}
+            className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors"
+            aria-label="Fermer"
+          >
+            <X className="h-8 w-8" />
+          </button>
+          <img
+            src={`https://drive.google.com/thumbnail?id=${lightboxPhoto.id}&sz=w1200`}
+            alt={lightboxPhoto.name}
+            className="max-w-full max-h-full object-contain rounded-lg"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
 
       {/* CTA Section */}
       <section className="py-16 sm:py-24 bg-gradient-hero relative overflow-hidden">

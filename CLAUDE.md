@@ -93,6 +93,8 @@ Copy `.env.example` to `.env.local`. Required variables:
 | `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret (`whsec_…`) |
 | `PRODUCTS_CSV_URL` | Same products sheet, server-side copy |
 | `SHEET_ORDERS_WEBAPP_URL` | Google Apps Script URL for order logging |
+| `GOOGLE_DRIVE_API_KEY` | Google Drive API v3 key — photo gallery (`/api/gallery`) |
+| `GOOGLE_DRIVE_FOLDER_ID` | Google Drive folder ID containing the club photos |
 
 ---
 
