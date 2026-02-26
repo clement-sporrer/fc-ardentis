@@ -12,6 +12,7 @@ import {
   Check,
   X,
   Minus,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -337,9 +338,78 @@ const Calendrier = () => {
       day: "numeric",
     });
 
+  const generateIcal = () => {
+    const formatDT = (dateStr: string, timeStr?: string): string => {
+      const d = parseEventDate(dateStr);
+      if (isNaN(d.getTime())) return "";
+      const y = d.getFullYear();
+      const mo = String(d.getMonth() + 1).padStart(2, "0");
+      const da = String(d.getDate()).padStart(2, "0");
+      if (timeStr && /^\d{2}:\d{2}$/.test(timeStr)) {
+        const [hh, min] = timeStr.split(":");
+        return `${y}${mo}${da}T${hh}${min}00`;
+      }
+      return `${y}${mo}${da}`;
+    };
+
+    const esc = (s: string) =>
+      s.replace(/\\/g, "\\\\").replace(/,/g, "\\,").replace(/;/g, "\\;").replace(/\n/g, "\\n");
+
+    const vevents = events
+      .map((e, i) => {
+        const dtstart = formatDT(e.date, e.start_time);
+        if (!dtstart) return "";
+        const dtend = e.end_time ? formatDT(e.date, e.end_time) : "";
+        const isAllDay = !dtstart.includes("T");
+        const summary =
+          e.type === "match"
+            ? e.team_home && e.team_away
+              ? `${e.team_home} vs ${e.team_away}`
+              : e.title || "Match FC Ardentis"
+            : e.title || "Entraînement FC Ardentis";
+        return [
+          "BEGIN:VEVENT",
+          `UID:fc-ardentis-${e.date.replace(/\//g, "")}-${i}@fcardentis.fr`,
+          `DTSTART${isAllDay ? ";VALUE=DATE" : ""}:${dtstart}`,
+          dtend ? `DTEND${dtend.includes("T") ? "" : ";VALUE=DATE"}:${dtend}` : "",
+          `SUMMARY:${esc(summary)}`,
+          e.location ? `LOCATION:${esc(e.location)}` : "",
+          e.type === "match" ? "CATEGORIES:MATCH" : "CATEGORIES:ENTRAINEMENT",
+          "END:VEVENT",
+        ]
+          .filter(Boolean)
+          .join("\r\n");
+      })
+      .filter(Boolean);
+
+    if (vevents.length === 0) return;
+
+    const ical = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//FC Ardentis//FC Ardentis Calendar//FR",
+      "CALSCALE:GREGORIAN",
+      "METHOD:PUBLISH",
+      "X-WR-CALNAME:FC Ardentis - Calendrier",
+      "X-WR-TIMEZONE:Europe/Paris",
+      ...vevents,
+      "END:VCALENDAR",
+    ].join("\r\n");
+
+    const blob = new Blob([ical], { type: "text/calendar;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "fc-ardentis.ics";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen overflow-x-hidden">
-      <Seo {...seoCalendrier()} />
+      <Seo {...seoCalendrier(upcomingMatches.slice(0, 5))} />
       {/* Hero Section */}
       <section data-hero="true" className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero" />
@@ -367,11 +437,24 @@ const Calendrier = () => {
       {/* Calendar + Lists */}
       <section className="py-12 sm:py-20 bg-gradient-section">
         <div className="container max-w-7xl mx-auto">
-          <p className="text-muted-foreground font-sport mb-8 max-w-3xl">
-            Consultez le calendrier du <span className="font-semibold text-foreground">FC Ardentis</span> : matchs CFL,
-            entraînements à <span className="font-semibold text-foreground">Colombes</span>, lieux et horaires.
-            Idéal pour organiser votre semaine et suivre les résultats.
-          </p>
+          <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
+            <p className="text-muted-foreground font-sport max-w-2xl">
+              Consultez le calendrier du <span className="font-semibold text-foreground">FC Ardentis</span> : matchs CFL,
+              entraînements à <span className="font-semibold text-foreground">Colombes</span>, lieux et horaires.
+              Idéal pour organiser votre semaine et suivre les résultats.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={generateIcal}
+              disabled={loading || events.length === 0}
+              className="rounded-xl flex items-center gap-2 shrink-0"
+              title="Télécharger tous les événements au format iCal (compatible Google Calendar, Apple Calendar, Outlook)"
+            >
+              <Download className="h-4 w-4" />
+              Exporter .ics
+            </Button>
+          </div>
           <div className="grid lg:grid-cols-3 gap-8 min-w-0">
             {/* Calendar Grid */}
             <div className="lg:col-span-2 min-w-0">

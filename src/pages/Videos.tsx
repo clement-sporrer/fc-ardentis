@@ -186,6 +186,8 @@ const Videos = () => {
           <img
             src={video.thumbnail}
             alt=""
+            loading="lazy"
+            decoding="async"
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
           <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -225,7 +227,7 @@ const Videos = () => {
 
   return (
     <div className="min-h-screen">
-      <Seo {...seoVideos()} />
+      <Seo {...seoVideos(data?.videos)} />
       {/* Hero Section */}
       <section data-hero="true" className="relative min-h-[50vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero" />

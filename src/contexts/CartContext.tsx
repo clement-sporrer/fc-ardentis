@@ -146,6 +146,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state]);
 
+  // Cross-tab synchronization
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key !== STORAGE_KEY || e.newValue === null) return;
+      try {
+        const parsed = JSON.parse(e.newValue);
+        dispatch({ type: "HYDRATE", payload: parsed || {} });
+      } catch {
+        // ignore malformed data from other tabs
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
   return <CartContext.Provider value={{ state, dispatch }}>{children}</CartContext.Provider>;
 }
 

@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { toNumberSafe } from "@/lib/utils";
 import { Menu, X, ShoppingCart } from "lucide-react";
 
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 /**
  * Navigation with dynamic transparent/solid behavior
  * Uses Intersection Observer to detect hero sections on any page
@@ -16,6 +18,8 @@ export default function Navigation() {
   const [isOverHero, setIsOverHero] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
+  const menuRef = useRef<HTMLElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   // Detect scroll position
   useEffect(() => {
@@ -74,6 +78,37 @@ export default function Navigation() {
   useEffect(() => {
     setOpen(false);
   }, [location.pathname]);
+
+  // Focus trap for mobile menu
+  useEffect(() => {
+    if (!open) {
+      // Restore focus to the trigger button when menu closes
+      triggerRef.current?.focus();
+      return;
+    }
+    const container = menuRef.current;
+    if (!container) return;
+
+    const focusables = Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE));
+    focusables[0]?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        return;
+      }
+      if (e.key !== "Tab" || focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [open]);
 
   // Prevent scroll when mobile menu is open
   useEffect(() => {
@@ -225,10 +260,11 @@ export default function Navigation() {
 
           {/* Menu Toggle */}
           <Button
+            ref={triggerRef}
             variant={showTransparent ? "glass" : "outline"}
             size="icon"
             className={`h-12 w-12 rounded-full transition-all duration-300 ${
-              open 
+              open
                 ? "bg-primary text-primary-foreground border-primary shadow-lg"
                 : ""
             }`}
@@ -270,11 +306,10 @@ export default function Navigation() {
         />
         
         {/* Content */}
-        <nav 
+        <nav
+          ref={menuRef}
           className="relative container mx-auto py-8 flex flex-col h-full transition-opacity duration-500 ease-out"
-          style={{
-            opacity: open ? 1 : 0,
-          }}
+          style={{ opacity: open ? 1 : 0 }}
         >
           {/* Navigation Links */}
           <div className="flex-1 flex flex-col gap-2">

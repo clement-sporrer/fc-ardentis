@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { PhoneField, isValidIntlPhone } from "@/components/PhoneField";
 import { DeliverySelector } from "@/components/DeliverySelector";
-import { CreditCard, Loader2, ShieldCheck, MapPin } from "lucide-react";
+import { CreditCard, Loader2, ShieldCheck, MapPin, AlertCircle, RefreshCw } from "lucide-react";
 import { toNumberSafe } from "@/lib/utils";
 import { toast } from "@/components/ui/sonner";
 import { logger } from "@/lib/logger";
@@ -33,6 +33,7 @@ export default function CheckoutDetails() {
 
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
   const items = Array.isArray(state.items) ? state.items : [];
 
   // Validation with length limits
@@ -61,6 +62,7 @@ export default function CheckoutDetails() {
     setSubmitted(true);
     if (!canSubmit) return;
 
+    setPaymentError(null);
     setSubmitting(true);
     try {
       const payload = {
@@ -97,14 +99,13 @@ export default function CheckoutDetails() {
       }
 
       const errMsg = json?.error || "Impossible de créer la session de paiement.";
-      toast.error("Erreur de paiement", {
-        description: errMsg,
-      });
+      setPaymentError(errMsg);
+      toast.error("Erreur de paiement", { description: errMsg });
     } catch (err) {
       logger.error(err);
-      toast.error("Erreur inattendue", {
-        description: "Une erreur est survenue lors de la création du paiement. Veuillez réessayer.",
-      });
+      const errMsg = "Une erreur est survenue lors de la création du paiement. Veuillez réessayer.";
+      setPaymentError(errMsg);
+      toast.error("Erreur inattendue", { description: errMsg });
     } finally {
       setSubmitting(false);
     }
@@ -258,6 +259,23 @@ export default function CheckoutDetails() {
                   <div className="pt-8 mt-8 border-t border-border">
                     <DeliverySelector submitted={submitted} />
                   </div>
+
+                  {paymentError && (
+                    <div role="alert" className="mt-6 rounded-xl border border-destructive/30 bg-destructive/10 p-4 flex items-start gap-3">
+                      <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-sport font-medium text-destructive text-sm">{paymentError}</p>
+                        <button
+                          type="submit"
+                          className="mt-2 inline-flex items-center gap-1.5 text-sm text-primary underline underline-offset-2 font-sport hover:text-primary/80 transition-colors"
+                          onClick={() => setPaymentError(null)}
+                        >
+                          <RefreshCw className="h-3.5 w-3.5" />
+                          Réessayer
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="pt-6 flex flex-wrap gap-3">
                     <Button
